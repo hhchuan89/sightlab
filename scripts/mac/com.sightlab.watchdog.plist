@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.sightlab.watchdog</string>
+
+  <!-- ┌────────────────────────────────────────────────────────────────────┐
+       │ EDIT BEFORE LOADING:                                                 │
+       │  • Replace __SIGHTLAB_DATA_DIR__ (every occurrence) with the deployed │
+       │    watchdog's ABSOLUTE path — the SAME dir as the dispatch runner     │
+       │    (TCC-free, NOT ~/Documents).                                       │
+       │    e.g. /Users/<you>/news-cron/sightlab/sightlab_watchdog.sh          │
+       │ The watchdog reads all secrets/paths from $CONFIG_DIR/.env, so the    │
+       │ only EnvironmentVariables entry here is PATH (NO secrets in plist).   │
+       └────────────────────────────────────────────────────────────────────┘ -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>__SIGHTLAB_DATA_DIR__/sightlab_watchdog.sh</string>
+  </array>
+
+  <!-- Same minimal-PATH fix as com.sightlab.dispatch.plist: launchd's default
+       PATH misses Homebrew/user-installed CLIs. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <!-- Fire ~01:30 UTC, well after the producer's 00:05 UTC slot (PLAN §14-M2).
+       On KL local time (UTC+8) that is 09:30 → Hour=9 Minute=30. If your machine
+       is NOT on UTC+8, set Hour/Minute to whatever local time equals 01:30 UTC.
+       launchd reruns a missed job on wake; the watchdog itself defers alarming
+       while the producer's wake-catchup run is still in flight. -->
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>30</integer></dict>
+  </array>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <!-- Log paths derive from the SAME __SIGHTLAB_DATA_DIR__ placeholder as
+       ProgramArguments (RUNBOOK convention). -->
+  <key>StandardOutPath</key>
+  <string>__SIGHTLAB_DATA_DIR__/logs/launchd-watchdog.out</string>
+  <key>StandardErrorPath</key>
+  <string>__SIGHTLAB_DATA_DIR__/logs/launchd-watchdog.err</string>
+</dict>
+</plist>

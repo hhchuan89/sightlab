@@ -1,0 +1,144 @@
+{
+  "brand": {
+    "name": "SightLab",
+    "tagline": "市场情报"
+  },
+  "nav": {
+    "dispatch": "日报",
+    "archive": "存档",
+    "account": "账户",
+    "paper": "方法论",
+    "login": "登录",
+    "signup": "注册"
+  },
+  "auth": {
+    "signInTitle": "登录",
+    "signInSubtitle": "欢迎回到 SightLab。",
+    "signUpTitle": "创建账户",
+    "signUpSubtitle": "SightLab 的全部内容免费公开，无需账户即可阅读。注册账户可获得 Telegram 频道邀请链接，并可选开启每日邮件摘要。",
+    "emailLabel": "邮箱",
+    "passwordLabel": "密码",
+    "signInButton": "登录",
+    "signUpButton": "创建账户",
+    "noAccount": "还没有账户？",
+    "signUpLink": "去注册",
+    "haveAccount": "已经有账户了？",
+    "signInLink": "去登录",
+    "checkEmail": "请查收邮件确认账户，然后再登录。",
+    "errors": {
+      "missingFields": "请输入邮箱和密码。",
+      "invalidCredentials": "邮箱或密码错误。",
+      "weakPassword": "密码至少 8 个字符。",
+      "signupFailed": "账户创建失败，请重试。",
+      "callbackFailed": "该确认链接无效或已过期。"
+    }
+  },
+  "account": {
+    "title": "账户",
+    "subtitle": "你的推送偏好与登录信息。",
+    "emailLabel": "邮箱",
+    "emailOptInTitle": "每日邮件摘要",
+    "emailOptInToggle": "切换每日邮件摘要",
+    "emailOptInBody": "每次生成后，将完整的 §6/§7 市场日报发到你的邮箱。仅市场层面——绝不包含你的持仓。",
+    "emailOptInOn": "已开启——你将通过邮件收到每日日报。",
+    "emailOptInOff": "已关闭——开启后将通过邮件收到每日日报。",
+    "telegramTitle": "Telegram 频道",
+    "telegramBody": "加入仅限邀请的频道，接收每日日报。入群需人工审核。",
+    "telegramJoin": "打开邀请链接",
+    "signOut": "退出登录",
+    "manageBilling": "管理账单",
+    "portalOpening": "正在打开账单…",
+    "portalError": "无法打开账单，请重试。"
+  },
+  "toggle": {
+    "theme": "切换主题",
+    "lang": "EN",
+    "lightLabel": "浅色",
+    "darkLabel": "深色"
+  },
+  "landing": {
+    "dispatchNo": "每日快报",
+    "edition": "期号",
+    "standfirst": "对周期所处位置的确定性日读——跨板块的资金流向，加上一份 Weinstein 阶段定位，每天开盘前送达。开放研究，免费阅读。",
+    "articleTag": "市场周期",
+    "sampleHeadline": "科技吸筹、能源失血——周期稳守第 3 阶段",
+    "sampleDeck": "轮动正在收敛到单一领涨主线。真正的信号是这种收窄，而不是突破本身。",
+    "sampleBody": "综合读数与上周持平：处于扩张中后段——奖励顺势、惩罚追高。板块离散度正在扩大——少数标的扛着大盘，底层的广度却在变薄。我们把它当作对既有格局的确认器，而不是对下一个格局的预测。",
+    "glanceTitle": "速览",
+    "glanceCycleStage": "周期阶段",
+    "glanceCycleValue": "第 3 阶段 · 扩张",
+    "glanceConfidence": "置信度",
+    "glanceConfidenceValue": "中等",
+    "glanceLeader": "领涨板块",
+    "glanceLeaderValue": "科技 · 吸筹",
+    "glanceLaggard": "落后板块",
+    "glanceLaggardValue": "能源 · 派发",
+    "glanceNote": "开放研究，免费。完整的 §6 资金流向表与 §7 周期拆解——所有人都能看。",
+    "ctaTitle": "读懂整张盘面",
+    "ctaBody": "完整每日快报、每周资金流向表，以及全部存档——开放、免费。欢迎贡献。",
+    "ctaButton": "阅读今日快报",
+    "ctaSecondary": "运作方式",
+    "sampleBadge": "示例"
+  },
+  "pricing": {
+    "title": "订阅价格",
+    "standfirst": "一份订阅。完整快报、资金流向表、周期拆解，以及全部存档。",
+    "monthlyName": "按月",
+    "monthlyPrice": "$15",
+    "monthlyPeriod": "/ 月",
+    "yearlyName": "按年",
+    "yearlyPrice": "$162",
+    "yearlyPeriod": "/ 年",
+    "yearlySave": "省 10%",
+    "feature1": "每日 §6 跨板块资金流向表",
+    "feature2": "每日 §7 Weinstein 阶段周期定位",
+    "feature3": "完整可检索存档",
+    "feature4": "EN / 中文，浅色 + 深色",
+    "deliveryNote": "快报以 00:00 UTC 为目标。偶有延迟——晚一天是已知特性，而非违约。",
+    "subscribe": "订阅",
+    "comingSoon": "结账功能即将上线",
+    "starting": "正在前往结账…",
+    "checkoutError": "无法开始结账，请重试。",
+    "signInToSubscribe": "登录后订阅"
+  },
+  "dispatch": {
+    "tag": "每日快报",
+    "glanceTitle": "速览",
+    "badgeStage": "周期阶段",
+    "badgeConfidence": "置信度",
+    "flowsTag": "每周资金流向 · §6",
+    "cycleTag": "市场周期 · §7",
+    "coreReading": "核心解读",
+    "dispersion": "板块离散度",
+    "composite": "综合读数",
+    "todayCore": "今日核心读数",
+    "narrative": "每周叙事",
+    "caveatLabel": "关于这份读数",
+    "staleBanner": "今日刊尚未送达——当前显示 {date} 的内容。",
+    "s6": {
+      "etf": "ETF",
+      "sector": "板块",
+      "thisWeek": "本周",
+      "prevWeek": "上周",
+      "signal": "吸筹/派发",
+      "note": "解读"
+    },
+    "s7": {
+      "symbol": "板块",
+      "stage": "阶段",
+      "distance": "距离",
+      "slope": "斜率",
+      "judgment": "判断"
+    }
+  },
+  "archive": {
+    "tag": "存档",
+    "title": "快报存档",
+    "emptyHeading": "还没有快报",
+    "emptyBody": "下一次定时运行后，第一期就会送达。"
+  },
+  "footer": {
+    "rights": "保留所有权利。",
+    "disclaimer": "SightLab 是研究，不是投资建议。周期读数是确认器，不是预测器。"
+  }
+}

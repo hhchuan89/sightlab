@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+/* ───────────────────────── design tokens (PLAN §4.1) ─────────────────────────
+   Amber #D97706 is the locked DECORATIVE accent and never changes across themes
+   (backgrounds, borders, the wordmark dot). As TEXT on the light cream bg it
+   fails WCAG AA, so text/links/button-labels use --accent-text instead: a
+   darker amber (#b45309) in light mode, the locked amber in dark mode. */
+
+:root {
+  /* LIGHT — "paper" (default) */
+  --bg: #f7f4ed;
+  --surface: #ede7d7;
+  --surface-2: #e5dfce;
+  --text: #1a1814;
+  --text-2: #2c2620;
+  --muted: #8a8074;
+  --border: #c8c0ae;
+  --primary: #d97706;
+  --primary-hover: #b85f04;
+  --primary-soft: rgba(217, 119, 6, 0.12);
+  --accent-text: #b45309;
+  --success: #0f8a5f;
+  --danger: #c84b31;
+}
+
+.dark {
+  /* DARK — "warm ink" */
+  --bg: #14110d;
+  --surface: #1f1b14;
+  --surface-2: #2d2820;
+  --text: #efe8da;
+  --text-2: #d8cfbd;
+  --muted: #a89f8c;
+  --border: #2d2820;
+  --primary: #d97706;
+  --primary-hover: #f59e0b;
+  --primary-soft: rgba(217, 119, 6, 0.16);
+  --accent-text: #d97706;
+  --success: #10b981;
+  --danger: #c84b31;
+}
+
+/* ───────────────────────── @theme mapping (Tailwind v4) ─────────────────────────
+   Exposes tokens as utilities: bg-bg, bg-surface, text-text, text-muted,
+   border-border, text-primary, etc. Fonts wired from next/font CSS vars. */
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-soft: var(--primary-soft);
+  --color-accent: var(--accent-text);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+
+  --font-serif: var(--font-source-serif), var(--font-noto-serif-tc), Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", monospace;
+  --font-cjk: var(--font-noto-serif-tc), var(--font-source-serif), serif;
+
+  /* type scale (PLAN §4.3) */
+  --text-2xs: 0.625rem; /* 10px */
+  --text-xs: 0.6875rem; /* 11px */
+  --text-sm: 0.8125rem; /* 13px */
+  --text-base: 0.9375rem; /* 15px */
+  --text-lg: 1.125rem; /* 18px deck */
+  --text-xl: 1.375rem; /* 22px pull-quote */
+  --text-4xl: 2.625rem; /* 42px dispatch headline */
+  --text-5xl: clamp(2.125rem, 5vw, 3.5rem); /* hero */
+}
+
+/* ───────────────────────── base type ───────────────────────── */
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: var(--text-base);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+/* mono uppercase label — the editorial signature */
+.label-mono {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: var(--text-xs);
+  font-weight: 500;
+}
+
+/* ───────────────────────── editorial components ─────────────────────────
+   These are reusable structural rules referenced from the §4.4 inventory. */
+
+/* thick ink rule under the masthead */
+.rule-ink {
+  border: 0;
+  border-top: 2.5px solid var(--text);
+}
+
+/* hairline editorial divider */
+.rule-hair {
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+/* bare amber mono article tag: `// MARKET CYCLE · §7` — TEXT, so it uses the
+   AA-passing accent (darker amber in light mode, locked amber in dark). */
+.article-tag {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--accent-text);
+}
+
+/* dotted-leader row for the At-a-glance box: label … value, dashed underline */
+.leader-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px dashed var(--border);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+.leader-row:last-child {
+  border-bottom: 0;
+}
+.leader-key {
+  color: var(--muted);
+  white-space: nowrap;
+}
+.leader-dots {
+  flex: 1 1 auto;
+  border-bottom: 1px dashed var(--border);
+  transform: translateY(-0.2em);
+  min-width: 1.5rem;
+}
+.leader-value {
+  color: var(--text);
+  font-weight: 600;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* editorial blockquote: 3px amber left border, italic serif, no bg */
+.editorial-quote {
+  border-left: 3px solid var(--primary);
+  padding-left: 1.1rem;
+  font-style: italic;
+  color: var(--text-2);
+}

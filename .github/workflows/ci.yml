@@ -1,0 +1,49 @@
+# CI (PLAN §15.6). Runs on push + PR: install → lint → format:check → typecheck
+# → build → test. CD is the user's (GitHub/Vercel side) — this workflow does NOT
+# deploy. All checks are DB-free: the build needs no live env (Supabase clients
+# are lazily constructed) and the tests are pure-function + schema only.
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+# Cancel superseded runs on the same ref to save minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Paywall + privacy guards
+        # Runs BOTH supabase/tests/*.test.mjs (paywall read-path + §15.4 privacy
+        # guard) via the package script — Node 22 expands the glob itself.
+        run: npm run test:paywall

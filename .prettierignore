@@ -1,0 +1,20 @@
+# build output / deps
+.next/
+node_modules/
+out/
+build/
+
+# generated / lockfiles
+package-lock.json
+next-env.d.ts
+*.tsbuildinfo
+
+# data / docs we don't want reflowed
+LICENSE
+public/fonts/
+
+# prose docs — the canonical spec + recon + runbooks are authored Markdown,
+# not code; Prettier reflow would churn them and fight the authors' layout.
+docs/
+scripts/mac/RUNBOOK.md
+supabase/tests/README.md

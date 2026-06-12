@@ -1,0 +1,36 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# production
+/build
+
+# env (NEVER commit real secrets) — every variant (.env.production, .env.test, …);
+# only the blank template .env.example is tracked.
+.env*
+!.env.example
+
+# debug / logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# misc
+.DS_Store
+*.pem
+.vercel
+*.tsbuildinfo
+
+# CLAUDE.md global rule: no transient render artifacts in git
+*.pdf
+*.html
+
+# local Claude tooling (machine-specific paths)
+.claude/

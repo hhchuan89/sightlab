@@ -1,0 +1,144 @@
+{
+  "brand": {
+    "name": "SightLab",
+    "tagline": "Market Intelligence"
+  },
+  "nav": {
+    "dispatch": "Dispatch",
+    "archive": "Archive",
+    "account": "Account",
+    "paper": "Method",
+    "login": "Sign in",
+    "signup": "Sign up"
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signInSubtitle": "Welcome back to SightLab.",
+    "signUpTitle": "Create your account",
+    "signUpSubtitle": "Everything SightLab publishes is free to read — no account needed. An account gets you the Telegram channel invite link and an optional daily email digest.",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "signInButton": "Sign in",
+    "signUpButton": "Create account",
+    "noAccount": "No account?",
+    "signUpLink": "Create one",
+    "haveAccount": "Already have an account?",
+    "signInLink": "Sign in",
+    "checkEmail": "Check your email to confirm your account, then sign in.",
+    "errors": {
+      "missingFields": "Enter your email and password.",
+      "invalidCredentials": "Wrong email or password.",
+      "weakPassword": "Password must be at least 8 characters.",
+      "signupFailed": "Could not create the account. Try again.",
+      "callbackFailed": "That confirmation link is invalid or expired."
+    }
+  },
+  "account": {
+    "title": "Account",
+    "subtitle": "Your delivery preferences and sign-in.",
+    "emailLabel": "Email",
+    "emailOptInTitle": "Daily email digest",
+    "emailOptInToggle": "Toggle the daily email digest",
+    "emailOptInBody": "Get the full §6/§7 market dispatch in your inbox after each run. Market-wide only — never your holdings.",
+    "emailOptInOn": "On — you'll receive the daily dispatch by email.",
+    "emailOptInOff": "Off — turn on to receive the daily dispatch by email.",
+    "telegramTitle": "Telegram channel",
+    "telegramBody": "Join the invite-only channel for the daily dispatch. Joins are moderated manually.",
+    "telegramJoin": "Open invite",
+    "signOut": "Sign out",
+    "manageBilling": "Manage billing",
+    "portalOpening": "Opening billing…",
+    "portalError": "Could not open billing. Try again."
+  },
+  "toggle": {
+    "theme": "Toggle theme",
+    "lang": "中文",
+    "lightLabel": "Light",
+    "darkLabel": "Dark"
+  },
+  "landing": {
+    "dispatchNo": "Daily Dispatch",
+    "edition": "Edition",
+    "standfirst": "A deterministic daily read on where the cycle stands — fund flows across sectors and a Weinstein-stage positioning call, delivered every morning before the open. Open research, free to read.",
+    "articleTag": "MARKET CYCLE",
+    "sampleHeadline": "Tech accumulates while energy bleeds — cycle holds at Stage 3",
+    "sampleDeck": "Rotation is concentrating into a single leadership lane. That narrowing is the tell, not the breakout.",
+    "sampleBody": "The composite read is unchanged week over week: a mid-to-late expansion that rewards trend but punishes chasing. Sector dispersion is widening — a handful of names carry the tape while the breadth underneath thins. We treat this as a confirmer of the regime already in place, not a prediction of the next one.",
+    "glanceTitle": "At a glance",
+    "glanceCycleStage": "Cycle stage",
+    "glanceCycleValue": "Stage 3 · expansion",
+    "glanceConfidence": "Confidence",
+    "glanceConfidenceValue": "Medium",
+    "glanceLeader": "Sector leader",
+    "glanceLeaderValue": "Technology · accumulation",
+    "glanceLaggard": "Sector laggard",
+    "glanceLaggardValue": "Energy · distribution",
+    "glanceNote": "Open research, free. The full §6 flow table and §7 cycle breakdown are public — for everyone.",
+    "ctaTitle": "Read the whole tape",
+    "ctaBody": "The full daily dispatch, the weekly fund-flow table, and the complete archive are open and free. Contributions welcome.",
+    "ctaButton": "Read today's dispatch",
+    "ctaSecondary": "How it works",
+    "sampleBadge": "Sample"
+  },
+  "pricing": {
+    "title": "Pricing",
+    "standfirst": "One subscription. The full dispatch, the flow table, the cycle breakdown, and the archive.",
+    "monthlyName": "Monthly",
+    "monthlyPrice": "$15",
+    "monthlyPeriod": "/ month",
+    "yearlyName": "Yearly",
+    "yearlyPrice": "$162",
+    "yearlyPeriod": "/ year",
+    "yearlySave": "Save 10%",
+    "feature1": "Daily §6 fund-flow table across sectors",
+    "feature2": "Daily §7 Weinstein-stage cycle positioning",
+    "feature3": "Full searchable archive",
+    "feature4": "EN / 中文, light + dark",
+    "deliveryNote": "Dispatches target 00:00 UTC. Occasional delays happen — a late day is a known property, not a broken promise.",
+    "subscribe": "Subscribe",
+    "comingSoon": "Checkout coming soon",
+    "starting": "Starting checkout…",
+    "checkoutError": "Could not start checkout. Try again.",
+    "signInToSubscribe": "Sign in to subscribe"
+  },
+  "dispatch": {
+    "tag": "DAILY DISPATCH",
+    "glanceTitle": "At a glance",
+    "badgeStage": "Cycle stage",
+    "badgeConfidence": "Confidence",
+    "flowsTag": "WEEKLY FUND FLOWS · §6",
+    "cycleTag": "MARKET CYCLE · §7",
+    "coreReading": "Core reading",
+    "dispersion": "Sector dispersion",
+    "composite": "Composite read",
+    "todayCore": "Today's core read",
+    "narrative": "Weekly narrative",
+    "caveatLabel": "On reading this",
+    "staleBanner": "Today's edition hasn't arrived yet — showing the {date} dispatch.",
+    "s6": {
+      "etf": "ETF",
+      "sector": "Sector",
+      "thisWeek": "This wk",
+      "prevWeek": "Prev wk",
+      "signal": "A/D",
+      "note": "Read"
+    },
+    "s7": {
+      "symbol": "Sector",
+      "stage": "Stage",
+      "distance": "Dist",
+      "slope": "Slope",
+      "judgment": "Judgment"
+    }
+  },
+  "archive": {
+    "tag": "ARCHIVE",
+    "title": "Dispatch archive",
+    "emptyHeading": "No dispatches yet",
+    "emptyBody": "The first edition lands after the next scheduled run."
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "disclaimer": "SightLab is research, not investment advice. The cycle read is a confirmer, not a predictor."
+  }
+}

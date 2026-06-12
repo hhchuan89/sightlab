@@ -1,0 +1,21 @@
+# Supabase local/CLI config for SightLab.
+# project_id is referenced by `supabase` CLI commands (link / db push / start).
+project_id = "sightlab"
+
+[auth]
+# Email + password auth. Email confirmation is ON per PLAN §14-C9 (reduces abuse).
+# When linking to a hosted project, set the same value in the dashboard.
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+
+[db]
+# Default local Postgres port for `supabase start`.
+port = 54322
+
+[api]
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public"]

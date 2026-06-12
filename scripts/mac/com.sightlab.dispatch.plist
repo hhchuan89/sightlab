@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.sightlab.dispatch</string>
+
+  <!-- ┌────────────────────────────────────────────────────────────────────┐
+       │ EDIT BEFORE LOADING:                                                 │
+       │  • Replace __SIGHTLAB_DATA_DIR__ (every occurrence) with the deployed │
+       │    runner's ABSOLUTE path. The runner + assemble_dispatch.py must     │
+       │    live in a TCC-free dir (NOT ~/Documents — launchd cannot read      │
+       │    Documents under TCC).                                              │
+       │    e.g. /Users/<you>/news-cron/sightlab/run_sightlab_dispatch.sh      │
+       │ The runner reads all secrets/paths from $CONFIG_DIR/.env, so the only │
+       │ EnvironmentVariables entry here is PATH (NO secrets in the plist).    │
+       └────────────────────────────────────────────────────────────────────┘ -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>__SIGHTLAB_DATA_DIR__/run_sightlab_dispatch.sh</string>
+  </array>
+
+  <!-- launchd agents inherit a MINIMAL PATH (/usr/bin:/bin:/usr/sbin:/sbin),
+       which misses Homebrew/user-installed CLIs (claude, brewed python3). Give
+       the job a sane PATH so bare-name defaults resolve. -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <!-- Fire 00:05 UTC. The Mac runs on KL local time (UTC+8), so 00:05 UTC ==
+       08:05 local → Hour=8 Minute=5. (5 min before daily-news at 08:10 to avoid
+       OpenD/FMP collision — PLAN §7.1.) launchd reruns a missed job on wake, so a
+       sleeping Mac means LATE, not lost. If your machine is NOT on UTC+8, set
+       Hour/Minute to whatever local time equals 00:05 UTC. -->
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>5</integer></dict>
+  </array>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <!-- Log paths derive from the SAME __SIGHTLAB_DATA_DIR__ placeholder as
+       ProgramArguments (RUNBOOK convention) — no second placeholder, no
+       hardcoded subpath. -->
+  <key>StandardOutPath</key>
+  <string>__SIGHTLAB_DATA_DIR__/logs/launchd-sightlab.out</string>
+  <key>StandardErrorPath</key>
+  <string>__SIGHTLAB_DATA_DIR__/logs/launchd-sightlab.err</string>
+</dict>
+</plist>
