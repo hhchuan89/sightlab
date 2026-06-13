@@ -11,7 +11,7 @@ export function CaveatNote({ locale, label }: { locale: Locale; label: string })
   return (
     <aside className="rounded-md border border-dashed border-border bg-surface/40 p-4">
       <span className="label-mono text-muted">{label}</span>
-      <p className="mt-2 text-sm leading-relaxed text-muted">{pick(CAVEAT, locale)}</p>
+      <p className="mt-2 font-body text-md leading-relaxed text-text-2">{pick(CAVEAT, locale)}</p>
     </aside>
   );
 }

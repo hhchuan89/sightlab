@@ -49,7 +49,9 @@ function MarketingFooter() {
   return (
     <footer className="mt-20 border-t border-border">
       <div className="mx-auto flex max-w-5xl flex-col gap-3 px-5 py-8 text-sm text-muted">
-        <p className="editorial-quote text-sm not-italic">{t("disclaimer")}</p>
+        <p className="editorial-quote font-body text-md not-italic text-text-2">
+          {t("disclaimer")}
+        </p>
         <div className="flex items-center gap-2">
           <Wordmark variant="C" />
           <span className="label-mono text-muted">

@@ -20,7 +20,7 @@ function Tag({ children }: { children: React.ReactNode }) {
 
 export function PaperDraft() {
   return (
-    <article className="paper-prose mx-auto max-w-2xl px-5 pb-24">
+    <article className="paper-prose prose-measure mx-auto px-5 pb-24">
       {/* ── masthead ── */}
       <div className="flex items-baseline justify-between gap-4 pt-10">
         <Tag>METHODOLOGY · DRAFT</Tag>
@@ -34,7 +34,7 @@ export function PaperDraft() {
         as important — what it cannot tell you. This is a draft, circulated for review.
       </p>
 
-      <p className="mt-6 leading-relaxed text-text-2">
+      <p className="mt-6 font-body text-base leading-relaxed text-text">
         SightLab publishes one market-wide read each day, built from two complementary lenses: where
         money is flowing across sectors (Section&nbsp;6, &ldquo;fund flows&rdquo;), and where the
         broad market sits in its cycle (Section&nbsp;7, &ldquo;cycle positioning&rdquo;). Neither
@@ -47,14 +47,14 @@ export function PaperDraft() {
       <h2 className="mt-12 text-2xl font-semibold text-text">
         Section 6 — fund flows: accumulation vs. distribution
       </h2>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         The oldest idea in tape reading is that price and volume tell different parts of the same
         story. Price tells you where the market settled; volume tells you how much conviction it
         took to get there. When the two agree, a move is well-supported. When they disagree, the
         move is suspect. Section&nbsp;6 is a structured way of asking that question across every
         major sector at once.
       </p>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         We borrow two terms from classical Wyckoff-style analysis. <strong>Accumulation</strong>{" "}
         describes a phase where a sector is being bought persistently — often quietly, on rising
         volume into strength and lighter volume into weakness — as if larger hands are building
@@ -63,7 +63,7 @@ export function PaperDraft() {
         positions are being handed off. The labels are intuitions about who is in control of the
         tape, not predictions about tomorrow&rsquo;s close.
       </p>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         For each sector we look at the recent return alongside the behaviour of volume and turnover
         — is the money confirming the price move, or fading it? A sector that climbs on expanding
         participation reads as accumulation; one that drifts up on thinning volume, or slips while
@@ -73,7 +73,7 @@ export function PaperDraft() {
         <em>while</em> energy is being distributed than to stare at either in isolation. Rotation —
         money leaving one lane and entering another — is the signal that survives noise.
       </p>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         Two honest caveats belong right here. First, flow signals are descriptive, not causal: a
         sector can be under accumulation and still fall, because accumulation describes pressure,
         not a guarantee. Second, the labels lag — by the time a clean distribution signal forms, the
@@ -85,12 +85,12 @@ export function PaperDraft() {
       <h2 className="mt-12 text-2xl font-semibold text-text">
         Section 7 — cycle positioning: Weinstein stages
       </h2>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         Section&nbsp;7 asks a different question: forget the day-to-day — where are we in the larger
         arc? For that we lean on Stan Weinstein&rsquo;s stage framework, one of the most durable
         mental models in trend analysis precisely because it is simple and visual.
       </p>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         Weinstein divides any instrument&rsquo;s life into four repeating stages.{" "}
         <strong>Stage&nbsp;1</strong> is a base — sideways, going nowhere, after a decline; supply
         and demand are reaching equilibrium. <strong>Stage&nbsp;2</strong> is the advance — a
@@ -101,7 +101,7 @@ export function PaperDraft() {
         forces a single question with a finite set of answers: which stage is this, and is it
         confirming or changing?
       </p>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         The anchor for staging is the <strong>30-week simple moving average</strong> — the average
         closing price over roughly the last seven months. A long moving average like this strips out
         weekly chop and draws the underlying trend as a single line. The relationship between price
@@ -114,7 +114,7 @@ export function PaperDraft() {
       </p>
 
       <h3 className="mt-8 text-xl font-semibold text-text">Sector dispersion</h3>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         Knowing the average stage is not enough, because an &ldquo;average&rdquo; can hide two very
         different markets. A tape where every sector is marching together in Stage&nbsp;2 is healthy
         and broad. A tape where one or two sectors are still in Stage&nbsp;2 while the rest have
@@ -122,7 +122,7 @@ export function PaperDraft() {
         the leadership is carrying a thinning crowd. <strong>Dispersion</strong> is our measure of
         that spread: how far apart the sectors are in their stages and their trend strength.
       </p>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         Low dispersion means broad agreement — the cycle signal is more trustworthy. High dispersion
         is a yellow flag: it means the market&rsquo;s health depends on a few names, the classic
         late-expansion narrowing that often precedes a turn. We report dispersion as a
@@ -137,7 +137,7 @@ export function PaperDraft() {
       <h2 className="mt-12 text-2xl font-semibold text-text">
         The framing: a confirmer, not a predictor
       </h2>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         Everything above is combined into a single qualitative read: a cycle stage and a confidence
         label. The most important thing to understand about that read is what it is&nbsp;
         <em>for</em>. SightLab is a <strong>confirmer of the regime already in place</strong>, not a
@@ -146,7 +146,7 @@ export function PaperDraft() {
         next?&rdquo;, because that question has no reliable answer and pretending otherwise is how
         models lose money.
       </p>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         This is also why we publish a confidence label rather than a single hard number. A
         rule-based confidence read tells you how much the signals agree with each other. When the
         flow direction, the stage, and the dispersion all point the same way, confidence is high and
@@ -157,10 +157,10 @@ export function PaperDraft() {
 
       {/* ── limitations ── */}
       <h2 className="mt-12 text-2xl font-semibold text-text">Limitations, stated up front</h2>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         A method is only trustworthy if it owns its blind spots, so here are ours, plainly.
       </p>
-      <ul className="mt-4 list-disc space-y-3 pl-6 leading-relaxed text-text-2">
+      <ul className="mt-4 list-disc space-y-3 pl-6 font-body text-base leading-relaxed text-text">
         <li>
           <strong>It is strongest mid-trend and blind to exact tops and bottoms.</strong> A stage
           framework anchored to a long moving average confirms a trend that is already underway. By
@@ -191,7 +191,7 @@ export function PaperDraft() {
 
       {/* ── honest screenshot caveat (§9 / §14-C10) ── */}
       <h2 className="mt-12 text-2xl font-semibold text-text">A note on this page</h2>
-      <p className="mt-4 leading-relaxed text-text-2">
+      <p className="mt-4 font-body text-base leading-relaxed text-text">
         This reader discourages casual copying — selection, right-click, and drag are disabled. We
         want to be honest about what that is: <strong>discouragement, not protection.</strong> A
         screenshot defeats it in a second, and we have not tried to stop screenshots, because the
@@ -207,7 +207,7 @@ export function PaperDraft() {
       </p>
 
       <hr className="rule-hair mt-12" />
-      <p className="mt-6 text-sm leading-relaxed text-muted">
+      <p className="mt-6 font-body text-md leading-relaxed text-text-2">
         Draft — circulated for review. Corrections and challenges to the reasoning are welcome (see
         CONTRIBUTING). SightLab is research, not investment advice.
       </p>

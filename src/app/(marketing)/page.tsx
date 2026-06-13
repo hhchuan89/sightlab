@@ -119,13 +119,15 @@ export default async function LandingPage() {
       <section className="grid grid-cols-1 gap-10 pt-12 lg:grid-cols-[1.4fr_1fr] lg:gap-14">
         <div>
           <h1 className="text-5xl font-semibold text-text">{headline}</h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-text-2">{t("standfirst")}</p>
+          <p className="mt-6 font-body text-lg leading-relaxed text-text prose-measure">
+            {t("standfirst")}
+          </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             {/* v3 open/free pivot (PLAN §15.7): the CTA opens the live dispatch —
                 content is free — not a pricing page. */}
             <Link
               href="/dispatch"
-              className="rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-text transition-colors hover:bg-primary-hover"
+              className="inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-text transition-colors hover:bg-primary-hover"
             >
               {t("ctaButton")}
             </Link>
@@ -152,9 +154,9 @@ export default async function LandingPage() {
             <GlanceRow key={row.label} label={row.label} value={row.value} />
           ))}
           {glanceText ? (
-            <p className="mt-4 text-sm leading-relaxed text-text-2">{glanceText}</p>
+            <p className="mt-4 font-body text-md leading-relaxed text-text">{glanceText}</p>
           ) : null}
-          <p className="mt-4 text-sm leading-relaxed text-muted">{t("glanceNote")}</p>
+          <p className="mt-4 font-body text-md leading-relaxed text-text-2">{t("glanceNote")}</p>
         </aside>
       </section>
 
@@ -168,7 +170,7 @@ export default async function LandingPage() {
           </span>
           <h2 className="mt-3 text-4xl font-semibold text-text">{t("sampleHeadline")}</h2>
           <p className="editorial-quote mt-5 text-xl">{t("sampleDeck")}</p>
-          <p className="mt-6 leading-relaxed text-text-2">{t("sampleBody")}</p>
+          <p className="mt-6 font-body text-base leading-relaxed text-text">{t("sampleBody")}</p>
         </section>
       )}
 
@@ -179,7 +181,7 @@ export default async function LandingPage() {
         <p className="mt-4 max-w-xl leading-relaxed text-text-2">{t("ctaBody")}</p>
         <Link
           href="/dispatch"
-          className="mt-7 inline-block rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-text transition-colors hover:bg-primary-hover"
+          className="mt-7 inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-text transition-colors hover:bg-primary-hover"
         >
           {t("ctaButton")}
         </Link>

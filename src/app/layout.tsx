@@ -1,14 +1,26 @@
 import type { Metadata } from "next";
-import { Source_Serif_4, JetBrains_Mono, Noto_Serif_TC } from "next/font/google";
+import { Newsreader, Source_Serif_4, JetBrains_Mono, Noto_Serif_TC } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { resolveLocale } from "@/lib/i18n/request";
 import { ThemeScript } from "@/components/theme/ThemeScript";
 import "./globals.css";
 
+// Running prose body face — variable, optical-size axis so glyph shaping adapts
+// across sizes. axes:["opsz"] is ONLY valid with weight:"variable".
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  weight: "variable",
+  style: ["normal", "italic"],
+  axes: ["opsz"],
+  variable: "--font-newsreader",
+  display: "swap",
+});
+
+// Display/headings only.
 const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["600", "700"],
   style: ["normal", "italic"],
   variable: "--font-source-serif",
   display: "swap",
@@ -22,7 +34,7 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 const notoSerifTC = Noto_Serif_TC({
-  weight: ["500", "700", "900"],
+  weight: ["400", "500", "700", "900"],
   variable: "--font-noto-serif-tc",
   display: "swap",
   // Google serves the TC (CJK) glyphs via unicode-range, not a named subset,
@@ -46,7 +58,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${sourceSerif.variable} ${jetBrainsMono.variable} ${notoSerifTC.variable}`}
+      className={`${newsreader.variable} ${sourceSerif.variable} ${jetBrainsMono.variable} ${notoSerifTC.variable}`}
       suppressHydrationWarning
     >
       <head>

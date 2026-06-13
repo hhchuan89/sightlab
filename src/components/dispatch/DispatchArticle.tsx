@@ -29,7 +29,7 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
       <Masthead date={dispatch.dispatch_date} label={t("tag")} />
 
       {introText ? (
-        <p className="max-w-2xl text-lg leading-relaxed text-text-2">{introText}</p>
+        <p className="font-body text-lg leading-relaxed text-text prose-measure">{introText}</p>
       ) : null}
 
       {dispatch.cycle_badge ? (

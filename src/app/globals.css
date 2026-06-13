@@ -1,43 +1,46 @@
 @import "tailwindcss";
 
 /* ───────────────────────── design tokens (PLAN §4.1) ─────────────────────────
-   Amber #D97706 is the locked DECORATIVE accent and never changes across themes
-   (backgrounds, borders, the wordmark dot). As TEXT on the light cream bg it
-   fails WCAG AA, so text/links/button-labels use --accent-text instead: a
-   darker amber (#b45309) in light mode, the locked amber in dark mode. */
+   "Warm paper" reading surface. LIGHT is a warmer, slightly brighter cream;
+   DARK is a deep warm ink with a brightened amber accent so links/labels read
+   crisply against it. Amber is the locked decorative accent across themes
+   (backgrounds, borders, the wordmark dot). As TEXT on the light cream bg the
+   base amber fails WCAG AA, so text/links/button-labels use --accent-text
+   instead: a darker amber (#9c4d08) in light mode, the brightened amber
+   (#f0a833) in dark mode. */
 
 :root {
-  /* LIGHT — "paper" (default) */
-  --bg: #f7f4ed;
-  --surface: #ede7d7;
-  --surface-2: #e5dfce;
-  --text: #1a1814;
-  --text-2: #2c2620;
-  --muted: #8a8074;
-  --border: #c8c0ae;
+  /* LIGHT — "warm paper" (default) */
+  --bg: #faf6ee;
+  --surface: #f3ecdd;
+  --surface-2: #ebe2cf;
+  --text: #211d17;
+  --text-2: #2c261d;
+  --muted: #645b4d;
+  --border: #d8cdb6;
   --primary: #d97706;
   --primary-hover: #b85f04;
   --primary-soft: rgba(217, 119, 6, 0.12);
-  --accent-text: #b45309;
-  --success: #0f8a5f;
-  --danger: #c84b31;
+  --accent-text: #9c4d08;
+  --success: #0b7a52;
+  --danger: #bd3b22;
 }
 
 .dark {
-  /* DARK — "warm ink" */
+  /* DARK — "warm ink" with brightened amber accent */
   --bg: #14110d;
   --surface: #1f1b14;
   --surface-2: #2d2820;
-  --text: #efe8da;
-  --text-2: #d8cfbd;
-  --muted: #a89f8c;
-  --border: #2d2820;
-  --primary: #d97706;
-  --primary-hover: #f59e0b;
-  --primary-soft: rgba(217, 119, 6, 0.16);
-  --accent-text: #d97706;
-  --success: #10b981;
-  --danger: #c84b31;
+  --text: #f0e9db;
+  --text-2: #ddd4c2;
+  --muted: #b0a691;
+  --border: #3a3328;
+  --primary: #e8870e;
+  --primary-hover: #f0a833;
+  --primary-soft: rgba(232, 135, 14, 0.16);
+  --accent-text: #f0a833;
+  --success: #34d399;
+  --danger: #e06a4f;
 }
 
 /* ───────────────────────── @theme mapping (Tailwind v4) ─────────────────────────
@@ -59,19 +62,26 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
 
-  --font-serif: var(--font-source-serif), var(--font-noto-serif-tc), Georgia, serif;
+  /* Noto Serif TC MUST be second in --font-body: Newsreader has no Han glyphs,
+     so wrong order = silent system-serif Chinese. */
+  --font-body:
+    var(--font-newsreader), var(--font-noto-serif-tc), Georgia, serif; /* running prose */
+  --font-serif:
+    var(--font-source-serif), var(--font-noto-serif-tc), Georgia, serif; /* display/headings */
   --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", monospace;
-  --font-cjk: var(--font-noto-serif-tc), var(--font-source-serif), serif;
 
-  /* type scale (PLAN §4.3) */
-  --text-2xs: 0.625rem; /* 10px */
-  --text-xs: 0.6875rem; /* 11px */
-  --text-sm: 0.8125rem; /* 13px */
-  --text-base: 0.9375rem; /* 15px */
-  --text-lg: 1.125rem; /* 18px deck */
-  --text-xl: 1.375rem; /* 22px pull-quote */
-  --text-4xl: 2.625rem; /* 42px dispatch headline */
-  --text-5xl: clamp(2.125rem, 5vw, 3.5rem); /* hero */
+  /* type scale (PLAN §4.3) — base 18px */
+  --text-2xs: 0.6875rem; /* 11px micro metadata only */
+  --text-xs: 0.75rem; /* 12px mono kickers/.label-mono/.article-tag/table heads/copyright */
+  --text-sm: 0.875rem; /* 14px mono/numeric data cells ONLY — never serif prose */
+  --text-base: 1.125rem; /* 18px ALL long-form body prose */
+  --text-md: 1.0625rem; /* 17px NEW — dense secondary prose */
+  --text-lg: 1.25rem; /* 20px intro/standfirst/featured stat */
+  --text-xl: 1.5rem; /* 24px deck & pull-quote, H3 */
+  --text-2xl: 1.875rem; /* 30px NEW — PaperDraft H2 */
+  --text-3xl: 2.25rem; /* 36px NEW — secondary headlines */
+  --text-4xl: 2.625rem; /* 42px dispatch/paper H1 */
+  --text-5xl: clamp(2.25rem, 5vw, 3.5rem); /* hero */
 }
 
 /* ───────────────────────── base type ───────────────────────── */
@@ -83,9 +93,9 @@ html {
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--font-serif);
+  font-family: var(--font-body);
   font-size: var(--text-base);
-  line-height: 1.75;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -97,6 +107,16 @@ h3 {
   letter-spacing: -0.02em;
   line-height: 1.1;
   color: var(--text);
+}
+
+/* Han needs more air than Latin at the same size. */
+:lang(zh) {
+  line-height: 1.85;
+}
+
+/* reading-measure cap — ~66ch at 18px */
+.prose-measure {
+  max-width: 37rem;
 }
 
 /* mono uppercase label — the editorial signature */

@@ -66,7 +66,7 @@ export function Section6Table({
               <th scope="col" className="py-2 pr-4 text-left font-semibold">
                 {headers.signal}
               </th>
-              <th scope="col" className="py-2 text-left font-semibold">
+              <th scope="col" className="w-2/5 py-2 text-left font-semibold">
                 {headers.note}
               </th>
             </tr>
@@ -93,7 +93,7 @@ export function Section6Table({
                 <td className={`py-2.5 pr-4 font-semibold ${signalClass(row.ad_signal)}`}>
                   {row.ad_signal}
                 </td>
-                <td className="py-2.5 font-serif text-sm leading-relaxed text-text-2">
+                <td className="w-2/5 py-2.5 font-body text-md leading-relaxed text-text">
                   {pick(row.signal, locale)}
                 </td>
               </tr>
@@ -104,7 +104,7 @@ export function Section6Table({
 
       <div className="mt-5">
         <span className="label-mono text-muted">{coreReadingLabel}</span>
-        <p className="mt-2 font-serif leading-relaxed text-text-2">
+        <p className="mt-2 font-body text-base leading-relaxed text-text prose-measure">
           {pick(data.core_reading, locale)}
         </p>
       </div>

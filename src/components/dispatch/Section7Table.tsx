@@ -126,7 +126,7 @@ export function Section7Table({
                 <td className="py-2.5 pr-4 text-right tabular-nums text-text-2">
                   {pct(s.slope_pct)}
                 </td>
-                <td className="py-2.5 font-serif text-sm leading-relaxed text-text-2">
+                <td className="py-2.5 font-body text-md leading-relaxed text-text">
                   {pick(s.judgment, locale)}
                 </td>
               </tr>
@@ -138,7 +138,7 @@ export function Section7Table({
       {/* prose: today's core read, then weekly narrative if present */}
       <div className="mt-5">
         <span className="label-mono text-muted">{todayCoreLabel}</span>
-        <p className="mt-2 font-serif leading-relaxed text-text-2">
+        <p className="mt-2 font-body text-base leading-relaxed text-text prose-measure">
           {pick(data.today_core, locale)}
         </p>
       </div>
@@ -146,7 +146,7 @@ export function Section7Table({
       {data.full_narrative ? (
         <div className="mt-5">
           <span className="label-mono text-muted">{narrativeLabel}</span>
-          <p className="mt-2 font-serif leading-relaxed text-text-2">
+          <p className="mt-2 font-body text-base leading-relaxed text-text prose-measure">
             {pick(data.full_narrative, locale)}
           </p>
         </div>

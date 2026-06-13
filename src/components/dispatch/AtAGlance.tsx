@@ -38,7 +38,9 @@ export function AtAGlance({
         </div>
       ) : null}
 
-      {text ? <p className="mt-3 text-base leading-relaxed text-text-2">{text}</p> : null}
+      {text ? (
+        <p className="mt-3 font-body text-base leading-relaxed text-text prose-measure">{text}</p>
+      ) : null}
     </aside>
   );
 }
