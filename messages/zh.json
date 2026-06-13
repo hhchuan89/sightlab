@@ -15,7 +15,7 @@
     "signInTitle": "登录",
     "signInSubtitle": "欢迎回到 SightLab。",
     "signUpTitle": "创建账户",
-    "signUpSubtitle": "SightLab 的全部内容免费公开，无需账户即可阅读。注册账户可获得 Telegram 频道邀请链接，并可选开启每日邮件摘要。",
+    "signUpSubtitle": "SightLab 的全部内容免费公开，无需账户即可阅读。注册账户可获得 Telegram 频道邀请链接。",
     "emailLabel": "邮箱",
     "passwordLabel": "密码",
     "signInButton": "登录",

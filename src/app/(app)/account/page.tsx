@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(auth)/actions";
-import { setEmailOptIn } from "./actions";
 
 // PARKED — reserved for a future paid tier (PLAN §15). When a paid tier returns,
 // re-import these and render <PortalButton /> in the account body. Content is no
@@ -24,15 +23,6 @@ export default async function AccountPage() {
 
   const t = await getTranslations("account");
 
-  // Read the user's email-digest opt-in (PLAN §15.2).
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("email_opt_in")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const optedIn = profile?.email_opt_in ?? false;
-
   // Telegram invite link — shown ONLY to authenticated users (PLAN §15.2).
   // Channel joins are moderated manually; absent env → hide the row.
   const telegramInvite = process.env.SIGHTLAB_TELEGRAM_INVITE_LINK ?? null;
@@ -49,35 +39,11 @@ export default async function AccountPage() {
         </div>
       </dl>
 
-      {/* Daily-email opt-in (PLAN §15.2/§15.3). Plain server-action submit; the
-          desired value is the OPPOSITE of the current state. */}
-      <form action={setEmailOptIn} className="mt-8 rounded-lg border border-border p-4">
-        <input type="hidden" name="opt_in" value={(!optedIn).toString()} />
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold text-text">{t("emailOptInTitle")}</p>
-            <p className="mt-1 text-sm text-text-2">{t("emailOptInBody")}</p>
-          </div>
-          <button
-            type="submit"
-            role="switch"
-            aria-checked={optedIn}
-            aria-label={t("emailOptInToggle")}
-            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-              optedIn ? "bg-primary" : "bg-surface-2"
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-bg transition-transform ${
-                optedIn ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
-          </button>
-        </div>
-        <p className="mt-3 text-xs text-muted">
-          {optedIn ? t("emailOptInOn") : t("emailOptInOff")}
-        </p>
-      </form>
+      {/* Email digest is PARKED (PLAN §15.3): the daily-email opt-in UI is removed
+          so no one can subscribe — distribution is the site + Telegram channel
+          only. The backend (setEmailOptIn action, profiles.email_opt_in column,
+          sendDigest, /api/unsubscribe) stays dormant for when email returns with a
+          CAN-SPAM postal address configured. */}
 
       {/* Telegram invite — authenticated-only (PLAN §15.2). */}
       {telegramInvite ? (
