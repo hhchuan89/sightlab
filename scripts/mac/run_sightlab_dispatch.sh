@@ -141,4 +141,24 @@ if [ "$HTTP_CODE" != "200" ]; then
 fi
 
 echo "run_sightlab_dispatch: OK $DATE_UTC → ingest 200${TRANSLATE_NOTE}" | tee -a "$LOGDIR/$DATE_UTC.log"
+
+# --- 4. Post a summary card to the Telegram channel (BEST-EFFORT). ------------
+#        The dispatch is already published to the site; a Telegram failure must
+#        NOT fail the run. Only runs if SIGHTLAB_TELEGRAM_CHANNEL_ID is set, so a
+#        deploy without the channel id simply skips this step.
+POST_TG="$SCRIPT_DIR/post_telegram.py"
+if [ -n "${SIGHTLAB_TELEGRAM_CHANNEL_ID:-}" ] && [ -f "$POST_TG" ]; then
+  if "$PYTHON_BIN" "$POST_TG" "$DISPATCH_JSON" >>"$LOGDIR/$DATE_UTC.log" 2>&1; then
+    echo "run_sightlab_dispatch: telegram channel post OK" | tee -a "$LOGDIR/$DATE_UTC.log"
+  else
+    echo "run_sightlab_dispatch: WARN telegram channel post FAILED (publish still OK)" \
+      | tee -a "$LOGDIR/$DATE_UTC.log" >&2
+    if [ -n "${TELEGRAM_API_KEY:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+      curl -s -F "chat_id=${TELEGRAM_CHAT_ID}" \
+        --form-string "text=⚠️ SightLab ${DATE_UTC}：站点已发布，但频道自动发帖失败。查 ${SIGHTLAB_DATA_DIR}/logs/${DATE_UTC}.log。" \
+        "https://api.telegram.org/bot${TELEGRAM_API_KEY}/sendMessage" >/dev/null 2>&1 || true
+    fi
+  fi
+fi
+
 exit 0
