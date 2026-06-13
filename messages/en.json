@@ -101,6 +101,13 @@
     "checkoutError": "Could not start checkout. Try again.",
     "signInToSubscribe": "Sign in to subscribe"
   },
+  "paper": {
+    "gateKicker": "Methodology",
+    "gateTitle": "The method behind the dispatch",
+    "gateBody": "How SightLab reads the cycle — §6 fund-flow accumulation/distribution, §7 Weinstein staging with the 30-week SMA and sector dispersion, and the confirmer-not-predictor framing. Free to read with an account.",
+    "gateLoginCta": "Log in to read",
+    "gateSignupCta": "Create a free account"
+  },
   "dispatch": {
     "tag": "DAILY DISPATCH",
     "glanceTitle": "At a glance",

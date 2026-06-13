@@ -101,6 +101,13 @@
     "checkoutError": "无法开始结账，请重试。",
     "signInToSubscribe": "登录后订阅"
   },
+  "paper": {
+    "gateKicker": "方法论",
+    "gateTitle": "快报背后的方法",
+    "gateBody": "SightLab 如何读周期 —— §6 资金流的吸筹/派发、§7 Weinstein 阶段配合 30 周均线与板块离散度，以及「确认而非预测」的定位。注册账号后即可免费阅读。",
+    "gateLoginCta": "登录阅读",
+    "gateSignupCta": "免费注册账号"
+  },
   "dispatch": {
     "tag": "每日快报",
     "glanceTitle": "速览",
