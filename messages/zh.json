@@ -13,23 +13,13 @@
   },
   "auth": {
     "signInTitle": "登录",
-    "signInSubtitle": "欢迎回到 SightLab。",
-    "signUpTitle": "创建账户",
-    "signUpSubtitle": "SightLab 的全部内容免费公开，无需账户即可阅读。注册账户可获得 Telegram 频道邀请链接。",
+    "magicLinkSubtitle": "输入邮箱，我们会发一条一键登录链接给你——无需密码。",
     "emailLabel": "邮箱",
-    "passwordLabel": "密码",
-    "signInButton": "登录",
-    "signUpButton": "创建账户",
-    "noAccount": "还没有账户？",
-    "signUpLink": "去注册",
-    "haveAccount": "已经有账户了？",
-    "signInLink": "去登录",
-    "checkEmail": "请查收邮件确认账户，然后再登录。",
+    "signInButton": "给我发登录链接",
+    "checkEmail": "请查收邮件里的登录链接，点击后回到本站。",
     "errors": {
-      "missingFields": "请输入邮箱和密码。",
-      "invalidCredentials": "邮箱或密码错误。",
-      "weakPassword": "密码至少 8 个字符。",
-      "signupFailed": "账户创建失败，请重试。",
+      "missingEmail": "请输入邮箱。",
+      "magicLinkFailed": "链接发送失败，请检查邮箱后重试。",
       "callbackFailed": "该确认链接无效或已过期。"
     }
   },
@@ -106,7 +96,7 @@
     "gateTitle": "快报背后的方法",
     "gateBody": "SightLab 如何读周期 —— §6 资金流的吸筹/派发、§7 Weinstein 阶段配合 30 周均线与板块离散度，以及「确认而非预测」的定位。注册账号后即可免费阅读。",
     "gateLoginCta": "登录阅读",
-    "gateSignupCta": "免费注册账号"
+    "gateSignupCta": "登录后阅读"
   },
   "dispatch": {
     "tag": "每日快报",

@@ -13,23 +13,13 @@
   },
   "auth": {
     "signInTitle": "Sign in",
-    "signInSubtitle": "Welcome back to SightLab.",
-    "signUpTitle": "Create your account",
-    "signUpSubtitle": "Everything SightLab publishes is free to read — no account needed. An account gets you the Telegram channel invite link.",
+    "magicLinkSubtitle": "Enter your email and we'll send you a one-click sign-in link — no password.",
     "emailLabel": "Email",
-    "passwordLabel": "Password",
-    "signInButton": "Sign in",
-    "signUpButton": "Create account",
-    "noAccount": "No account?",
-    "signUpLink": "Create one",
-    "haveAccount": "Already have an account?",
-    "signInLink": "Sign in",
-    "checkEmail": "Check your email to confirm your account, then sign in.",
+    "signInButton": "Email me a sign-in link",
+    "checkEmail": "Check your email for your sign-in link, then come back.",
     "errors": {
-      "missingFields": "Enter your email and password.",
-      "invalidCredentials": "Wrong email or password.",
-      "weakPassword": "Password must be at least 8 characters.",
-      "signupFailed": "Could not create the account. Try again.",
+      "missingEmail": "Enter your email.",
+      "magicLinkFailed": "Couldn't send the link. Check the address and try again.",
       "callbackFailed": "That confirmation link is invalid or expired."
     }
   },
@@ -106,7 +96,7 @@
     "gateTitle": "The method behind the dispatch",
     "gateBody": "How SightLab reads the cycle — §6 fund-flow accumulation/distribution, §7 Weinstein staging with the 30-week SMA and sector dispersion, and the confirmer-not-predictor framing. Free to read with an account.",
     "gateLoginCta": "Log in to read",
-    "gateSignupCta": "Create a free account"
+    "gateSignupCta": "Sign in to read"
   },
   "dispatch": {
     "tag": "DAILY DISPATCH",

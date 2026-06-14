@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { AuthForm } from "../AuthForm";
-import { signIn } from "../actions";
+import { sendMagicLink } from "../actions";
 
 export default async function LoginPage({
   searchParams,
@@ -19,13 +18,7 @@ export default async function LoginPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <AuthForm mode="signin" action={signIn} notice={notice} />
-      <p className="text-center text-sm text-muted">
-        {t("noAccount")}{" "}
-        <Link href="/signup" className="text-accent hover:underline">
-          {t("signUpLink")}
-        </Link>
-      </p>
+      <AuthForm action={sendMagicLink} notice={notice} />
     </div>
   );
 }

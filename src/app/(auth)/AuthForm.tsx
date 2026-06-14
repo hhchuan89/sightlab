@@ -5,8 +5,6 @@ import { useFormStatus } from "react-dom";
 import { useTranslations } from "next-intl";
 import type { AuthState } from "./actions";
 
-type Mode = "signin" | "signup";
-
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
@@ -21,32 +19,26 @@ function SubmitButton({ label }: { label: string }) {
 }
 
 /**
- * Shared email+password form for /login and /signup. Drives the signIn/signUp
- * server actions through useActionState; error keys returned by the action are
- * resolved against the `auth` message namespace.
+ * Passwordless sign-in form for /login. Drives the sendMagicLink server action
+ * through useActionState; error keys returned by the action are resolved against
+ * the `auth` message namespace. One email field — no password, no signin/signup
+ * distinction (Supabase OTP creates the account on first use).
  */
 export function AuthForm({
-  mode,
   action,
   notice,
 }: {
-  mode: Mode;
   action: (prev: AuthState, formData: FormData) => Promise<AuthState>;
   notice?: string;
 }) {
   const t = useTranslations("auth");
   const [state, formAction] = useActionState<AuthState, FormData>(action, null);
 
-  const title = mode === "signin" ? t("signInTitle") : t("signUpTitle");
-  const submitLabel = mode === "signin" ? t("signInButton") : t("signUpButton");
-
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <h1 className="font-serif text-2xl font-semibold text-text">{title}</h1>
-        <p className="text-sm text-muted">
-          {mode === "signin" ? t("signInSubtitle") : t("signUpSubtitle")}
-        </p>
+        <h1 className="font-serif text-2xl font-semibold text-text">{t("signInTitle")}</h1>
+        <p className="text-sm text-muted">{t("magicLinkSubtitle")}</p>
       </div>
 
       {notice ? (
@@ -66,18 +58,6 @@ export function AuthForm({
         />
       </label>
 
-      <label className="flex flex-col gap-1.5">
-        <span className="label-mono text-text-2">{t("passwordLabel")}</span>
-        <input
-          type="password"
-          name="password"
-          autoComplete={mode === "signin" ? "current-password" : "new-password"}
-          required
-          minLength={mode === "signup" ? 8 : undefined}
-          className="rounded-md border border-border bg-bg px-3 py-2 text-sm text-text outline-none focus:border-primary"
-        />
-      </label>
-
       {state?.error ? (
         <p className="text-sm text-danger" role="alert">
           {/* action returns a message key under the `auth` namespace */}
@@ -85,7 +65,7 @@ export function AuthForm({
         </p>
       ) : null}
 
-      <SubmitButton label={submitLabel} />
+      <SubmitButton label={t("signInButton")} />
     </form>
   );
 }
