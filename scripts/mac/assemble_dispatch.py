@@ -403,8 +403,11 @@ def build_weekly_narrative(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
 
     accum = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "ACCUMULATION"]
     distr = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "DISTRIBUTION"]
-    accum_zh = "、".join(accum) if accum else "无明显吸筹"
-    distr_zh = "、".join(distr) if distr else "无明显派发"
+    # Names only — the verb (吸筹/派发, accumulation/distribution) is in the
+    # surrounding template, so the empty fallback must be a bare "无"/"none"
+    # (NOT "无明显派发", which would double the verb → "无明显派发派发").
+    accum_zh = "、".join(accum) if accum else "无"
+    distr_zh = "、".join(distr) if distr else "无"
     accum_en = ", ".join(accum) if accum else "none"
     distr_en = ", ".join(distr) if distr else "none"
 
@@ -414,12 +417,12 @@ def build_weekly_narrative(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
 
     zh = (
         f"本周周期定位:{templeton_zh}(阶段{stage_n})。"
-        f"资金面:{accum_zh}吸筹、{distr_zh}派发,其余中性。"
+        f"资金面:吸筹 {accum_zh}、派发 {distr_zh},其余中性。"
         f"板块离散度{dispersion_zh}。这是确认信号,不是预测。"
     )
     en = (
         f"Cycle this week: {templeton_en_} (stage {stage_n}). "
-        f"Flows: accumulation in {accum_en}, distribution in {distr_en}; the rest neutral. "
+        f"Flows: accumulation {accum_en}, distribution {distr_en}; the rest neutral. "
         f"Sector dispersion {dispersion_en}. A confirmer, not a forecast."
     )
     return {"zh": zh, "en": en}
