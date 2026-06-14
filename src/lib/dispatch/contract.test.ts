@@ -35,11 +35,16 @@ describe("§15.1 public dispatch contract — full content for everyone", () => 
     const d: Dispatch = {
       dispatch_date: "2026-06-06",
       generated_at: "2026-06-06T00:03:11Z",
+      kind: "daily",
       intro_en: "intro",
       intro_zh: "导语",
       at_a_glance_en: "glance",
       at_a_glance_zh: "速览",
-      cycle_badge: { stage_num: 3, templeton_stage: "Expansion", confidence: "Medium" },
+      cycle_badge: {
+        stage_num: 3,
+        templeton_stage: { en: "Stage 3 (optimism)", zh: "阶段 3（乐观）" },
+        confidence: "Medium",
+      },
       is_locked: false,
       flows_section6: {
         table1_markdown: "",

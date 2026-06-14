@@ -1,9 +1,18 @@
 #!/bin/bash
 # run_sightlab_dispatch.sh — daily SightLab producer (PLAN §7.1, §14-B5/C1/M).
 #
-# Pipeline: run the three §6/§7 market scripts → assemble_dispatch.py → POST the
-# EXACT file bytes to $SIGHTLAB_INGEST_URL with a bearer + an HMAC-SHA256 over
-# those same bytes. Any failure die()s to a Telegram DM (no partial POST).
+# SCHEDULE (launchd fires this DAILY at 00:05 UTC = 08:05 KL, same calendar day;
+# the runner itself decides what to do based on the UTC weekday):
+#   • Tue–Sat UTC  → DAILY report. 00:05 UTC reports the PRIOR US-session close
+#                    (Mon–Fri US close lands the evening before in UTC terms).
+#   • Sun UTC      → WEEKLY review (--weekly): kind=weekly + full_narrative.
+#   • Mon UTC      → REST day: no US close to report (Sun = no US session) → the
+#                    runner no-ops immediately (cheap exit 0) before any script.
+# So launchd stays a plain daily timer; the day→session mapping lives here.
+#
+# Pipeline (non-rest days): run the three §6/§7 market scripts → assemble_dispatch.py
+# → POST the EXACT file bytes to $SIGHTLAB_INGEST_URL with a bearer + an HMAC-SHA256
+# over those same bytes. Any failure die()s to a Telegram DM (no partial POST).
 #
 # 🔒 PRIVACY (PLAN §15.4): reads ONLY market data — weekly flows, sector
 # dispersion, cycle composite. NO §8 / holdings / portfolio / positions script is
@@ -77,6 +86,21 @@ for f in "$FLOWS_PY" "$DISP_PY" "$FAST_PY"; do
 done
 
 DATE_UTC="$(date -u +%F)"
+
+# Day-of-week routing (UTC; 1=Mon … 7=Sun). See the SCHEDULE comment in the header.
+DOW="$(date -u +%u)"
+WEEKLY_FLAG=()
+if [ "$DOW" = "1" ]; then
+  # Monday UTC: no prior US session to report → rest day. Cheap no-op BEFORE any
+  # market script runs. launchd still fires daily; the runner just exits clean.
+  echo "run_sightlab_dispatch: rest day (Mon UTC) — no dispatch ($DATE_UTC)"
+  exit 0
+elif [ "$DOW" = "7" ]; then
+  # Sunday UTC: weekly review. Same-day date; assemble emits kind=weekly + full_narrative.
+  WEEKLY_FLAG=(--weekly)
+fi
+# else (Tue–Sat): daily, exactly as before.
+
 WORK="$SIGHTLAB_DATA_DIR/work/$DATE_UTC"
 LOGDIR="$SIGHTLAB_DATA_DIR/logs"
 mkdir -p "$WORK" "$LOGDIR" || die "cannot create work/log dirs under $SIGHTLAB_DATA_DIR"
@@ -116,7 +140,8 @@ fi
 # /bin/bash 3.2 (fixed only in bash 4.4), and that crash bypasses die().
 "$PYTHON_BIN" "$ASSEMBLE" \
   --flows "$FLOWS_JSON" --dispersion "$DISP_JSON" --fast-monitor "$FAST_JSON" \
-  --out "$DISPATCH_JSON" --date "$DATE_UTC" ${TRANSLATE_FLAG[@]+"${TRANSLATE_FLAG[@]}"} \
+  --out "$DISPATCH_JSON" --date "$DATE_UTC" \
+  ${WEEKLY_FLAG[@]+"${WEEKLY_FLAG[@]}"} ${TRANSLATE_FLAG[@]+"${TRANSLATE_FLAG[@]}"} \
   2>>"$LOGDIR/$DATE_UTC.log" \
   || die "assemble_dispatch.py failed (see $LOGDIR/$DATE_UTC.log)"
 [ -s "$DISPATCH_JSON" ] || die "assemble produced an empty dispatch.json"

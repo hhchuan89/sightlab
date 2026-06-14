@@ -66,7 +66,11 @@ export default async function LandingPage() {
         ? [
             {
               label: t("glanceCycleStage"),
-              value: `Stage ${badge.stage_num} · ${badge.templeton_stage}`,
+              value: `Stage ${badge.stage_num} · ${
+                typeof badge.templeton_stage === "string"
+                  ? badge.templeton_stage
+                  : pick(badge.templeton_stage, locale)
+              }`,
             },
             { label: t("glanceConfidence"), value: badge.confidence },
           ]

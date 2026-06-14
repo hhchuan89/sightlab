@@ -174,6 +174,7 @@ function rowFromBody(b: DispatchIngestBody) {
   return {
     dispatch_date: b.dispatch_date,
     generated_at: b.generated_at,
+    kind: b.kind,
     published: true,
     intro_en: b.intro.en,
     intro_zh: b.intro.zh,
@@ -196,6 +197,7 @@ function toDispatch(b: DispatchIngestBody): Dispatch {
   return {
     dispatch_date: b.dispatch_date,
     generated_at: b.generated_at,
+    kind: b.kind,
     intro_en: b.intro.en,
     intro_zh: b.intro.zh,
     at_a_glance_en: b.at_a_glance.en,

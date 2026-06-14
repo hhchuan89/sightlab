@@ -289,7 +289,7 @@ export function renderDispatchEmail(
       <tr>
         <td style="padding:6px 12px;background:${C.surface};border:1px solid ${C.border};border-radius:4px;">
           <span style="font-family:${FONT_MONO};font-size:11px;letter-spacing:1px;text-transform:uppercase;color:${C.muted};">${esc(L.cycleStage)}: </span>
-          <span style="font-family:${FONT_MONO};font-size:13px;font-weight:600;color:${C.text};">Stage ${esc(String(badge.stage_num))} · ${esc(badge.templeton_stage)}</span>
+          <span style="font-family:${FONT_MONO};font-size:13px;font-weight:600;color:${C.text};">Stage ${esc(String(badge.stage_num))} · ${esc(pick(badge.templeton_stage, locale))}</span>
           <span style="font-family:${FONT_MONO};font-size:12px;color:${C.muted};"> · ${esc(L.confidence)}: ${esc(badge.confidence)}</span>
         </td>
       </tr>
@@ -370,7 +370,7 @@ export function renderDispatchEmail(
     intro,
     "",
     badge
-      ? `${L.cycleStage}: Stage ${badge.stage_num} · ${badge.templeton_stage} · ${L.confidence}: ${badge.confidence}`
+      ? `${L.cycleStage}: Stage ${badge.stage_num} · ${pick(badge.templeton_stage, locale)} · ${L.confidence}: ${badge.confidence}`
       : "",
     glance ? `${L.glanceTitle}: ${glance}` : "",
     "",

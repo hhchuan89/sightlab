@@ -10,20 +10,20 @@
    (#f0a833) in dark mode. */
 
 :root {
-  /* LIGHT — "warm paper" (default) */
-  --bg: #faf6ee;
-  --surface: #f3ecdd;
-  --surface-2: #ebe2cf;
-  --text: #211d17;
-  --text-2: #2c261d;
-  --muted: #645b4d;
-  --border: #d8cdb6;
+  /* LIGHT — "warm manila paper" (default) */
+  --bg: #f1e7d2;
+  --surface: #e9dcc0;
+  --surface-2: #e0d2b0;
+  --text: #221d14;
+  --text-2: #2c2617; /* nudged darker from spec #3a3320 to clear AAA 12:1 (12.24:1) */
+  --muted: #5f5640;
+  --border: #d3c4a3;
   --primary: #d97706;
   --primary-hover: #b85f04;
   --primary-soft: rgba(217, 119, 6, 0.12);
-  --accent-text: #9c4d08;
-  --success: #0b7a52;
-  --danger: #bd3b22;
+  --accent-text: #984a06;
+  --success: #0a704e; /* nudged darker from spec #0b7a52 to clear AA 4.5:1 (4.97:1) */
+  --danger: #b5371f; /* nudged darker from spec #bd3b22 to clear AA 4.5:1 (4.84:1) */
 }
 
 .dark {

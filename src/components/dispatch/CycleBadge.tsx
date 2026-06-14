@@ -8,10 +8,13 @@ import type { CycleBadge as CycleBadgeData } from "@/lib/dispatch/types";
  */
 export function CycleBadge({
   badge,
+  templetonLabel,
   stageLabel,
   confidenceLabel,
 }: {
   badge: CycleBadgeData;
+  /** already-localized Templeton-stage label (the caller resolves the locale). */
+  templetonLabel: string;
   /** localized "Cycle stage" caption. */
   stageLabel: string;
   /** localized "Confidence" caption. */
@@ -22,7 +25,7 @@ export function CycleBadge({
       <div className="rounded-md border border-border bg-surface px-3.5 py-2">
         <div className="label-mono text-muted">{stageLabel}</div>
         <div className="mt-0.5 font-mono text-lg font-semibold text-text">
-          {`Stage ${badge.stage_num} · ${badge.templeton_stage}`}
+          {`Stage ${badge.stage_num} · ${templetonLabel}`}
         </div>
       </div>
       <div className="rounded-md border border-border bg-primary-soft px-3.5 py-2">

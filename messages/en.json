@@ -1,7 +1,7 @@
 {
   "brand": {
     "name": "SightLab",
-    "tagline": "Market Intelligence"
+    "tagline": "Market Observatory"
   },
   "nav": {
     "dispatch": "Dispatch",
@@ -110,6 +110,7 @@
   },
   "dispatch": {
     "tag": "DAILY DISPATCH",
+    "tagWeekly": "Weekly Review",
     "glanceTitle": "At a glance",
     "badgeStage": "Cycle stage",
     "badgeConfidence": "Confidence",

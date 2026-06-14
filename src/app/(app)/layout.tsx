@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LangToggle } from "@/components/i18n/LangToggle";
 
 /**
- * App shell for the signed-in / reader surface (PLAN §2 tree, §6.1): M00
+ * App shell for the signed-in / reader surface (PLAN §2 tree, §6.1): SightLab
  * wordmark + theme + lang toggles. Wraps /dispatch, /archive, /account.
  */
 function AppHeader() {
@@ -22,6 +22,12 @@ function AppHeader() {
             className="label-mono text-text-2 transition-colors hover:text-accent"
           >
             {t("dispatch")}
+          </Link>
+          <Link
+            href="/paper"
+            className="label-mono hidden text-text-2 transition-colors hover:text-accent sm:inline"
+          >
+            {t("paper")}
           </Link>
           <Link
             href="/archive"

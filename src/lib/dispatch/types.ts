@@ -25,7 +25,11 @@ export type Confidence = "High" | "Medium" | "Low";
  */
 export interface CycleBadge {
   stage_num: number;
-  templeton_stage: string;
+  /**
+   * Bilingual Templeton-stage label (§14-C1). Was a bare ZH string, which leaked
+   * Chinese into the EN UI; now `{ en, zh }` so each locale renders its own.
+   */
+  templeton_stage: Bilingual;
   confidence: Confidence;
 }
 
@@ -125,6 +129,8 @@ export interface CycleSection7 {
 export interface Dispatch {
   dispatch_date: string;
   generated_at: string;
+  /** "daily" (Tue–Sat US-close) or "weekly" (Sun review). Defaults to "daily". */
+  kind: "daily" | "weekly";
   intro_en: string | null;
   intro_zh: string | null;
   at_a_glance_en: string | null;

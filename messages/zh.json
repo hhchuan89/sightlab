@@ -1,7 +1,7 @@
 {
   "brand": {
     "name": "SightLab",
-    "tagline": "市场情报"
+    "tagline": "市场观测"
   },
   "nav": {
     "dispatch": "日报",
@@ -110,6 +110,7 @@
   },
   "dispatch": {
     "tag": "每日快报",
+    "tagWeekly": "每周回顾",
     "glanceTitle": "速览",
     "badgeStage": "周期阶段",
     "badgeConfidence": "置信度",

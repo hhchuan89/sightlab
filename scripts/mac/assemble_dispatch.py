@@ -54,6 +54,27 @@ DISPERSION_LABEL_EN = {
     "低": "Low",
 }
 
+# ZH templeton_stage → EN label (PLAN §14-C1: the badge label must be bilingual so
+# the EN UI never leaks the raw Chinese stage string). These 7 strings are the
+# exact set compute_composite_score.py emits; an unknown value falls back to the
+# raw ZH so the producer NEVER crashes on drift (the EN side would then carry ZH,
+# an accepted degradation vs a failed dispatch — add the new mapping when it
+# appears). Because both en+zh are filled here, translate_en leaves the badge
+# alone (it only touches pairs whose en is still empty).
+TEMPLETON_EN = {
+    "阶段 4 亢奋（顶/泡沫·警惕）": "Stage 4 Euphoria (top/bubble · caution)",
+    "阶段 4 早期（健康乐观）": "Stage 4 early (healthy optimism)",
+    "阶段 3（乐观）": "Stage 3 (optimism)",
+    "阶段 2/3 过渡": "Stage 2/3 transition",
+    "阶段 1/4 过渡": "Stage 1/4 transition",
+    "阶段 4末/1早": "Stage 4-late / 1-early",
+    "危机": "Crisis",
+}
+
+
+def templeton_en(zh: str) -> str:
+    return TEMPLETON_EN.get(zh.strip(), zh)  # fallback: show zh (never crash)
+
 # Known contrarian_overlay enum labels the private harness emits (fixed 3-value
 # set; half-width parens canonical). Full-width variants are normalised in
 # project_contrarian_overlay() before this check so producer drift cannot
@@ -315,14 +336,23 @@ def build_cycle_section7(dispersion: dict[str, Any], fast: dict[str, Any]) -> di
 # ─────────────────────────── free slice ───────────────────────────
 
 
-def build_free_slice(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str, Any]:
+def build_free_slice(
+    flows6: dict[str, Any], cycle7: dict[str, Any], weekly: bool = False
+) -> dict[str, Any]:
     """intro / at_a_glance / cycle_badge / teaser. The badge is QUALITATIVE only
     (PLAN §14-B3): stage + templeton label + confidence — NO numeric score. The
-    teaser/at-a-glance prose state qualitative labels only (no composite number)."""
+    teaser/at-a-glance prose state qualitative labels only (no composite number).
+
+    `templeton_stage` on the badge is BILINGUAL ({zh, en}) — the ZH templates below
+    read the `.zh` subfield; the EN subfield is set deterministically here (never
+    sent to the LLM, so a correct enum mapping is not overwritten).
+
+    `weekly` frames the intro/at-a-glance for the week ("本周…") vs the day ("今日…")."""
     comp = cycle7["composite"]
+    templeton_zh = str(comp["templeton_stage"])
     cycle_badge = {
         "stage_num": int(comp["cycle_stage_num"]),
-        "templeton_stage": str(comp["templeton_stage"]),
+        "templeton_stage": {"zh": templeton_zh, "en": templeton_en(templeton_zh)},
         "confidence": str(comp["confidence"]),
     }
 
@@ -336,12 +366,20 @@ def build_free_slice(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str
         ad_zh.append("派发:" + "、".join(distr))
     ad_summary = ";".join(ad_zh) if ad_zh else "本周资金信号中性为主"
 
+    badge_zh = cycle_badge["templeton_stage"]["zh"]
+    # intro prefix: 今日 (daily) vs 本周 (weekly). at-a-glance prefix: 周期 (daily) vs
+    # 本周 (weekly) — keeps the daily wording byte-identical to before.
+    intro_period = "本周" if weekly else "今日"
+    glance_period = "本周" if weekly else "周期"
+    teaser_period = "本周" if weekly else "今日"
     intro_zh = (
-        f"今日市场周期定位 {cycle_badge['templeton_stage']}(阶段{cycle_badge['stage_num']}),"
+        f"{intro_period}市场周期定位 {badge_zh}(阶段{cycle_badge['stage_num']}),"
         f"置信度 {cycle_badge['confidence']}。{ad_summary}。"
     )
-    at_a_glance_zh = f"周期 阶段{cycle_badge['stage_num']} · {cycle_badge['confidence']};{ad_summary}。"
-    teaser_zh = f"SightLab 今日:{cycle_badge['templeton_stage']};{ad_summary}。"
+    at_a_glance_zh = (
+        f"{glance_period} 阶段{cycle_badge['stage_num']} · {cycle_badge['confidence']};{ad_summary}。"
+    )
+    teaser_zh = f"SightLab {teaser_period}:{badge_zh};{ad_summary}。"
 
     return {
         "intro": {"zh": intro_zh, "en": ""},
@@ -349,6 +387,42 @@ def build_free_slice(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str
         "cycle_badge": cycle_badge,
         "teaser": {"zh": teaser_zh, "en": ""},
     }
+
+
+def build_weekly_narrative(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str, Any]:
+    """DETERMINISTIC bilingual weekly read for cycle_section7.full_narrative — built
+    from data already in hand, NO LLM call (PLAN §14-C1). The EN here is final and
+    must NOT be sent to translate_en, so both `en` and `zh` are filled now.
+
+    Inputs reused: templeton zh/en (TASK 1 map), stage number, §6 A/D names, and
+    the dispersion_label bilingual the §7 builder already produced."""
+    comp = cycle7["composite"]
+    templeton_zh = str(comp["templeton_stage"])
+    templeton_en_ = templeton_en(templeton_zh)
+    stage_n = int(comp["cycle_stage_num"])
+
+    accum = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "ACCUMULATION"]
+    distr = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "DISTRIBUTION"]
+    accum_zh = "、".join(accum) if accum else "无明显吸筹"
+    distr_zh = "、".join(distr) if distr else "无明显派发"
+    accum_en = ", ".join(accum) if accum else "none"
+    distr_en = ", ".join(distr) if distr else "none"
+
+    disp_label = cycle7["dispersion"]["dispersion_label"]
+    dispersion_zh = str(disp_label.get("zh", ""))
+    dispersion_en = str(disp_label.get("en", ""))
+
+    zh = (
+        f"本周周期定位:{templeton_zh}(阶段{stage_n})。"
+        f"资金面:{accum_zh}吸筹、{distr_zh}派发,其余中性。"
+        f"板块离散度{dispersion_zh}。这是确认信号,不是预测。"
+    )
+    en = (
+        f"Cycle this week: {templeton_en_} (stage {stage_n}). "
+        f"Flows: accumulation in {accum_en}, distribution in {distr_en}; the rest neutral. "
+        f"Sector dispersion {dispersion_en}. A confirmer, not a forecast."
+    )
+    return {"zh": zh, "en": en}
 
 
 # ─────────────────────────── translation ───────────────────────────
@@ -501,6 +575,11 @@ def main() -> None:
     ap.add_argument("--fast-monitor", required=True, help="compute_fast_monitor.py --json output")
     ap.add_argument("--out", required=True, help="path to write dispatch.json")
     ap.add_argument("--date", default=None, help="dispatch date YYYY-MM-DD (default: today UTC)")
+    ap.add_argument(
+        "--weekly",
+        action="store_true",
+        help="weekly-review mode (Sun): kind=weekly, week-framed prose, full_narrative populated",
+    )
     ap.add_argument("--no-translate", action="store_true", help="skip claude -p (ship en_pending)")
     import os
 
@@ -529,12 +608,18 @@ def main() -> None:
 
     flows6 = build_flows_section6(flows, sector_zh)
     cycle7 = build_cycle_section7(dispersion, fast)
-    free = build_free_slice(flows6, cycle7)
+    free = build_free_slice(flows6, cycle7, weekly=args.weekly)
+
+    # Weekly (Sun) only: populate full_narrative with a DETERMINISTIC bilingual read
+    # (no LLM). Daily mode leaves it null (build_cycle_section7's default).
+    if args.weekly:
+        cycle7["full_narrative"] = build_weekly_narrative(flows6, cycle7)
 
     body: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "dispatch_date": date,
         "generated_at": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "kind": "weekly" if args.weekly else "daily",
         "en_pending": False,
         **free,
         "flows_section6": flows6,

@@ -26,7 +26,10 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
 
   return (
     <article className="space-y-8">
-      <Masthead date={dispatch.dispatch_date} label={t("tag")} />
+      <Masthead
+        date={dispatch.dispatch_date}
+        label={dispatch.kind === "weekly" ? t("tagWeekly") : t("tag")}
+      />
 
       {introText ? (
         <p className="font-body text-lg leading-relaxed text-text prose-measure">{introText}</p>
@@ -35,6 +38,11 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
       {dispatch.cycle_badge ? (
         <CycleBadge
           badge={dispatch.cycle_badge}
+          templetonLabel={
+            typeof dispatch.cycle_badge.templeton_stage === "string"
+              ? dispatch.cycle_badge.templeton_stage
+              : pick(dispatch.cycle_badge.templeton_stage, locale)
+          }
           stageLabel={t("badgeStage")}
           confidenceLabel={t("badgeConfidence")}
         />

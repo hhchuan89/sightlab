@@ -48,6 +48,14 @@ mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
 TS="$(date '+%F %T %Z')"
 D_UTC="$(date -u +%F)"
 
+# Monday UTC (date -u +%u == 1) is the producer's REST day — no dispatch is
+# expected, so do NOT alarm on a missing one. Sunday's WEEKLY run still carries
+# today's date, so the landed-check below works unchanged on Sun.
+if [ "$(date -u +%u)" = "1" ]; then
+  echo "$TS OK Monday UTC rest day — no dispatch expected, skipping checks" >>"$LOG"
+  exit 0
+fi
+
 alerts=()
 
 # --- (a) did today's dispatch land? Query the PUBLIC read RPC via PostgREST. ---

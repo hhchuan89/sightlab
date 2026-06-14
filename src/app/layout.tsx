@@ -44,7 +44,7 @@ const notoSerifTC = Noto_Serif_TC({
 
 export const metadata: Metadata = {
   title: {
-    default: "SightLab — Market Intelligence",
+    default: "SightLab — Market Observatory",
     template: "%s · SightLab",
   },
   description:

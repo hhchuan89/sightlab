@@ -24,7 +24,11 @@ function cleanBody(): Record<string, unknown> {
     generated_at: "2026-06-06T00:03:11Z",
     intro: { en: "Tech accumulates while energy bleeds.", zh: "科技吸筹，能源失血。" },
     at_a_glance: { en: "Stage 3 expansion, medium confidence.", zh: "阶段3扩张，中等置信度。" },
-    cycle_badge: { stage_num: 3, templeton_stage: "Expansion", confidence: "Medium" },
+    cycle_badge: {
+      stage_num: 3,
+      templeton_stage: { en: "Stage 3 (optimism)", zh: "阶段 3（乐观）" },
+      confidence: "Medium",
+    },
     teaser: { en: "Cycle holds at Stage 3.", zh: "周期维持在阶段3。" },
     flows_section6: {
       table1_markdown: "| ETF | wk |\n|---|---|\n| XLK | 1.42 |",

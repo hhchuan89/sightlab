@@ -59,7 +59,13 @@ def build_message(d: dict, site: str) -> str:
     date = d["dispatch_date"]
     badge = d.get("cycle_badge", {})
     stage = badge.get("stage_num", "?")
-    templeton = badge.get("templeton_stage", "")
+    # templeton_stage is now bilingual {en, zh}; this card is English-led so show
+    # the EN label (fall back to zh, then to a bare string for legacy bodies).
+    templeton_raw = badge.get("templeton_stage", "")
+    if isinstance(templeton_raw, dict):
+        templeton = templeton_raw.get("en") or templeton_raw.get("zh") or ""
+    else:
+        templeton = templeton_raw
     conf = badge.get("confidence", "")
     glance = d.get("at_a_glance", {})
 
@@ -75,8 +81,13 @@ def build_message(d: dict, site: str) -> str:
     else:
         sig_line = "All ETFs neutral this week / 本周全部中性"
 
+    if d.get("kind") == "weekly":
+        title = f"📊 <b>SightLab · Weekly Review</b> · {esc(date)}"
+    else:
+        title = f"📊 <b>SightLab</b> · {esc(date)}"
+
     lines = [
-        f"📊 <b>SightLab</b> · {esc(date)}",
+        title,
         "",
         f"<b>Cycle</b> Stage {esc(stage)} · {esc(templeton)} · Confidence {esc(conf)}",
         "",

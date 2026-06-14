@@ -54,7 +54,9 @@ const adSignal = z.enum(["ACCUMULATION", "DISTRIBUTION", "NEUTRAL"]);
 const cycleBadge = z
   .object({
     stage_num: z.number().int(),
-    templeton_stage: z.string().trim().min(1),
+    // Bilingual Templeton label (§14-C1): both langs required + non-empty, so the
+    // EN UI never leaks the raw Chinese stage string. The Mac maps zh → en before POST.
+    templeton_stage: bilingual,
     confidence,
   })
   .strict();
@@ -155,6 +157,9 @@ export const dispatchIngestSchema = z
     schema_version: z.literal(INGEST_SCHEMA_VERSION),
     dispatch_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "dispatch_date must be YYYY-MM-DD"),
     generated_at: z.string().datetime({ offset: true }),
+    // Daily (Tue–Sat US-close) vs weekly review (Sun). Defaults to "daily" so a
+    // body that predates this field still validates under the .strict() top level.
+    kind: z.enum(["daily", "weekly"]).default("daily"),
     // EN-soft-fail marker (PLAN §14-C1): true when EN is a ZH fallback awaiting a
     // real translation on a later re-POST. Content still ships.
     en_pending: z.boolean().optional().default(false),
