@@ -5,7 +5,7 @@ import { sendMagicLink } from "../actions";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ check_email?: string; auth_error?: string }>;
+  searchParams: Promise<{ check_email?: string; auth_error?: string; next?: string }>;
 }) {
   const params = await searchParams;
   const t = await getTranslations("auth");
@@ -18,7 +18,7 @@ export default async function LoginPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <AuthForm action={sendMagicLink} notice={notice} />
+      <AuthForm action={sendMagicLink} notice={notice} next={params.next} />
     </div>
   );
 }

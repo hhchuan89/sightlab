@@ -22,7 +22,7 @@ export function AtAGlance({
     <aside className="rounded-md border border-border bg-surface p-5">
       <div className="flex items-baseline justify-between">
         <span className="article-tag">{`// ${title}`}</span>
-        <span className="label-mono text-muted">§6 · §7</span>
+        <span className="label-mono text-muted">Flows · Cycle</span>
       </div>
       <hr className="rule-hair mt-3 mb-1" />
 

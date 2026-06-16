@@ -37,7 +37,6 @@ export function Section7Table({
   headers,
   tag,
   dispersionLabel,
-  compositeLabel,
   todayCoreLabel,
   narrativeLabel,
 }: {
@@ -52,11 +51,10 @@ export function Section7Table({
   };
   tag: string;
   dispersionLabel: string;
-  compositeLabel: string;
   todayCoreLabel: string;
   narrativeLabel: string;
 }) {
-  const { composite, dispersion } = data;
+  const { dispersion } = data;
   // Normalize the dispersion index to a 0..100 bar (index is roughly 0..10).
   const barPct = Math.max(4, Math.min(100, dispersion.dispersion_index * 10));
 
@@ -64,28 +62,18 @@ export function Section7Table({
     <section>
       <span className="article-tag">{`// ${tag}`}</span>
 
-      {/* composite + dispersion summary strip (§7 numeric scores) */}
-      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <div className="rounded-md border border-border bg-surface p-4">
-          <span className="label-mono text-muted">{compositeLabel}</span>
-          <div className="mt-1 font-mono text-lg font-semibold text-text tabular-nums">
-            {composite.composite_precise.toFixed(2)}
-            <span className="ml-2 text-sm font-medium text-muted">
-              {`Stage ${composite.cycle_stage_num} · ${composite.templeton_stage} · ${composite.confidence}`}
-            </span>
-          </div>
+      {/* dispersion summary box (the composite numeric score is internal-only and
+          deliberately not surfaced; the stage + confidence live in the CycleBadge) */}
+      <div className="mt-4 rounded-md border border-border bg-surface p-4">
+        <span className="label-mono text-muted">{dispersionLabel}</span>
+        <div className="mt-1 flex items-baseline gap-2">
+          <span className="font-mono text-lg font-semibold text-text tabular-nums">
+            {dispersion.dispersion_index.toFixed(1)}
+          </span>
+          <span className="text-sm text-muted">{pick(dispersion.dispersion_label, locale)}</span>
         </div>
-        <div className="rounded-md border border-border bg-surface p-4">
-          <span className="label-mono text-muted">{dispersionLabel}</span>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-mono text-lg font-semibold text-text tabular-nums">
-              {dispersion.dispersion_index.toFixed(1)}
-            </span>
-            <span className="text-sm text-muted">{pick(dispersion.dispersion_label, locale)}</span>
-          </div>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
-            <div className="h-full rounded-full bg-primary" style={{ width: `${barPct}%` }} />
-          </div>
+        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+          <div className="h-full rounded-full bg-primary" style={{ width: `${barPct}%` }} />
         </div>
       </div>
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/brand/Wordmark";
+import { GitHubLink } from "@/components/brand/GitHubLink";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LangToggle } from "@/components/i18n/LangToggle";
 
@@ -41,6 +42,7 @@ function AppHeader() {
           >
             {t("account")}
           </Link>
+          <GitHubLink />
           <div className="flex items-center gap-2">
             <LangToggle />
             <ThemeToggle />

@@ -18,11 +18,18 @@ export type AuthState = { error: string } | null;
 export async function sendMagicLink(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const email = String(formData.get("email") ?? "").trim();
   if (!email) return { error: "auth.errors.missingEmail" };
+  // Return the user to where they came from after sign-in; force a same-site
+  // relative path (no open redirect). /auth/confirm reads & re-validates `next`.
+  const next = String(formData.get("next") ?? "/account");
+  const safeNext = next.startsWith("/") ? next : "/account";
   const origin = (await headers()).get("origin") ?? process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${origin}/auth/callback?next=/account`, shouldCreateUser: true },
+    options: {
+      emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(safeNext)}`,
+      shouldCreateUser: true,
+    },
   });
   if (error) return { error: "auth.errors.magicLinkFailed" };
   redirect("/login?check_email=1");

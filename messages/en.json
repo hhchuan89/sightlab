@@ -29,7 +29,7 @@
     "emailLabel": "Email",
     "emailOptInTitle": "Daily email digest",
     "emailOptInToggle": "Toggle the daily email digest",
-    "emailOptInBody": "Get the full §6/§7 market dispatch in your inbox after each run. Market-wide only — never your holdings.",
+    "emailOptInBody": "Get the full market dispatch in your inbox after each run. Market-wide only — never your holdings.",
     "emailOptInOn": "On — you'll receive the daily dispatch by email.",
     "emailOptInOff": "Off — turn on to receive the daily dispatch by email.",
     "telegramTitle": "Telegram channel",
@@ -63,7 +63,7 @@
     "glanceLeaderValue": "Technology · accumulation",
     "glanceLaggard": "Sector laggard",
     "glanceLaggardValue": "Energy · distribution",
-    "glanceNote": "Open research, free. The full §6 flow table and §7 cycle breakdown are public — for everyone.",
+    "glanceNote": "Open research, free. The full fund-flow table and cycle breakdown are public — for everyone.",
     "ctaTitle": "Read the whole tape",
     "ctaBody": "The full daily dispatch, the weekly fund-flow table, and the complete archive are open and free. Contributions welcome.",
     "ctaButton": "Read today's dispatch",
@@ -80,8 +80,8 @@
     "yearlyPrice": "$162",
     "yearlyPeriod": "/ year",
     "yearlySave": "Save 10%",
-    "feature1": "Daily §6 fund-flow table across sectors",
-    "feature2": "Daily §7 Weinstein-stage cycle positioning",
+    "feature1": "Daily fund-flow table across sectors",
+    "feature2": "Daily Weinstein-stage cycle positioning",
     "feature3": "Full searchable archive",
     "feature4": "EN / 中文, light + dark",
     "deliveryNote": "Dispatches target 00:00 UTC. Occasional delays happen — a late day is a known property, not a broken promise.",
@@ -94,7 +94,7 @@
   "paper": {
     "gateKicker": "Methodology",
     "gateTitle": "The method behind the dispatch",
-    "gateBody": "How SightLab reads the cycle — §6 fund-flow accumulation/distribution, §7 Weinstein staging with the 30-week SMA and sector dispersion, and the confirmer-not-predictor framing. Free to read with an account.",
+    "gateBody": "How SightLab reads the cycle — fund-flow accumulation/distribution, Weinstein staging with the 30-week SMA and sector dispersion, and the confirmer-not-predictor framing. Free to read with an account.",
     "gateLoginCta": "Log in to read",
     "gateSignupCta": "Sign in to read"
   },
@@ -104,8 +104,8 @@
     "glanceTitle": "At a glance",
     "badgeStage": "Cycle stage",
     "badgeConfidence": "Confidence",
-    "flowsTag": "WEEKLY FUND FLOWS · §6",
-    "cycleTag": "MARKET CYCLE · §7",
+    "flowsTag": "WEEKLY FUND FLOWS",
+    "cycleTag": "MARKET CYCLE",
     "coreReading": "Core reading",
     "dispersion": "Sector dispersion",
     "composite": "Composite read",
@@ -137,6 +137,7 @@
   },
   "footer": {
     "rights": "All rights reserved.",
-    "disclaimer": "SightLab is research, not investment advice. The cycle read is a confirmer, not a predictor."
+    "disclaimer": "SightLab is research, not investment advice. The cycle read is a confirmer, not a predictor.",
+    "openSource": "Open source — ★ Star on GitHub"
   }
 }

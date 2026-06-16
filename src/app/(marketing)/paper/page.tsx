@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Methodology",
   description:
-    "How SightLab reads the cycle: §6 fund-flow accumulation/distribution, §7 Weinstein staging + the 30-week SMA + sector dispersion, and the confirmer-not-predictor framing. A draft.",
+    "How SightLab reads the cycle: fund-flow accumulation/distribution, Weinstein staging + the 30-week SMA + sector dispersion, and the confirmer-not-predictor framing. A draft.",
 };
 
 export default async function PaperPage() {
@@ -34,13 +34,13 @@ export default async function PaperPage() {
         <p className="mt-6 text-lg leading-relaxed text-text-2">{t("gateBody")}</p>
         <div className="mt-9 flex flex-wrap items-center gap-4">
           <Link
-            href="/login"
+            href="/login?next=/paper"
             className="rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-text transition-colors hover:bg-primary-hover"
           >
             {t("gateLoginCta")}
           </Link>
           <Link
-            href="/login"
+            href="/login?next=/paper"
             className="label-mono text-text-2 underline decoration-border underline-offset-4 transition-colors hover:text-accent hover:decoration-accent"
           >
             {t("gateSignupCta")}

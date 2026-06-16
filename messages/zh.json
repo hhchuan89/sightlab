@@ -29,7 +29,7 @@
     "emailLabel": "邮箱",
     "emailOptInTitle": "每日邮件摘要",
     "emailOptInToggle": "切换每日邮件摘要",
-    "emailOptInBody": "每次生成后，将完整的 §6/§7 市场日报发到你的邮箱。仅市场层面——绝不包含你的持仓。",
+    "emailOptInBody": "每次生成后，将完整的市场日报发到你的邮箱。仅市场层面——绝不包含你的持仓。",
     "emailOptInOn": "已开启——你将通过邮件收到每日日报。",
     "emailOptInOff": "已关闭——开启后将通过邮件收到每日日报。",
     "telegramTitle": "Telegram 频道",
@@ -63,7 +63,7 @@
     "glanceLeaderValue": "科技 · 吸筹",
     "glanceLaggard": "落后板块",
     "glanceLaggardValue": "能源 · 派发",
-    "glanceNote": "开放研究，免费。完整的 §6 资金流向表与 §7 周期拆解——所有人都能看。",
+    "glanceNote": "开放研究，免费。完整的资金流向表与周期拆解——所有人都能看。",
     "ctaTitle": "读懂整张盘面",
     "ctaBody": "完整每日快报、每周资金流向表，以及全部存档——开放、免费。欢迎贡献。",
     "ctaButton": "阅读今日快报",
@@ -80,8 +80,8 @@
     "yearlyPrice": "$162",
     "yearlyPeriod": "/ 年",
     "yearlySave": "省 10%",
-    "feature1": "每日 §6 跨板块资金流向表",
-    "feature2": "每日 §7 Weinstein 阶段周期定位",
+    "feature1": "每日跨板块资金流向表",
+    "feature2": "每日 Weinstein 阶段周期定位",
     "feature3": "完整可检索存档",
     "feature4": "EN / 中文，浅色 + 深色",
     "deliveryNote": "快报以 00:00 UTC 为目标。偶有延迟——晚一天是已知特性，而非违约。",
@@ -94,7 +94,7 @@
   "paper": {
     "gateKicker": "方法论",
     "gateTitle": "快报背后的方法",
-    "gateBody": "SightLab 如何读周期 —— §6 资金流的吸筹/派发、§7 Weinstein 阶段配合 30 周均线与板块离散度，以及「确认而非预测」的定位。注册账号后即可免费阅读。",
+    "gateBody": "SightLab 如何读周期 —— 资金流的吸筹/派发、Weinstein 阶段配合 30 周均线与板块离散度，以及「确认而非预测」的定位。注册账号后即可免费阅读。",
     "gateLoginCta": "登录阅读",
     "gateSignupCta": "登录后阅读"
   },
@@ -104,8 +104,8 @@
     "glanceTitle": "速览",
     "badgeStage": "周期阶段",
     "badgeConfidence": "置信度",
-    "flowsTag": "每周资金流向 · §6",
-    "cycleTag": "市场周期 · §7",
+    "flowsTag": "每周资金流向",
+    "cycleTag": "市场周期",
     "coreReading": "核心解读",
     "dispersion": "板块离散度",
     "composite": "综合读数",
@@ -137,6 +137,7 @@
   },
   "footer": {
     "rights": "保留所有权利。",
-    "disclaimer": "SightLab 是研究，不是投资建议。周期读数是确认器，不是预测器。"
+    "disclaimer": "SightLab 是研究，不是投资建议。周期读数是确认器，不是预测器。",
+    "openSource": "开源 — ★ 在 GitHub 上点亮 Star"
   }
 }

@@ -71,7 +71,6 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
           locale={locale}
           tag={t("cycleTag")}
           dispersionLabel={t("dispersion")}
-          compositeLabel={t("composite")}
           todayCoreLabel={t("todayCore")}
           narrativeLabel={t("narrative")}
           headers={{

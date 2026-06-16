@@ -27,15 +27,19 @@ function SubmitButton({ label }: { label: string }) {
 export function AuthForm({
   action,
   notice,
+  next,
 }: {
   action: (prev: AuthState, formData: FormData) => Promise<AuthState>;
   notice?: string;
+  /** post-login destination, threaded to the action so it can build the magic-link redirect. */
+  next?: string;
 }) {
   const t = useTranslations("auth");
   const [state, formAction] = useActionState<AuthState, FormData>(action, null);
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      <input type="hidden" name="next" value={next ?? "/account"} />
       <div className="flex flex-col gap-1">
         <h1 className="font-serif text-2xl font-semibold text-text">{t("signInTitle")}</h1>
         <p className="text-sm text-muted">{t("magicLinkSubtitle")}</p>

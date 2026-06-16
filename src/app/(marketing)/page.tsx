@@ -150,7 +150,7 @@ export default async function LandingPage() {
             <span className="article-tag">{`// ${t("glanceTitle")}`}</span>
             <span className="flex items-baseline gap-2">
               {latest ? null : <SampleBadge label={t("sampleBadge")} />}
-              <span className="label-mono text-muted">§6 · §7</span>
+              <span className="label-mono text-muted">Flows · Cycle</span>
             </span>
           </div>
           <hr className="rule-hair mt-3 mb-1" />
@@ -169,7 +169,7 @@ export default async function LandingPage() {
       {latest ? null : (
         <section className="mt-16 max-w-2xl border-t border-border pt-10">
           <span className="flex items-baseline gap-3">
-            <span className="article-tag">{`// ${t("articleTag")} · §7`}</span>
+            <span className="article-tag">{`// ${t("articleTag")}`}</span>
             <SampleBadge label={t("sampleBadge")} />
           </span>
           <h2 className="mt-3 text-4xl font-semibold text-text">{t("sampleHeadline")}</h2>

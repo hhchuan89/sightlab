@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/brand/Wordmark";
+import { GitHubLink } from "@/components/brand/GitHubLink";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LangToggle } from "@/components/i18n/LangToggle";
 
@@ -33,6 +34,7 @@ function MarketingHeader() {
           >
             {t("login")}
           </Link>
+          <GitHubLink />
           <div className="flex items-center gap-2">
             <LangToggle />
             <ThemeToggle />
@@ -58,6 +60,14 @@ function MarketingFooter() {
             © {year} · {t("rights")}
           </span>
         </div>
+        <a
+          href="https://github.com/hhchuan89/sightlab"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="label-mono text-muted transition-colors hover:text-accent"
+        >
+          {t("openSource")}
+        </a>
       </div>
     </footer>
   );

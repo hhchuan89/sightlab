@@ -70,8 +70,8 @@ const LABELS: Record<Locale, Labels> = {
     glanceTitle: "At a glance",
     cycleStage: "Cycle stage",
     confidence: "Confidence",
-    flowsTag: "WEEKLY FUND FLOWS · §6",
-    cycleTag: "MARKET CYCLE · §7",
+    flowsTag: "WEEKLY FUND FLOWS",
+    cycleTag: "MARKET CYCLE",
     coreReading: "Core reading",
     dispersion: "Sector dispersion",
     composite: "Composite read",
@@ -90,8 +90,8 @@ const LABELS: Record<Locale, Labels> = {
     glanceTitle: "速览",
     cycleStage: "周期阶段",
     confidence: "置信度",
-    flowsTag: "每周资金流向 · §6",
-    cycleTag: "市场周期 · §7",
+    flowsTag: "每周资金流向",
+    cycleTag: "市场周期",
     coreReading: "核心解读",
     dispersion: "板块离散度",
     composite: "综合读数",
@@ -174,7 +174,7 @@ function section6Html(s6: FlowsSection6, locale: Locale, L: Labels): string {
 }
 
 function section7Html(s7: CycleSection7, locale: Locale, L: Labels): string {
-  const { composite, dispersion } = s7;
+  const { dispersion } = s7;
   const th = (t: string, align = "left") =>
     `<th scope="col" style="text-align:${align};font-family:${FONT_MONO};font-size:10px;letter-spacing:1px;text-transform:uppercase;color:${C.accentText};padding:6px 8px 6px 0;border-bottom:1px solid ${C.border};">${esc(t)}</th>`;
 
@@ -190,15 +190,13 @@ function section7Html(s7: CycleSection7, locale: Locale, L: Labels): string {
     )
     .join("");
 
+  // The composite numeric score is internal-only and is deliberately NOT rendered
+  // (it also leaked the raw Chinese templeton_stage into the EN email). Stage +
+  // confidence are already shown in the cycle badge; only dispersion is surfaced.
   const summary = `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:separate;border-spacing:0;margin-top:6px;">
       <tr>
-        <td style="width:50%;padding:12px;border:1px solid ${C.border};background:${C.surface};vertical-align:top;">
-          <div style="font-family:${FONT_MONO};font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:${C.muted};">${esc(L.composite)}</div>
-          <div style="font-family:${FONT_MONO};font-size:18px;font-weight:600;color:${C.text};margin-top:4px;">${esc(composite.composite_precise.toFixed(2))}</div>
-          <div style="font-family:${FONT_MONO};font-size:12px;color:${C.muted};margin-top:2px;">Stage ${esc(String(composite.cycle_stage_num))} · ${esc(composite.templeton_stage)} · ${esc(composite.confidence)}</div>
-        </td>
-        <td style="width:50%;padding:12px;border:1px solid ${C.border};border-left:0;background:${C.surface};vertical-align:top;">
+        <td style="padding:12px;border:1px solid ${C.border};background:${C.surface};vertical-align:top;">
           <div style="font-family:${FONT_MONO};font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:${C.muted};">${esc(L.dispersion)}</div>
           <div style="font-family:${FONT_MONO};font-size:18px;font-weight:600;color:${C.text};margin-top:4px;">${esc(dispersion.dispersion_index.toFixed(1))}</div>
           <div style="font-family:${FONT_MONO};font-size:12px;color:${C.muted};margin-top:2px;">${esc(pick(dispersion.dispersion_label, locale))}</div>

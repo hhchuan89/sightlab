@@ -184,6 +184,23 @@ h3 {
   text-align: right;
 }
 
+/* Phones: stack each leader row label-above-value so long values wrap instead of
+   clipping. Drop the dotted leader (meaningless once stacked). */
+@media (max-width: 640px) {
+  .leader-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+  .leader-dots {
+    display: none;
+  }
+  .leader-value {
+    white-space: normal;
+    text-align: left;
+  }
+}
+
 /* editorial blockquote: 3px amber left border, italic serif, no bg */
 .editorial-quote {
   border-left: 3px solid var(--primary);
