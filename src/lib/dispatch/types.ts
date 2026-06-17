@@ -48,6 +48,10 @@ export interface FlowRow {
   week_turnover_usd: number;
   ad_signal: AdSignal;
   ad_score: number;
+  /** P0-3: A/D strength tag (strong/weak/none) — optional, older producers omit it. */
+  ad_confidence?: string;
+  /** P0-3: crypto volume-proxy flag (IBIT/FBTC) — drives a "proxy" footnote. */
+  proxy_only?: boolean;
   /** table2 per-ETF narrative prose. */
   signal: Bilingual;
 }
@@ -106,11 +110,36 @@ export interface Composite {
   layer_totals: Record<string, unknown>;
 }
 
+/**
+ * P0/P1/P2 (report 20260614) "alongside" reads — market-only, never holdings.
+ * Each sub-block is optional (absent on snapshots predating the field); the whole
+ * block is nullable (a weekday dispatch off an old snapshot may carry nothing).
+ * These are reported ALONGSIDE the composite, never merged into composite_score.
+ */
+export interface CycleExtras {
+  /** NY Fed Estrella-Mishkin probit P(recession, 12m) — the one calibrated number. */
+  recession_probit_p?: { value_pct: number; as_of: string | null };
+  /** T10Y3M yield-curve spread + level/trajectory enum codes (i18n'd in the UI). */
+  yield_curve?: { spread_bps: number; level: string; trajectory: string | null; as_of: string | null };
+  /** Leading tilt (deteriorating/stable/improving) — low-confidence, faster, NOT a forecast. */
+  leading_sleeve?: { tilt: string; score: number; available_signals: number; components: Record<string, number | null> };
+  /** Decorrelated block-vote read — shown alongside to surface cluster double-counting. */
+  composite_blockvote?: { rescaled: number; implied_stage: Bilingual; blocks: Record<string, number> };
+  /** Regime persistence: dwell + 2-read hysteresis-smoothed stage. */
+  regime_persistence?: { dwell_snapshots: number; direction: Bilingual; transition_suppressed: boolean; hysteresis_smoothed_stage: Bilingual };
+}
+
 /** §7 block (public in v3): sectors, dispersion, composite + prose. */
 export interface CycleSection7 {
   sectors: SectorRow[];
   dispersion: Dispersion;
   composite: Composite;
+  /**
+   * P0/P1/P2 alongside reads — `null` (new dispatches off an old snapshot) or
+   * absent/`undefined` (dispatches stored before this field existed). Optional so
+   * historical editions still type-check; the UI renders it only when present.
+   */
+  cycle_extras?: CycleExtras | null;
   today_core: Bilingual;
   /** weekly/triggered only — may be null on weekdays (PLAN §5.2, §14-C1). */
   full_narrative: Bilingual | null;

@@ -9,11 +9,21 @@ import type { FlowsSection6 } from "@/lib/dispatch/types";
  * v3 (PLAN §15.1); the dispatch pages always render this with the full
  * `flows_section6` block. It receives the projected §6 block, never the whole
  * dispatch object.
+ *
+ * 2026-06-17: added the "Vol Δ%" column (carried over from the daily-news §7.3 table
+ * during the de-dup) + a crypto-proxy footnote (IBIT/FBTC are a volume proxy, not real
+ * fund-flow data) + a weak-signal marker so an A/D flip just past the ±0.3 cut reads
+ * as weak, not strong.
  */
 
 function pct(n: number): string {
   const s = n > 0 ? "+" : "";
   return `${s}${n.toFixed(2)}%`;
+}
+
+function pct1(n: number): string {
+  const s = n > 0 ? "+" : "";
+  return `${s}${n.toFixed(1)}%`;
 }
 
 function signalClass(signal: string): string {
@@ -36,13 +46,18 @@ export function Section6Table({
     sector: string;
     thisWeek: string;
     prevWeek: string;
+    volChange: string;
     signal: string;
     note: string;
+    proxyFootnote: string;
+    weakMarker: string;
   };
   /** mono article tag, e.g. "WEEKLY FUND FLOWS · §6". */
   tag: string;
   coreReadingLabel: string;
 }) {
+  const hasProxy = data.rows.some((r) => r.proxy_only);
+
   return (
     <section>
       <span className="article-tag">{`// ${tag}`}</span>
@@ -63,6 +78,9 @@ export function Section6Table({
               <th scope="col" className="py-2 pr-4 text-right font-semibold">
                 {headers.prevWeek}
               </th>
+              <th scope="col" className="py-2 pr-4 text-right font-semibold">
+                {headers.volChange}
+              </th>
               <th scope="col" className="py-2 pr-4 text-left font-semibold">
                 {headers.signal}
               </th>
@@ -76,6 +94,7 @@ export function Section6Table({
               <tr key={row.etf} className="border-b border-dashed border-border align-top">
                 <th scope="row" className="py-2.5 pr-4 text-left font-semibold text-text">
                   {row.etf}
+                  {row.proxy_only ? <span className="text-muted">†</span> : null}
                 </th>
                 <td className="py-2.5 pr-4 text-text-2">
                   {etfDisplayName(row.etf, row.name_zh, locale)}
@@ -90,8 +109,16 @@ export function Section6Table({
                 <td className="py-2.5 pr-4 text-right tabular-nums text-muted">
                   {pct(row.prev_week_return_pct)}
                 </td>
+                <td className="py-2.5 pr-4 text-right tabular-nums text-muted">
+                  {pct1(row.vol_change_pct)}
+                </td>
                 <td className={`py-2.5 pr-4 font-semibold ${signalClass(row.ad_signal)}`}>
                   {row.ad_signal}
+                  {row.ad_confidence === "weak" && row.ad_signal !== "NEUTRAL" ? (
+                    <span className="ml-1 font-mono text-xs font-normal text-muted">
+                      ({headers.weakMarker})
+                    </span>
+                  ) : null}
                 </td>
                 <td className="w-2/5 py-2.5 font-body text-md leading-relaxed text-text">
                   {pick(row.signal, locale)}
@@ -101,6 +128,10 @@ export function Section6Table({
           </tbody>
         </table>
       </div>
+
+      {hasProxy ? (
+        <p className="mt-3 font-mono text-xs text-muted">† {headers.proxyFootnote}</p>
+      ) : null}
 
       <div className="mt-5">
         <span className="label-mono text-muted">{coreReadingLabel}</span>

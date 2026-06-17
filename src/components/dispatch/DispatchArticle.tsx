@@ -8,6 +8,7 @@ import { CycleBadge } from "@/components/dispatch/CycleBadge";
 import { CaveatNote } from "@/components/dispatch/CaveatNote";
 import { Section6Table } from "@/components/dispatch/Section6Table";
 import { Section7Table } from "@/components/dispatch/Section7Table";
+import { CycleExtras } from "@/components/dispatch/CycleExtras";
 
 /**
  * Full dispatch article (PLAN §15.1 — content is PUBLIC). Shared by
@@ -62,8 +63,11 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
             sector: t("s6.sector"),
             thisWeek: t("s6.thisWeek"),
             prevWeek: t("s6.prevWeek"),
+            volChange: t("s6.volChange"),
             signal: t("s6.signal"),
             note: t("s6.note"),
+            proxyFootnote: t("s6.proxyFootnote"),
+            weakMarker: t("s6.weakMarker"),
           }}
         />
         <Section7Table
@@ -81,6 +85,9 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
             judgment: t("s7.judgment"),
           }}
         />
+        {dispatch.cycle_section7.cycle_extras ? (
+          <CycleExtras data={dispatch.cycle_section7.cycle_extras} locale={locale} />
+        ) : null}
       </div>
 
       <CaveatNote locale={locale} label={t("caveatLabel")} />

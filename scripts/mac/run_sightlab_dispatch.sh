@@ -64,6 +64,17 @@ die() {
   exit 1
 }
 
+# --- warn_dm(): best-effort DM alert for a NON-FATAL degradation (does NOT exit).
+warn_dm() {
+  local stamp; stamp="$(date '+%F %T %Z')"
+  echo "run_sightlab_dispatch: WARN @ $stamp — $1" >&2
+  if [ -n "${TELEGRAM_API_KEY:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
+    curl -s -F "chat_id=${TELEGRAM_CHAT_ID}" \
+      --form-string "text=⚠️ SightLab @ ${stamp}：$1" \
+      "https://api.telegram.org/bot${TELEGRAM_API_KEY}/sendMessage" >/dev/null 2>&1 || true
+  fi
+}
+
 # --- required env -------------------------------------------------------------
 # Check via die() (not ${VAR:?}) so a missing var still DMs the user instead of
 # aborting silently under `set -u`.
@@ -81,7 +92,10 @@ ASSEMBLE="$SCRIPT_DIR/assemble_dispatch.py"
 FLOWS_PY="$SIGHTLAB_SKILLS_DIR/moomoo/scripts/query_weekly_flows.py"
 DISP_PY="$SIGHTLAB_SKILLS_DIR/cycle/scripts/query_sector_dispersion.py"
 FAST_PY="$SIGHTLAB_SKILLS_DIR/cycle/scripts/compute_fast_monitor.py"
-for f in "$FLOWS_PY" "$DISP_PY" "$FAST_PY"; do
+# Weekly full composite (migrated here from daily-news 2026-06-17): the shared cycle
+# snapshot that fast_monitor / radar / daily-news all read. Runs Sun only (see below).
+COMPOSITE_PY="$SIGHTLAB_SKILLS_DIR/cycle/scripts/compute_composite_score.py"
+for f in "$FLOWS_PY" "$DISP_PY" "$FAST_PY" "$COMPOSITE_PY"; do
   [ -f "$f" ] || die "harness script missing: $f"
 done
 
@@ -109,6 +123,20 @@ FLOWS_JSON="$WORK/flows.json"
 DISP_JSON="$WORK/dispersion.json"
 FAST_JSON="$WORK/fast_monitor.json"
 DISPATCH_JSON="$WORK/dispatch.json"
+
+# --- 0. WEEKLY (Sun UTC): refresh the FULL composite snapshot BEFORE the market
+#        scripts, so compute_fast_monitor reads TODAY's fresh weekly composite.
+#        This is the shared cycle snapshot that fast_monitor / radar / daily-news
+#        all consume — the weekly run migrated here from daily-news (2026-06-17).
+#        Best-effort: a failure DMs an alert but does NOT block the public dispatch
+#        (fast_monitor then falls back to the prior weekly snapshot — stale, not broken).
+if [ ${#WEEKLY_FLAG[@]} -ne 0 ]; then
+  if "$PYTHON_BIN" "$COMPOSITE_PY" >>"$LOGDIR/$DATE_UTC.log" 2>&1; then
+    echo "run_sightlab_dispatch: weekly composite refreshed ($DATE_UTC)" >>"$LOGDIR/$DATE_UTC.log"
+  else
+    warn_dm "weekly compute_composite_score.py FAILED — fast_monitor/radar/SightLab will read the PRIOR (stale) weekly snapshot. See logs/$DATE_UTC.log"
+  fi
+fi
 
 # --- 1. run the three market scripts (stdout → file; assemble tolerates the ---
 #        moomoo OpenD connect/disconnect log noise some emit on stdout). --------

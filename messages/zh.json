@@ -119,7 +119,10 @@
       "thisWeek": "本周",
       "prevWeek": "上周",
       "signal": "吸筹/派发",
-      "note": "解读"
+      "note": "解读",
+      "volChange": "成交量Δ%",
+      "proxyFootnote": "加密 ETF：量价代理，非真实申赎流向——与真实流向矛盾时以真实流向为准。",
+      "weakMarker": "弱"
     },
     "s7": {
       "symbol": "板块",
@@ -127,6 +130,37 @@
       "distance": "距离",
       "slope": "斜率",
       "judgment": "判断"
+    },
+    "cx": {
+      "tag": "周期 — 领先 & 方法 · 与 composite 并列",
+      "probit": "衰退概率（未来 12 个月）",
+      "probitSource": "NY Fed Estrella-Mishkin probit",
+      "asOf": "截至",
+      "yieldCurve": "收益率曲线（10年–3月）",
+      "level": {
+        "inverted": "倒挂（衰退预警）",
+        "flat": "平坦",
+        "normal": "正常（上倾）",
+        "steep": "陡峭"
+      },
+      "traj": {
+        "steepening": "走陡",
+        "flattening": "走平",
+        "stable": "大体持平"
+      },
+      "leadingSleeve": "领先倾斜",
+      "tilt": {
+        "deteriorating": "恶化",
+        "stable": "稳定",
+        "improving": "改善"
+      },
+      "sleeveFrame": "比周期读数更低置信、更快、更吵——是早期预警倾斜，不是预测。上面的 composite 仍是锚。",
+      "blockvote": "去相关交叉验证",
+      "blockvoteFrame": "块投票会给相关层降权。当它的阶段与上方头条分歧时，头条有一部分是相关簇的重复计数——我们摊开来给你看，不藏。",
+      "regime": "周期持续性",
+      "dwell": "已在此阶段 {n} 个读数",
+      "confirmed": "已确认（保持 ≥2 个读数）",
+      "unconfirmed": "刚跨界 — 尚未确认"
     }
   },
   "archive": {

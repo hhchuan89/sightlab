@@ -119,7 +119,10 @@
       "thisWeek": "This wk",
       "prevWeek": "Prev wk",
       "signal": "A/D",
-      "note": "Read"
+      "note": "Read",
+      "volChange": "Vol Δ%",
+      "proxyFootnote": "Crypto ETF: a volume proxy, not real fund-flow data — prefer real flows when they disagree.",
+      "weakMarker": "weak"
     },
     "s7": {
       "symbol": "Sector",
@@ -127,6 +130,37 @@
       "distance": "Dist",
       "slope": "Slope",
       "judgment": "Judgment"
+    },
+    "cx": {
+      "tag": "CYCLE — LEADING & METHOD · alongside the composite",
+      "probit": "Recession probability (12-month)",
+      "probitSource": "NY Fed Estrella-Mishkin probit",
+      "asOf": "as of",
+      "yieldCurve": "Yield curve (10y–3m)",
+      "level": {
+        "inverted": "inverted (recession warning)",
+        "flat": "flat",
+        "normal": "normal (upward-sloping)",
+        "steep": "steep"
+      },
+      "traj": {
+        "steepening": "steepening",
+        "flattening": "flattening",
+        "stable": "stable"
+      },
+      "leadingSleeve": "Leading lean",
+      "tilt": {
+        "deteriorating": "deteriorating",
+        "stable": "stable",
+        "improving": "improving"
+      },
+      "sleeveFrame": "Lower-confidence, faster, noisier than the cycle read — an early-warning lean, not a forecast. The composite above stays the anchor.",
+      "blockvote": "Decorrelated cross-check",
+      "blockvoteFrame": "Block-vote de-weights correlated layers. When its stage diverges from the headline above, part of the headline is correlated-cluster double-counting — shown in the open, not hidden.",
+      "regime": "Regime persistence",
+      "dwell": "in this stage for {n} readings",
+      "confirmed": "confirmed (held ≥2 readings)",
+      "unconfirmed": "fresh crossing — not yet confirmed"
     }
   },
   "archive": {

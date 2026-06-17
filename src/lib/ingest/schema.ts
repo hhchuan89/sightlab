@@ -73,6 +73,10 @@ const flowRow = z.object({
   week_turnover_usd: z.number(),
   ad_signal: adSignal,
   ad_score: z.number(),
+  /** P0-3: A/D strength tag (strong/weak/none) + crypto-proxy flag. Optional so
+   * older producers still validate; absent → frontend shows no footnote. */
+  ad_confidence: z.string().optional(),
+  proxy_only: z.boolean().optional(),
   /** table2 per-ETF narrative prose (bilingual, both required). */
   signal: bilingual,
 });
@@ -135,10 +139,51 @@ const composite = z.object({
   layer_totals: z.record(z.number()).default({}),
 });
 
+// P0/P1/P2 (report 20260614) "alongside" reads — market-only, never holdings.
+// Each sub-block is optional (absent on snapshots predating the field); the whole
+// block is nullable (a weekday dispatch off an old snapshot may carry nothing).
+const cycleExtras = z.object({
+  recession_probit_p: z
+    .object({ value_pct: z.number(), as_of: z.string().nullable() })
+    .optional(),
+  yield_curve: z
+    .object({
+      spread_bps: z.number(),
+      level: z.string(),
+      trajectory: z.string().nullable(),
+      as_of: z.string().nullable(),
+    })
+    .optional(),
+  leading_sleeve: z
+    .object({
+      tilt: z.string(),
+      score: z.number(),
+      available_signals: z.number(),
+      components: z.record(z.number().nullable()),
+    })
+    .optional(),
+  composite_blockvote: z
+    .object({
+      rescaled: z.number(),
+      implied_stage: bilingual,
+      blocks: z.record(z.number()),
+    })
+    .optional(),
+  regime_persistence: z
+    .object({
+      dwell_snapshots: z.number(),
+      direction: bilingual,
+      transition_suppressed: z.boolean(),
+      hysteresis_smoothed_stage: bilingual,
+    })
+    .optional(),
+});
+
 const cycleSection7 = z.object({
   sectors: z.array(sectorRow).min(1),
   dispersion,
   composite,
+  cycle_extras: cycleExtras.nullable().optional().default(null),
   today_core: bilingual,
   // §14-C1: weekly/triggered only — may be wholly null/absent on a weekday, but
   // if PRESENT both langs are required (bilingual enforces that).

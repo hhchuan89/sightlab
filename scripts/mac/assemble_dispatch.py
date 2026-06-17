@@ -167,6 +167,64 @@ def strip_us_prefix(symbol: str) -> str:
 # ─────────────────────────── §6 fund flows ───────────────────────────
 
 
+_REGIME_DIR_EN = {"↑ 上行": "↑ rising", "↓ 下行": "↓ falling", "→ 持平": "→ flat"}
+
+
+def project_cycle_extras(snap: dict[str, Any]) -> dict[str, Any] | None:
+    """PLAN §15.4 defense-in-depth: project the P0/P1/P2 'alongside' reads (report
+    20260614) to KNOWN numeric/enum keys only — free-text `note` dropped, market-only
+    (never any holdings). Stage labels → bilingual via templeton_en(); level/trajectory/
+    direction → English enum codes so EN mode never shows ZH. Returns None when none are
+    present (snapshots predating the fields) so the frontend simply hides the block."""
+    if not isinstance(snap, dict):
+        return None
+    out: dict[str, Any] = {}
+
+    rp = snap.get("recession_probit_p")
+    if isinstance(rp, dict) and rp.get("value_pct") is not None:
+        out["recession_probit_p"] = {"value_pct": rp.get("value_pct"), "as_of": rp.get("as_of")}
+
+    yc = snap.get("yield_curve")
+    if isinstance(yc, dict) and yc.get("spread_bps") is not None:
+        lvl = str(yc.get("level") or "").split("(")[0].strip()          # inverted/flat/normal/steep
+        traj = str(yc.get("trajectory") or "").split("(")[0].strip() or None  # steepening/flattening/stable
+        out["yield_curve"] = {"spread_bps": yc.get("spread_bps"), "level": lvl,
+                              "trajectory": traj, "as_of": yc.get("as_of")}
+
+    ls = snap.get("leading_sleeve")
+    if isinstance(ls, dict) and ls.get("tilt"):
+        comps = ls.get("components") or {}
+        out["leading_sleeve"] = {
+            "tilt": ls.get("tilt"),                                       # deteriorating/stable/improving (enum)
+            "score": ls.get("score"),
+            "available_signals": ls.get("available_signals"),
+            "components": {k: v for k, v in comps.items() if v is None or isinstance(v, (int, float))},
+        }
+
+    bv = snap.get("composite_blockvote")
+    if isinstance(bv, dict) and bv.get("rescaled") is not None:
+        stage_zh = str(bv.get("implied_stage_same_cuts") or "")
+        blocks = bv.get("blocks") or {}
+        out["composite_blockvote"] = {
+            "rescaled": bv.get("rescaled"),
+            "implied_stage": {"zh": stage_zh, "en": templeton_en(stage_zh)},
+            "blocks": {k: v for k, v in blocks.items() if isinstance(v, (int, float))},
+        }
+
+    rg = snap.get("regime_persistence")
+    if isinstance(rg, dict) and rg.get("dwell_snapshots") is not None:
+        sm_zh = str(rg.get("hysteresis_smoothed_stage") or "")
+        dir_zh = str(rg.get("direction") or "")
+        out["regime_persistence"] = {
+            "dwell_snapshots": rg.get("dwell_snapshots"),
+            "direction": {"zh": dir_zh, "en": _REGIME_DIR_EN.get(dir_zh, dir_zh)},
+            "transition_suppressed": bool(rg.get("transition_suppressed")),
+            "hysteresis_smoothed_stage": {"zh": sm_zh, "en": templeton_en(sm_zh)},
+        }
+
+    return out or None
+
+
 def build_flows_section6(flows: dict[str, Any], sector_zh: dict[str, str]) -> dict[str, Any]:
     """Map query_weekly_flows.py output → the contract `flows_section6`.
 
@@ -179,7 +237,7 @@ def build_flows_section6(flows: dict[str, Any], sector_zh: dict[str, str]) -> di
         die("flows input is empty or not an object")
 
     rows: list[dict[str, Any]] = []
-    table_lines = ["| ETF | This wk % | Prev wk % | A/D |", "|---|---|---|---|"]
+    table_lines = ["| ETF | This wk % | Prev wk % | Vol Δ% | A/D |", "|---|---|---|---|---|"]
     for raw_symbol, v in flows.items():
         if not isinstance(v, dict):
             continue
@@ -201,6 +259,8 @@ def build_flows_section6(flows: dict[str, Any], sector_zh: dict[str, str]) -> di
                 "week_turnover_usd": float(v.get("week_turnover_usd", 0) or 0),
                 "ad_signal": ad_signal,
                 "ad_score": float(v.get("ad_score", 0) or 0),
+                "ad_confidence": str(v.get("ad_confidence", "") or ""),   # P0-3: strong/weak/none
+                "proxy_only": bool(v.get("proxy_only", False)),           # P0-3: IBIT/FBTC 量价代理脚注
                 # ZH-first prose; EN filled by the translation pass.
                 "signal": {
                     "zh": f"{name_zh}({etf})本周 {this_wk:+.2f}%,资金信号 {ad_signal}。",
@@ -208,7 +268,10 @@ def build_flows_section6(flows: dict[str, Any], sector_zh: dict[str, str]) -> di
                 },
             }
         )
-        table_lines.append(f"| {etf} | {this_wk:+.2f} | {prev_wk:+.2f} | {ad_signal} |")
+        table_lines.append(
+            f"| {etf} | {this_wk:+.2f} | {prev_wk:+.2f} | "
+            f"{float(v.get('vol_change_pct', 0) or 0):+.1f} | {ad_signal} |"
+        )
 
     if not rows:
         die("flows produced zero usable rows")
@@ -323,6 +386,8 @@ def build_cycle_section7(dispersion: dict[str, Any], fast: dict[str, Any]) -> di
             "sector_ranking": [str(x) for x in ranking],
         },
         "composite": composite,
+        # P0/P1/P2 (report 20260614) alongside reads — None on snapshots predating them.
+        "cycle_extras": project_cycle_extras(snap),
         "today_core": {
             "zh": f"周期定位:{composite['templeton_stage']}(阶段{composite['cycle_stage_num']}),"
             f"置信度 {confidence}。板块离散度 {dispersion_label['zh']}。",
