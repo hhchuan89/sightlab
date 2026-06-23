@@ -155,3 +155,50 @@ describe("§14-C1 fail-closed bilingual — empty EN prose is rejected", () => {
     expect(dispatchIngestSchema.safeParse(body).success).toBe(false);
   });
 });
+
+describe("§15.9 deepread_section — additive, optional, still privacy-guarded", () => {
+  const deepread = {
+    teaser: { en: "Cycle holds, leaders thinning on volume.", zh: "周期维持,领涨缩量。" },
+    body: {
+      en: "Stage 2/3. Strong distribution in energy.\n\nThis is a confirmer, not a forecast.",
+      zh: "阶段2/3。能源强派发。\n\n这是确认信号,不是预测。",
+    },
+  };
+
+  it("ACCEPTS a clean body WITHOUT deepread_section (pre-§15.9 producer, schema_version unchanged)", () => {
+    const body = cleanBody();
+    expect(body.deepread_section).toBeUndefined();
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(true);
+    // default → null when absent
+    expect(result.data?.deepread_section).toBeNull();
+  });
+
+  it("ACCEPTS a clean body WITH a valid deepread_section", () => {
+    const body = { ...cleanBody(), deepread_section: deepread };
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(true);
+    expect(result.data?.deepread_section?.teaser.zh).toMatch(/周期维持/);
+  });
+
+  it("REJECTS when deepread_section.body.en is empty (§14-C1 fail-closed bilingual)", () => {
+    const body = {
+      ...cleanBody(),
+      deepread_section: { ...deepread, body: { en: "", zh: deepread.body.zh } },
+    };
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(false);
+    expect(result.error).toMatch(/deepread_section\.body\.en/);
+  });
+
+  it("REJECTS a holdings key smuggled INTO deepread_section (§15.4 guard scans it)", () => {
+    const body = {
+      ...cleanBody(),
+      deepread_section: { ...deepread, holding_note: { en: "trim XLK", zh: "减 XLK" } },
+    };
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(false);
+    expect(result.error).toMatch(/PRIVACY VIOLATION/);
+    expect(result.error).toMatch(/holding_note/);
+  });
+});

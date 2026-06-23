@@ -493,6 +493,125 @@ def build_weekly_narrative(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     return {"zh": zh, "en": en}
 
 
+def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str, Any]:
+    """DETERMINISTIC bilingual market-structure deep-read for `deepread_section`
+    (PLAN §15.9; no LLM, like build_weekly_narrative). Surfaces the buried tensions
+    SightLab's thin core_reading misses — strong A/D signals, price↑/volume↓
+    divergence, the hysteresis-suppressed cycle stage, valuation drag — but ONLY as
+    PRESENT-STATE observations (sightlab-writing §A3: describe the state, never predict
+    the next move). Any top-frame names a falsifiable observable (§D3) and keeps the
+    confirmer / model-limitation caveat (§D4). Reads market §6/§7 ONLY — no holdings.
+
+    Returns {teaser:{zh,en}, body:{zh,en}} — both langs filled now so translate_en
+    skips it (collect_zh_fields only picks pairs whose EN is still empty).
+
+    teaser = the PUBLIC hook (shown to everyone); body = the full read, login-gated
+    on the site (PLAN §15.9). Both are pure market commentary, no holdings."""
+    comp = cycle7["composite"]
+    templeton_zh = str(comp["templeton_stage"])
+    templeton_en_ = templeton_en(templeton_zh)
+    stage_n = int(comp["cycle_stage_num"])
+    conf = str(comp.get("confidence") or "")
+    va = comp.get("valuation_a_score")
+    rows = flows6["rows"]
+    disp = cycle7["dispersion"]
+    disp_zh = str((disp.get("dispersion_label") or {}).get("zh", ""))
+    disp_en = str((disp.get("dispersion_label") or {}).get("en", ""))
+    extras = cycle7.get("cycle_extras") or {}
+
+    def _names_zh(rs: list[dict]) -> str:
+        return "、".join(f"{r['etf']}({r['name_zh']})" for r in rs) if rs else "无"
+
+    def _names_en(rs: list[dict]) -> str:
+        return ", ".join(str(r["etf"]) for r in rs) if rs else "none"
+
+    distr_strong = [
+        r for r in rows if r.get("ad_confidence") == "strong" and r.get("ad_signal") == "DISTRIBUTION"
+    ]
+    accum_strong = [
+        r for r in rows if r.get("ad_confidence") == "strong" and r.get("ad_signal") == "ACCUMULATION"
+    ]
+    diverge = [
+        r
+        for r in rows
+        if (r.get("this_week_return_pct") or 0) >= 1.0 and (r.get("vol_change_pct") or 0) <= -20.0
+    ]
+
+    # ── cycle position (state) ──
+    val_zh = (
+        f"估值层读数 {va:g}(8 层 composite 里的负向块)。"
+        if isinstance(va, (int, float)) and va < 0
+        else ""
+    )
+    val_en = (
+        f" Valuation layer reads {va:g} (a drag block in the 8-layer composite)."
+        if isinstance(va, (int, float)) and va < 0
+        else ""
+    )
+    p1_zh = f"周期定位:{templeton_zh}(阶段{stage_n}),置信度 {conf};板块离散度{disp_zh}。{val_zh}"
+    p1_en = (
+        f"Cycle: {templeton_en_} (stage {stage_n}), confidence {conf}; "
+        f"sector dispersion {disp_en}.{val_en}"
+    )
+
+    # ── flows (state) ──
+    p2_zh = f"资金面只有强信号值得下结论:派发 {_names_zh(distr_strong)};吸筹 {_names_zh(accum_strong)},其余中性。"
+    p2_en = (
+        f"Only strong-conviction flows count this week: distribution {_names_en(distr_strong)}; "
+        f"accumulation {_names_en(accum_strong)}; the rest neutral."
+    )
+    if diverge:
+        p2_zh += "量价背离(当前上涨但缩量,资金未确认):" + "、".join(
+            f"{r['etf']} {r['this_week_return_pct']:+.1f}%/量{r['vol_change_pct']:+.0f}%" for r in diverge
+        ) + "。"
+        p2_en += " Price-up/volume-down divergence right now (advance without volume confirmation): " + ", ".join(
+            f"{r['etf']} {r['this_week_return_pct']:+.1f}%/vol {r['vol_change_pct']:+.0f}%" for r in diverge
+        ) + "."
+
+    # ── hysteresis / top-frame (state + §D3 falsifier + §D4 caveat) ──
+    p3_zh = p3_en = ""
+    rp = extras.get("regime_persistence") or {}
+    smoothed_zh = str((rp.get("hysteresis_smoothed_stage") or {}).get("zh") or "")
+    smoothed_en = str((rp.get("hysteresis_smoothed_stage") or {}).get("en") or "")
+    if rp.get("transition_suppressed") and smoothed_zh and smoothed_zh != templeton_zh:
+        confined_zh = _names_zh(distr_strong)
+        confined_en = _names_en(distr_strong)
+        p3_zh = (
+            f"档位状态:平滑前的原始档位当前读作「{smoothed_zh}」,被 hysteresis 抑制(transition_suppressed),"
+            f"官方档位仍压在「{templeton_zh}」。这是当下的滞后确认状态,不是拐点预测。"
+            f"可证伪观测:若这是真实见顶,派发应蔓延到 {confined_zh} 之外;目前仍局限于此。"
+            f"模型局限:本周期模型是确认器、非预警器,危机与顶部均有盲区。"
+        )
+        p3_en = (
+            f'Stage state: the pre-smoothing raw stage currently reads "{smoothed_en}", suppressed by hysteresis '
+            f'(transition_suppressed); the official stage stays at "{templeton_en_}". This is the present '
+            f"lagging-confirmation state, not a turning-point forecast. Falsifier: were this a genuine top, "
+            f"distribution would broaden beyond {confined_en}; for now it stays confined there. Model limit: "
+            f"this cycle engine is a confirmer, not an early warning — blind spots at crises and tops."
+        )
+
+    body_zh = "\n\n".join(x for x in (p1_zh, p2_zh, p3_zh) if x)
+    body_en = "\n\n".join(x for x in (p1_en, p2_en, p3_en) if x)
+
+    teaser_zh = (
+        f"周期 {templeton_zh}、置信度 {conf};"
+        + ("领涨板块当前在缩量、" if diverge else "")
+        + (f"平滑前原始档位已读作「{smoothed_zh}」(被抑制)、" if p3_zh else "")
+        + "本期深读拆解这组当前市场结构信号。"
+    )
+    teaser_en = (
+        f"Cycle {templeton_en_}, confidence {conf}; "
+        + ("leaders are thinning on volume, " if diverge else "")
+        + (f'the pre-smoothing raw stage already reads "{smoothed_en}" (suppressed), ' if p3_en else "")
+        + "this deep-read unpacks the current market-structure signals."
+    )
+
+    return {
+        "teaser": {"zh": teaser_zh, "en": teaser_en},
+        "body": {"zh": body_zh, "en": body_en},
+    }
+
+
 # ─────────────────────────── translation ───────────────────────────
 
 
@@ -693,6 +812,10 @@ def main() -> None:
         "flows_section6": flows6,
         "cycle_section7": cycle7,
     }
+
+    # Market-structure deep-read (PLAN §15.9) — deterministic bilingual, no LLM.
+    # teaser is public; body is login-gated on the site. Market-only, no holdings.
+    body["deepread_section"] = build_deepread_section(flows6, cycle7)
 
     # Translate ZH → EN (or soft-fail to ZH).
     if args.no_translate:

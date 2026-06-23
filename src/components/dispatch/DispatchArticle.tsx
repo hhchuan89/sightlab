@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { resolveLocale } from "@/lib/i18n/request";
 import { pick } from "@/lib/i18n/pick";
+import { getSession } from "@/lib/auth/getSession";
 import type { Dispatch } from "@/lib/dispatch/types";
 import { Masthead } from "@/components/dispatch/Masthead";
 import { AtAGlance } from "@/components/dispatch/AtAGlance";
@@ -9,6 +10,7 @@ import { CaveatNote } from "@/components/dispatch/CaveatNote";
 import { Section6Table } from "@/components/dispatch/Section6Table";
 import { Section7Table } from "@/components/dispatch/Section7Table";
 import { CycleExtras } from "@/components/dispatch/CycleExtras";
+import { DeepReadSection } from "@/components/dispatch/DeepReadSection";
 
 /**
  * Full dispatch article (PLAN §15.1 — content is PUBLIC). Shared by
@@ -18,6 +20,10 @@ import { CycleExtras } from "@/components/dispatch/CycleExtras";
 export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
   const locale = await resolveLocale();
   const t = await getTranslations("dispatch");
+  // §15.9: the deep-read BODY is login-gated. We read the session server-side and
+  // pass `body` in ONLY when authenticated — for anon it is never serialized.
+  const { user } = await getSession();
+  const deepread = dispatch.deepread_section;
 
   const introText = pick({ en: dispatch.intro_en ?? "", zh: dispatch.intro_zh ?? "" }, locale);
   const glanceText = pick(
@@ -91,6 +97,22 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
       </div>
 
       <CaveatNote locale={locale} label={t("caveatLabel")} />
+
+      {/* §15.9 market-structure deep-read — public teaser; full body login-gated. */}
+      {deepread ? (
+        <DeepReadSection
+          teaser={pick(deepread.teaser, locale)}
+          body={user ? pick(deepread.body, locale) : null}
+          labels={{
+            tag: t("deepread.tag"),
+            title: t("deepread.title"),
+            lockedTitle: t("deepread.lockedTitle"),
+            lockedBody: t("deepread.lockedBody"),
+            cta: t("deepread.cta"),
+            ctaHref: "/login?next=/dispatch",
+          }}
+        />
+      ) : null}
     </article>
   );
 }

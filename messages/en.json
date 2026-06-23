@@ -161,6 +161,13 @@
       "dwell": "in this stage for {n} readings",
       "confirmed": "confirmed (held ≥2 readings)",
       "unconfirmed": "fresh crossing — not yet confirmed"
+    },
+    "deepread": {
+      "tag": "MARKET-STRUCTURE DEEP-READ",
+      "title": "Market-structure deep-read",
+      "lockedTitle": "Log in to read the full deep-read",
+      "lockedBody": "The full market-structure read — strong fund-flow signals, the hysteresis-suppressed cycle stage, valuation drag, and the model-limitation caveat — is free to registered readers. Create a free account to keep reading.",
+      "cta": "Log in (free)"
     }
   },
   "archive": {

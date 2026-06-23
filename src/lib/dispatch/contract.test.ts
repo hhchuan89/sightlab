@@ -73,6 +73,7 @@ describe("§15.1 public dispatch contract — full content for everyone", () => 
         today_core: { en: "c", zh: "核" },
         full_narrative: null,
       },
+      deepread_section: null, // §15.9 — null is valid (pre-§15.9 row / weekday)
     };
 
     // Content is public → both blocks present, never locked.
