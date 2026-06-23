@@ -1,84 +1,24 @@
-import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Wordmark } from "@/components/brand/Wordmark";
-import { GitHubLink } from "@/components/brand/GitHubLink";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { LangToggle } from "@/components/i18n/LangToggle";
+import { SiteHeader } from "@/components/chrome/SiteHeader";
+import { SiteFooter } from "@/components/chrome/SiteFooter";
 
-function MarketingHeader() {
-  const t = useTranslations("nav");
-  return (
-    <header className="border-b border-border">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4">
-        <Link href="/" className="shrink-0">
-          <Wordmark variant="B" />
-        </Link>
-        <nav className="flex items-center gap-5">
-          {/* /pricing removed from nav (PLAN §15.7) — content is open & free.
-              The pricing page file stays in the repo as parked. */}
-          <Link
-            href="/dispatch"
-            className="label-mono text-text-2 transition-colors hover:text-accent"
-          >
-            {t("dispatch")}
-          </Link>
-          <Link
-            href="/paper"
-            className="label-mono hidden text-text-2 transition-colors hover:text-accent sm:inline"
-          >
-            {t("paper")}
-          </Link>
-          <Link
-            href="/login"
-            className="label-mono hidden text-text-2 transition-colors hover:text-accent sm:inline"
-          >
-            {t("login")}
-          </Link>
-          <GitHubLink />
-          <div className="flex items-center gap-2">
-            <LangToggle />
-            <ThemeToggle />
-          </div>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
-function MarketingFooter() {
-  const t = useTranslations("footer");
-  const year = new Date().getUTCFullYear();
-  return (
-    <footer className="mt-20 border-t border-border">
-      <div className="mx-auto flex max-w-5xl flex-col gap-3 px-5 py-8 text-sm text-muted">
-        <p className="editorial-quote font-body text-md not-italic text-text-2">
-          {t("disclaimer")}
-        </p>
-        <div className="flex items-center gap-2">
-          <Wordmark variant="C" />
-          <span className="label-mono text-muted">
-            © {year} · {t("rights")}
-          </span>
-        </div>
-        <a
-          href="https://github.com/hhchuan89/sightlab"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="label-mono text-muted transition-colors hover:text-accent"
-        >
-          {t("openSource")}
-        </a>
-      </div>
-    </footer>
-  );
-}
-
+/**
+ * Marketing shell — same shared masthead + colophon as the reader shell, only the
+ * wordmark variant (B, with tagline) and the nav set differ. /pricing stays out of
+ * the nav (PLAN §15.7 — content is open & free).
+ */
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("nav");
+  const items = [
+    { href: "/dispatch", label: t("dispatch") },
+    { href: "/paper", label: t("paper") },
+    { href: "/login", label: t("login") },
+  ];
   return (
     <div className="flex min-h-screen flex-col">
-      <MarketingHeader />
+      <SiteHeader variant="B" items={items} />
       <main className="flex-1">{children}</main>
-      <MarketingFooter />
+      <SiteFooter />
     </div>
   );
 }

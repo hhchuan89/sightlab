@@ -35,7 +35,7 @@ export default async function PaperPage() {
         <div className="mt-9 flex flex-wrap items-center gap-4">
           <Link
             href="/login?next=/paper"
-            className="rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-text transition-colors hover:bg-primary-hover"
+            className="rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-on-primary transition-colors hover:bg-primary-hover"
           >
             {t("gateLoginCta")}
           </Link>

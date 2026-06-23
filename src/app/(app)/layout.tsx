@@ -1,63 +1,25 @@
-import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Wordmark } from "@/components/brand/Wordmark";
-import { GitHubLink } from "@/components/brand/GitHubLink";
-import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { LangToggle } from "@/components/i18n/LangToggle";
+import { SiteHeader } from "@/components/chrome/SiteHeader";
+import { SiteFooter } from "@/components/chrome/SiteFooter";
 
 /**
- * App shell for the signed-in / reader surface (PLAN §2 tree, §6.1): SightLab
- * wordmark + theme + lang toggles. Wraps /dispatch, /archive, /account.
+ * App shell for the reader surface (PLAN §2 tree, §6.1): the shared masthead +
+ * colophon wrap /dispatch, /archive, /account. The reader shell now has a footer
+ * (it didn't before) via the shared <SiteFooter/>.
  */
-function AppHeader() {
-  const t = useTranslations("nav");
-  return (
-    <header className="border-b border-border">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-4">
-        <Link href="/dispatch" className="shrink-0" aria-label="SightLab">
-          <Wordmark variant="A" />
-        </Link>
-        <nav className="flex items-center gap-5">
-          <Link
-            href="/dispatch"
-            className="label-mono text-text-2 transition-colors hover:text-accent"
-          >
-            {t("dispatch")}
-          </Link>
-          <Link
-            href="/paper"
-            className="label-mono hidden text-text-2 transition-colors hover:text-accent sm:inline"
-          >
-            {t("paper")}
-          </Link>
-          <Link
-            href="/archive"
-            className="label-mono hidden text-text-2 transition-colors hover:text-accent sm:inline"
-          >
-            {t("archive")}
-          </Link>
-          <Link
-            href="/account"
-            className="label-mono text-text-2 transition-colors hover:text-accent"
-          >
-            {t("account")}
-          </Link>
-          <GitHubLink />
-          <div className="flex items-center gap-2">
-            <LangToggle />
-            <ThemeToggle />
-          </div>
-        </nav>
-      </div>
-    </header>
-  );
-}
-
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("nav");
+  const items = [
+    { href: "/dispatch", label: t("dispatch") },
+    { href: "/paper", label: t("paper") },
+    { href: "/archive", label: t("archive") },
+    { href: "/account", label: t("account") },
+  ];
   return (
     <div className="flex min-h-screen flex-col">
-      <AppHeader />
+      <SiteHeader variant="A" items={items} />
       <main className="mx-auto w-full max-w-5xl flex-1 px-5 py-8">{children}</main>
+      <SiteFooter />
     </div>
   );
 }

@@ -35,6 +35,8 @@
     "telegramTitle": "Telegram channel",
     "telegramBody": "Join the invite-only channel for the daily dispatch. Joins are moderated manually.",
     "telegramJoin": "Open invite",
+    "telegramScan": "Scan to join",
+    "telegramQrAlt": "Telegram channel QR code",
     "signOut": "Sign out",
     "manageBilling": "Manage billing",
     "portalOpening": "Opening billing…",
@@ -167,7 +169,8 @@
       "title": "Market-structure deep-read",
       "lockedTitle": "Log in to read the full deep-read",
       "lockedBody": "The full market-structure read — strong fund-flow signals, the hysteresis-suppressed cycle stage, valuation drag, and the model-limitation caveat — is free to registered readers. Create a free account to keep reading.",
-      "cta": "Log in (free)"
+      "cta": "Log in (free)",
+      "reassure": "Free · no password · market data only"
     }
   },
   "archive": {

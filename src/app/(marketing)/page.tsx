@@ -131,7 +131,7 @@ export default async function LandingPage() {
                 content is free — not a pricing page. */}
             <Link
               href="/dispatch"
-              className="inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-text transition-colors hover:bg-primary-hover"
+              className="inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-on-primary transition-colors hover:bg-primary-hover"
             >
               {t("ctaButton")}
             </Link>
@@ -185,7 +185,7 @@ export default async function LandingPage() {
         <p className="mt-4 max-w-xl leading-relaxed text-text-2">{t("ctaBody")}</p>
         <Link
           href="/dispatch"
-          className="mt-7 inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-text transition-colors hover:bg-primary-hover"
+          className="mt-7 inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-on-primary transition-colors hover:bg-primary-hover"
         >
           {t("ctaButton")}
         </Link>
