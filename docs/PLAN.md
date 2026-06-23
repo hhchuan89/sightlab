@@ -852,12 +852,12 @@ SightLab is now a **free, open-source (AGPL-3.0) research lab**, not a paid SaaS
 (§8 Stripe + the role-gated content paywall in §3.2/§6.4) is **PARKED** — kept in the repo, not
 wired, reserved for a possible future tier. Deltas below WIN over earlier sections on conflict.
 
-**15.1 Content fully public.** Anon + everyone sees the COMPLETE §6/§7 dispatch + all history. The
+**15.1 Content fully public.** *(NARROWED by §15.9: the deep-read body is the one login-gated content.)* Anon + everyone sees the COMPLETE §6/§7 dispatch + all history. The
 read RPCs return the full projection to all callers (no `is_locked` for content). The paywall
 projection functions stay in the migrations as PARKED (commented "reserved"); the active read path
 returns full content. The dispatch page renders §6/§7 for everyone; no content LockedRegion.
 
-**15.2 Auth = free account for DISTRIBUTION, not content.** Signup is free. A logged-in user gets
+**15.2 Auth = free account for DISTRIBUTION, not content.** *(AMENDED by §15.9: also unlocks the deep-read body.)* Signup is free. A logged-in user gets
 (a) the **Telegram invite link** (env `SIGHTLAB_TELEGRAM_INVITE_LINK`, shown only when authenticated;
 channel joins moderated manually) and (b) opt-in to a **daily email** of the result. `profiles` gains
 `email_opt_in boolean default false`; the `role` column stays but is PARKED (not used for content).
@@ -890,3 +890,25 @@ nav copy → "open research; contributions welcome." Pricing removed from nav (p
 
 **15.8 Privacy scrub (DONE 2026-06-06):** repo docs genericized — personal Telegram ids, bot handle,
 GitHub handle, home/infra paths, and holdings tickers redacted to placeholders; `.claude/` gitignored.
+
+**15.9 Market-structure deep-read (2026-06-23 — AMENDS §15.1/§15.2 for ONE section).** A new
+`deepread_section` renders below the §6/§7 dispatch: a deeper, PRESENT-STATE read of the same market
+data — strong A/D signals, price↑/volume↓ divergence, the hysteresis-suppressed cycle stage, valuation
+drag — that SightLab's thin `core_reading` omits. It carries a PUBLIC `teaser` + a login-gated `body`.
+This is the ONE place auth gates content: a **free-registration wall** (a signup driver, not a paywall),
+narrowing §15.1's "all content public" and §15.2's "nothing content-facing is gated." The core §6/§7
+dispatch + all history stay fully public; only the deep-read body needs a (free) login.
+- **Gate mechanics:** the body is withheld at RENDER — `DispatchArticle` reads the session server-side
+  and passes `body` to `DeepReadSection` ONLY when authenticated; for anon it is `null` and never
+  serialized to the client. The blur skeleton is cosmetic, NOT the boundary. (RPC still returns the full
+  projection; render-level withholding suffices because the body is market-only, not privacy-sensitive.)
+- **Production:** generated deterministically in `assemble_dispatch.py` (`build_deepread_section`,
+  bilingual, NO LLM — like `build_weekly_narrative`). ADDITIVE optional ingest field `deepread_section`
+  (`schema_version` stays **1** — no version cutover; a pre-§15.9 producer still validates). DB column +
+  `project_dispatch_full` updated in migration `0007_deepread.sql`.
+- **Writing (sightlab-writing §A3/§D3/§D4):** present-state descriptions ONLY — no "precedes/before it
+  tops/due for" forecasts; any top-frame names a falsifiable observable in the same breath; the
+  confirmer / model-limitation caveat is kept.
+- **🔒 Privacy (§15.4 UNCHANGED):** market-only, NO holdings. The three holdings guards (Mac
+  `assert_no_holdings`, ingest `findHoldingsKeys`, email `assertNoHoldings`) still scan it. Holdings-aware
+  interpretation of this same data lives ONLY in the private daily-news brief (§8), NEVER on SightLab.

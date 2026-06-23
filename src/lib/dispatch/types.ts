@@ -120,13 +120,32 @@ export interface CycleExtras {
   /** NY Fed Estrella-Mishkin probit P(recession, 12m) — the one calibrated number. */
   recession_probit_p?: { value_pct: number; as_of: string | null };
   /** T10Y3M yield-curve spread + level/trajectory enum codes (i18n'd in the UI). */
-  yield_curve?: { spread_bps: number; level: string; trajectory: string | null; as_of: string | null };
+  yield_curve?: {
+    spread_bps: number;
+    level: string;
+    trajectory: string | null;
+    as_of: string | null;
+  };
   /** Leading tilt (deteriorating/stable/improving) — low-confidence, faster, NOT a forecast. */
-  leading_sleeve?: { tilt: string; score: number; available_signals: number; components: Record<string, number | null> };
+  leading_sleeve?: {
+    tilt: string;
+    score: number;
+    available_signals: number;
+    components: Record<string, number | null>;
+  };
   /** Decorrelated block-vote read — shown alongside to surface cluster double-counting. */
-  composite_blockvote?: { rescaled: number; implied_stage: Bilingual; blocks: Record<string, number> };
+  composite_blockvote?: {
+    rescaled: number;
+    implied_stage: Bilingual;
+    blocks: Record<string, number>;
+  };
   /** Regime persistence: dwell + 2-read hysteresis-smoothed stage. */
-  regime_persistence?: { dwell_snapshots: number; direction: Bilingual; transition_suppressed: boolean; hysteresis_smoothed_stage: Bilingual };
+  regime_persistence?: {
+    dwell_snapshots: number;
+    direction: Bilingual;
+    transition_suppressed: boolean;
+    hysteresis_smoothed_stage: Bilingual;
+  };
 }
 
 /** §7 block (public in v3): sectors, dispersion, composite + prose. */
@@ -168,6 +187,18 @@ export interface Dispatch {
   is_locked: boolean;
   flows_section6: FlowsSection6;
   cycle_section7: CycleSection7;
+  /**
+   * §15.9 market-structure deep-read. `teaser` is public; `body` is login-gated at
+   * render (DispatchArticle withholds `body` for anon — it is never serialized to a
+   * logged-out client). null when the producer predates §15.9. Market-only.
+   */
+  deepread_section: DeepreadSection | null;
+}
+
+/** §15.9 deep-read: a public teaser + a login-gated full body. Both market-only. */
+export interface DeepreadSection {
+  teaser: Bilingual;
+  body: Bilingual;
 }
 
 /** One history-list row from `list_dispatches_public` (metadata only). */

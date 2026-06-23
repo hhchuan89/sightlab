@@ -18,13 +18,7 @@ function signed1(n: number): string {
   return `${n > 0 ? "+" : ""}${n.toFixed(1)}`;
 }
 
-export async function CycleExtras({
-  data,
-  locale,
-}: {
-  data: CycleExtrasData;
-  locale: Locale;
-}) {
+export async function CycleExtras({ data, locale }: { data: CycleExtrasData; locale: Locale }) {
   const t = await getTranslations("dispatch");
   const probit = data.recession_probit_p;
   const yc = data.yield_curve;

@@ -183,6 +183,7 @@ function rowFromBody(b: DispatchIngestBody) {
     cycle_badge: b.cycle_badge,
     flows_section6: b.flows_section6,
     cycle_section7: b.cycle_section7,
+    deepread_section: b.deepread_section, // §15.9 (null when producer predates it)
     teaser_en: b.teaser.en,
     teaser_zh: b.teaser.zh,
   };
@@ -206,5 +207,6 @@ function toDispatch(b: DispatchIngestBody): Dispatch {
     is_locked: false,
     flows_section6: b.flows_section6,
     cycle_section7: b.cycle_section7,
+    deepread_section: b.deepread_section, // §15.9
   };
 }

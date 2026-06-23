@@ -143,9 +143,7 @@ const composite = z.object({
 // Each sub-block is optional (absent on snapshots predating the field); the whole
 // block is nullable (a weekday dispatch off an old snapshot may carry nothing).
 const cycleExtras = z.object({
-  recession_probit_p: z
-    .object({ value_pct: z.number(), as_of: z.string().nullable() })
-    .optional(),
+  recession_probit_p: z.object({ value_pct: z.number(), as_of: z.string().nullable() }).optional(),
   yield_curve: z
     .object({
       spread_bps: z.number(),
@@ -190,6 +188,19 @@ const cycleSection7 = z.object({
   full_narrative: bilingual.nullable().optional().default(null),
 });
 
+/**
+ * §15.9 market-structure deep-read. `teaser` is the PUBLIC hook; `body` is the
+ * full read, login-gated at RENDER (not here — the body is still pure market
+ * commentary, the gate is a distribution choice). Both langs required when present
+ * (bilingual). Market-only: no holdings (the §15.4 key guard still scans it).
+ */
+const deepreadSection = z
+  .object({
+    teaser: bilingual,
+    body: bilingual,
+  })
+  .strict();
+
 // ─────────────────────────── full ingest body ───────────────────────────
 
 /**
@@ -216,6 +227,9 @@ export const dispatchIngestSchema = z
     // §6 / §7 (public in v3, same market-only contract)
     flows_section6: flowsSection6,
     cycle_section7: cycleSection7,
+    // §15.9 deep-read. ADDITIVE + optional, so a pre-§15.9 producer (no field) still
+    // validates under .strict() at schema_version 1 — no version cutover, no breakage.
+    deepread_section: deepreadSection.nullable().optional().default(null),
   })
   .strict();
 
