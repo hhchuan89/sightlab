@@ -6,13 +6,17 @@ import Link from "next/link";
  * The `teaser` is PUBLIC — shown to everyone. The full `body` is LOGIN-GATED: the
  * page passes `body` in ONLY for an authenticated user; for an anon request `body`
  * is `null`, so the real text is NEVER serialized into the (logged-out) client
- * payload. The blur skeleton below is a decorative placeholder with NO real data —
- * it is the visual, not the security boundary (mirrors the parked LockedRegion's
- * design). The body itself is pure market commentary (no holdings); the gate is a
+ * payload. The body itself is pure market commentary (no holdings); the gate is a
  * distribution choice (PLAN §15.9), distinct from the §15.4 holdings invariant.
  *
- * Presentational only: it receives already-resolved label strings (like the other
- * dispatch section components), no data fetching.
+ * The locked state is an HONEST "members continue" invitation — real, legible copy
+ * in a card that grows with its content (no fixed height, no absolute overlay, so
+ * it can never clip on a narrow phone). It deliberately does NOT fake hidden text
+ * behind a blur: the old blurred-skeleton-plus-overlay read as broken/cut-off on
+ * mobile and as a dark-pattern tease, both at odds with the brand's calm,
+ * evidence-first voice.
+ *
+ * Presentational only: already-resolved label strings, no data fetching.
  */
 export function DeepReadSection({
   teaser,
@@ -28,6 +32,7 @@ export function DeepReadSection({
     lockedBody: string;
     cta: string;
     ctaHref: string;
+    reassure: string;
   };
 }) {
   return (
@@ -51,35 +56,19 @@ export function DeepReadSection({
           ))}
         </div>
       ) : (
-        <div className="relative overflow-hidden rounded-md border border-border">
-          {/* decorative blurred skeleton — static shapes, NO real data is passed here */}
-          <div
-            aria-hidden
-            className="pointer-events-none select-none"
-            style={{ filter: "blur(6px)" }}
+        <div className="mx-auto mt-2 max-w-xl rounded-md border border-border bg-surface/50 px-6 py-8 text-center sm:px-10">
+          <hr className="rule-amber mx-auto mb-5 w-10" />
+          <h3 className="font-serif text-xl font-semibold text-text">{labels.lockedTitle}</h3>
+          <p className="mx-auto mt-3 max-w-md font-body text-md leading-relaxed text-text-2">
+            {labels.lockedBody}
+          </p>
+          <Link
+            href={labels.ctaHref}
+            className="mt-6 inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-2.5 font-mono text-sm font-semibold uppercase tracking-wider text-on-primary transition-colors hover:bg-primary-hover"
           >
-            <div className="space-y-3 p-6">
-              <div className="h-3 w-2/3 rounded bg-surface-2" />
-              <div className="h-3 w-full rounded bg-surface-2" />
-              <div className="h-3 w-5/6 rounded bg-surface-2" />
-              <div className="h-3 w-3/4 rounded bg-surface-2" />
-              <div className="h-3 w-4/5 rounded bg-surface-2" />
-            </div>
-          </div>
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-gradient-to-t from-bg via-bg/85 to-bg/40"
-          />
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
-            <h3 className="font-serif text-xl font-semibold text-text">{labels.lockedTitle}</h3>
-            <p className="max-w-md text-sm leading-relaxed text-text-2">{labels.lockedBody}</p>
-            <Link
-              href={labels.ctaHref}
-              className="mt-1 inline-block rounded-full bg-primary px-6 py-2.5 font-mono text-sm font-semibold uppercase tracking-wider text-bg transition-colors hover:bg-primary-hover"
-            >
-              {labels.cta}
-            </Link>
-          </div>
+            {labels.cta}
+          </Link>
+          <p className="label-mono mt-4 text-muted">{labels.reassure}</p>
         </div>
       )}
     </section>

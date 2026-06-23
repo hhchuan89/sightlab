@@ -24,6 +24,12 @@
   --accent-text: #984a06;
   --success: #0a704e; /* nudged darker from spec #0b7a52 to clear AA 4.5:1 (4.97:1) */
   --danger: #b5371f; /* nudged darker from spec #bd3b22 to clear AA 4.5:1 (4.84:1) */
+  /* Label color for text sitting ON the amber CTA fill. FIXED dark-ink in BOTH
+     themes (NOT re-themed in .dark) because amber is dark-stable across themes:
+     #221d14 on amber = 5.4:1 (light) / 6.5:1 (dark), both clearing AA. Using --text
+     here would flip to near-white in dark (2.1:1, fails); --bg would be cream in
+     light (2.6:1, fails). So on-amber labels get their own non-themed token. */
+  --on-primary: #221d14;
 }
 
 .dark {
@@ -59,6 +65,7 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-soft: var(--primary-soft);
   --color-accent: var(--accent-text);
+  --color-on-primary: var(--on-primary);
   --color-success: var(--success);
   --color-danger: var(--danger);
 
@@ -207,4 +214,30 @@ h3 {
   padding-left: 1.1rem;
   font-style: italic;
   color: var(--text-2);
+}
+
+/* short decorative amber opener — echoes .rule-ink at a lighter weight. Used to
+   cap the login-gated deep-read card; amber stays decorative-only, never text. */
+.rule-amber {
+  border: 0;
+  border-top: 2px solid var(--primary);
+}
+
+/* mobile primary-nav scroll rail: hide the scrollbar without losing scroll, so
+   all nav links stay reachable on a phone without wrapping (the rail itself sets
+   flex + overflow-x-auto via Tailwind). */
+.nav-rail {
+  scrollbar-width: none;
+}
+.nav-rail::-webkit-scrollbar {
+  display: none;
+}
+
+/* on-brand keyboard focus ring (a11y) for logo / nav / toggles / CTAs. Uses
+   --accent-text (the AA-passing amber), so the ring clears the 3:1 non-text
+   contrast floor on the cream bg too (6.2:1 light / 8.9:1 dark); base --primary
+   amber was only 2.6:1 on cream. Decorative outline, never readable text. */
+:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 2px;
 }

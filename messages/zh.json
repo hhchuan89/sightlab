@@ -35,6 +35,8 @@
     "telegramTitle": "Telegram 频道",
     "telegramBody": "加入仅限邀请的频道，接收每日日报。入群需人工审核。",
     "telegramJoin": "打开邀请链接",
+    "telegramScan": "扫码加入",
+    "telegramQrAlt": "Telegram 频道二维码",
     "signOut": "退出登录",
     "manageBilling": "管理账单",
     "portalOpening": "正在打开账单…",
@@ -167,7 +169,8 @@
       "title": "市场结构深读",
       "lockedTitle": "登录阅读完整深读",
       "lockedBody": "完整的市场结构解读——强资金流信号、被 hysteresis 抑制的周期档位、估值拖累,以及模型局限说明——对注册读者免费开放。免费注册即可继续阅读。",
-      "cta": "免费登录"
+      "cta": "免费登录",
+      "reassure": "免费 · 无需密码 · 仅市场数据"
     }
   },
   "archive": {

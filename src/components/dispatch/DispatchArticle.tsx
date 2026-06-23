@@ -96,8 +96,6 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
         ) : null}
       </div>
 
-      <CaveatNote locale={locale} label={t("caveatLabel")} />
-
       {/* §15.9 market-structure deep-read — public teaser; full body login-gated. */}
       {deepread ? (
         <DeepReadSection
@@ -110,9 +108,14 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
             lockedBody: t("deepread.lockedBody"),
             cta: t("deepread.cta"),
             ctaHref: "/login?next=/dispatch",
+            reassure: t("deepread.reassure"),
           }}
         />
       ) : null}
+
+      {/* Closing colophon: the model-limitation caveat is the article's last word,
+          immediately above the footer (PLAN §11 — "confirmer, not predictor"). */}
+      <CaveatNote locale={locale} label={t("caveatLabel")} />
     </article>
   );
 }
