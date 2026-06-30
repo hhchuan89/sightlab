@@ -554,6 +554,52 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
         f"sector dispersion {disp_en}.{val_en}"
     )
 
+    # ── decorrelated block-vote cross-check (a stage LABEL only; already shown in
+    #    CycleExtras). No raw composite score / layer weights in the public body —
+    #    PLAN §9/§15.4 keep the formula closed; only the implied stage is surfaced. ──
+    bv = extras.get("composite_blockvote") or {}
+    bv_zh = str((bv.get("implied_stage") or {}).get("zh") or "")
+    bv_en = str((bv.get("implied_stage") or {}).get("en") or "")
+    if bv_zh and bv_zh != templeton_zh:
+        p1_zh += (
+            f"去相关 blockvote(给相关层降权后重算)隐含档位「{bv_zh}」,与头条档位分歧——"
+            f"头条有一部分是相关簇的重复计数。"
+        )
+        p1_en += (
+            f' A decorrelated block-vote (correlated layers de-weighted) implies stage "{bv_en}", '
+            f"diverging from the headline — part of the headline is correlated-cluster double-counting."
+        )
+    elif bv_zh:
+        p1_zh += f"去相关 blockvote 重算后仍落在「{bv_zh}」,与头条档位一致。"
+        p1_en += f' A decorrelated block-vote recut also lands at "{bv_en}", agreeing with the headline.'
+
+    # ── macro confirmer (state): NY Fed recession probit + yield curve. Public market
+    #    data, already shown in CycleExtras; woven in here as the regime layer. ──
+    _YC_LVL_ZH = {"inverted": "倒挂", "flat": "走平", "normal": "正常", "steep": "陡峭"}
+    _YC_TRAJ_ZH = {"steepening": "趋陡", "flattening": "趋平", "stable": "大体持平"}
+    rpm = extras.get("recession_probit_p") or {}
+    ycv = extras.get("yield_curve") or {}
+    macro_zh_bits: list[str] = []
+    macro_en_bits: list[str] = []
+    rec_pct = rpm.get("value_pct")
+    if isinstance(rec_pct, (int, float)) and not isinstance(rec_pct, bool):
+        macro_zh_bits.append(f"NY Fed 未来 12 个月衰退概率 {rec_pct:g}%")
+        macro_en_bits.append(f"NY Fed 12-month recession probability {rec_pct:g}%")
+    spread = ycv.get("spread_bps")
+    if isinstance(spread, (int, float)) and not isinstance(spread, bool):
+        lvl_en = str(ycv.get("level") or "")
+        traj_en = str(ycv.get("trajectory") or "")
+        lvl_zh = _YC_LVL_ZH.get(lvl_en, lvl_en)
+        traj_zh = _YC_TRAJ_ZH.get(traj_en, "")
+        macro_zh_bits.append(
+            f"收益率曲线利差 {spread:+.0f}bps({lvl_zh}{('·' + traj_zh) if traj_zh else ''})"
+        )
+        macro_en_bits.append(
+            f"yield-curve spread {spread:+.0f}bps ({lvl_en}{', ' + traj_en if traj_en else ''})"
+        )
+    p_macro_zh = ("宏观确认层:" + ";".join(macro_zh_bits) + "。") if macro_zh_bits else ""
+    p_macro_en = ("Macro layer: " + "; ".join(macro_en_bits) + ".") if macro_en_bits else ""
+
     # ── flows (state) ──
     p2_zh = f"资金面只有强信号值得下结论:派发 {_names_zh(distr_strong)};吸筹 {_names_zh(accum_strong)},其余中性。"
     p2_en = (
@@ -590,8 +636,8 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
             f"this cycle engine is a confirmer, not an early warning — blind spots at crises and tops."
         )
 
-    body_zh = "\n\n".join(x for x in (p1_zh, p2_zh, p3_zh) if x)
-    body_en = "\n\n".join(x for x in (p1_en, p2_en, p3_en) if x)
+    body_zh = "\n\n".join(x for x in (p1_zh, p_macro_zh, p2_zh, p3_zh) if x)
+    body_en = "\n\n".join(x for x in (p1_en, p_macro_en, p2_en, p3_en) if x)
 
     teaser_zh = (
         f"周期 {templeton_zh}、置信度 {conf};"
