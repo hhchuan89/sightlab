@@ -171,6 +171,31 @@
       "lockedBody": "The full market-structure read — strong fund-flow signals, the hysteresis-suppressed cycle stage, valuation drag, and the model-limitation caveat — is free to registered readers. Create a free account to keep reading.",
       "cta": "Log in (free)",
       "reassure": "Free · no password · market data only"
+    },
+    "glossary": {
+      "tag": "GLOSSARY",
+      "title": "How to read this dispatch",
+      "intro": "This read is built from Weinstein stages, the 30-week moving average, and sector dispersion. Here is what the table terms mean, so a first-time reader can decode them.",
+      "stage": {
+        "term": "Stage",
+        "def": "Weinstein splits a trend into four phases: Stage 1 basing (flat average), Stage 2 advance (rising average, price above it), Stage 3 top (the average flattens, momentum fades), and Stage 4 decline (falling average, price below it). It answers: which part of the larger arc are we in?"
+      },
+      "distance": {
+        "term": "Distance",
+        "def": "How far price sits above or below its 30-week simple moving average (roughly seven months of closes), in %. +20% means price is 20% above the average — the more extended, the further from trend; near 0 means it is hugging the line, the weakest trend."
+      },
+      "slope": {
+        "term": "Slope",
+        "def": "How fast the 30-week average line itself is rising or falling. Distance measures how far price is from the line; slope measures how steeply the line tilts. A steeper slope is a stronger trend; a flattening slope is the classic Stage-2-into-Stage-3 (topping) tell."
+      },
+      "dispersion": {
+        "term": "Sector dispersion",
+        "def": "How spread out the sectors are across stages and trend strength. Low means broad agreement — healthy breadth and a more trustworthy signal; high is a yellow flag — leadership is narrowing to a few names, the classic late-expansion fragility."
+      },
+      "flows": {
+        "term": "Accumulation / Distribution",
+        "def": "From classical volume-price analysis. Accumulation is a sector being bought persistently (net inflow); distribution is being sold persistently (net outflow). It describes who controls the tape — not a forecast of tomorrow — and it lags by design."
+      }
     }
   },
   "archive": {

@@ -11,6 +11,7 @@ import { Section6Table } from "@/components/dispatch/Section6Table";
 import { Section7Table } from "@/components/dispatch/Section7Table";
 import { CycleExtras } from "@/components/dispatch/CycleExtras";
 import { DeepReadSection } from "@/components/dispatch/DeepReadSection";
+import { CycleGlossary } from "@/components/dispatch/CycleGlossary";
 
 /**
  * Full dispatch article (PLAN §15.1 — content is PUBLIC). Shared by
@@ -116,6 +117,10 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
       {/* Closing colophon: the model-limitation caveat is the article's last word,
           immediately above the footer (PLAN §11 — "confirmer, not predictor"). */}
       <CaveatNote locale={locale} label={t("caveatLabel")} />
+
+      {/* Permanent terms glossary — the page's closing reference appendix (PLAN
+          §15.1 market-only). Static; identical every edition. */}
+      <CycleGlossary />
     </article>
   );
 }
