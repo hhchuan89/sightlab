@@ -16,10 +16,13 @@ energy distributing"), NEVER "what to do with your position." A final guard scan
 the assembled body for any holdings-shaped key and ABORTS if one appears.
 
 Translation (PLAN §5.1, §14-C1): numbers are computed once upstream (deterministic,
-language-neutral). This script writes the ZH prose, then a single `claude -p` pass
-translates ZH → EN into {en, zh} pairs. If translation FAILS, we ship ZH-complete
-with `en_pending: true` and EN := ZH (EN-soft-fail) — a translation hiccup NEVER
-blanks the dispatch.
+language-neutral). Since deep-review PR-2, EVERY prose {en, zh} pair is written
+deterministically in BOTH languages (enums via fixed maps, numbers formatted once)
+— the daily path makes NO LLM call. translate_en remains as the safety net for any
+future ZH-only field, now gated by a number-multiset check (numbers_preserved): a
+translation that drops/re-rounds/invents a number is rejected per-field. On any
+failure we ship ZH-complete with `en_pending: true` and EN := ZH (EN-soft-fail) —
+a translation hiccup NEVER blanks the dispatch.
 
 INPUTS (all via flags so the orchestrator controls paths — no $(cat), no globals):
     --flows FILE         JSON from query_weekly_flows.py --json
@@ -53,6 +56,12 @@ DISPERSION_LABEL_EN = {
     "中": "Medium",
     "低": "Low",
 }
+
+# Confidence / A-D signal enums → ZH words, so ZH prose never carries raw English
+# enums ("置信度 High", "资金信号 ACCUMULATION") and the EN side is templated
+# deterministically instead of re-invented by the LLM daily (deep-review 2A-②).
+CONFIDENCE_ZH = {"High": "高", "Medium": "中", "Low": "低"}
+AD_SIGNAL_ZH = {"ACCUMULATION": "吸筹", "DISTRIBUTION": "派发", "NEUTRAL": "中性"}
 
 # §6 rows outside the dispersion sector map (index/crypto ETFs) — ZH display names
 # so the row prose never degenerates to "SPY(SPY)" (deep-review 4A#9).
@@ -298,10 +307,11 @@ def build_flows_section6(flows: dict[str, Any], sector_zh: dict[str, str]) -> di
                 "ad_score": float(v.get("ad_score", 0) or 0),
                 "ad_confidence": str(v.get("ad_confidence", "") or ""),   # P0-3: strong/weak/none
                 "proxy_only": bool(v.get("proxy_only", False)),           # P0-3: IBIT/FBTC 量价代理脚注
-                # ZH-first prose; EN filled by the translation pass.
+                # Deterministic bilingual (deep-review 2A-② extension): the enum
+                # maps via AD_SIGNAL_ZH / .lower(), the number never sees an LLM.
                 "signal": {
-                    "zh": f"{name_zh}({etf})本周 {this_wk:+.2f}%,资金信号 {ad_signal}。",
-                    "en": "",
+                    "zh": f"{name_zh}({etf})本周 {this_wk:+.2f}%,资金信号:{AD_SIGNAL_ZH[ad_signal]}。",
+                    "en": f"{etf} {this_wk:+.2f}% this week; flow signal: {ad_signal.lower()}.",
                 },
             }
         )
@@ -461,11 +471,13 @@ def build_cycle_section7(dispersion: dict[str, Any], fast: dict[str, Any]) -> di
         # P0/P1/P2 (report 20260614) alongside reads — None on snapshots predating them.
         "cycle_extras": project_cycle_extras(snap),
         "today_core": {
-            # No "(阶段N)" parenthetical — the templeton label already carries the
-            # stage identity (deep-review 4A#1: "Stage 3 (optimism) (Stage 3)").
+            # Deterministic bilingual (deep-review 2A-②): stage via TEMPLETON_EN,
+            # confidence via CONFIDENCE_ZH — never the LLM. No "(阶段N)"
+            # parenthetical — the templeton label already carries the stage (4A#1).
             "zh": f"周期定位:{composite['templeton_stage']},"
-            f"置信度 {confidence}。板块离散度 {dispersion_label['zh']}。",
-            "en": "",
+            f"置信度 {CONFIDENCE_ZH.get(confidence, confidence)}。板块离散度 {dispersion_label['zh']}。",
+            "en": f"Cycle read: {templeton_en(str(composite['templeton_stage']))}, "
+            f"confidence {confidence}. Sector dispersion {dispersion_label['en']}.",
         },
         # weekly/triggered only; the daily fast path leaves it null (PLAN §14-C1).
         "full_narrative": None,
@@ -482,9 +494,10 @@ def build_free_slice(
     (PLAN §14-B3): stage + templeton label + confidence — NO numeric score. The
     teaser/at-a-glance prose state qualitative labels only (no composite number).
 
-    `templeton_stage` on the badge is BILINGUAL ({zh, en}) — the ZH templates below
-    read the `.zh` subfield; the EN subfield is set deterministically here (never
-    sent to the LLM, so a correct enum mapping is not overwritten).
+    ALL FOUR surfaces are deterministic bilingual (deep-review 2A-②): every enum
+    goes through its mapping (TEMPLETON_EN / CONFIDENCE_ZH / A-D names), so the
+    headline stage name can never be re-invented by the LLM and translate_en
+    skips this whole block (it only touches pairs whose en is still empty).
 
     `weekly` frames the intro/at-a-glance for the week ("本周…") vs the day ("今日…")."""
     comp = cycle7["composite"]
@@ -498,14 +511,22 @@ def build_free_slice(
     # qualitative A/D summary, no numbers (B3 / S8).
     accum = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "ACCUMULATION"]
     distr = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "DISTRIBUTION"]
-    ad_zh = []
+    ad_zh_bits = []
+    ad_en_bits = []
     if accum:
-        ad_zh.append("吸筹:" + "、".join(accum))
+        ad_zh_bits.append("吸筹:" + "、".join(accum))
+        ad_en_bits.append("accumulation: " + ", ".join(accum))
     if distr:
-        ad_zh.append("派发:" + "、".join(distr))
-    ad_summary = ";".join(ad_zh) if ad_zh else "本周资金信号中性为主"
+        ad_zh_bits.append("派发:" + "、".join(distr))
+        ad_en_bits.append("distribution: " + ", ".join(distr))
+    ad_summary_zh = ";".join(ad_zh_bits) if ad_zh_bits else "本周资金信号中性为主"
+    ad_summary_en = "; ".join(ad_en_bits) if ad_en_bits else "flow signals mostly neutral this week"
 
     badge_zh = cycle_badge["templeton_stage"]["zh"]
+    badge_en = cycle_badge["templeton_stage"]["en"]
+    conf = str(cycle_badge["confidence"])
+    conf_zh = CONFIDENCE_ZH.get(conf, conf)
+    stage_n = int(cycle_badge["stage_num"])
     # intro prefix: 今日 (daily) vs 本周 (weekly). at-a-glance prefix: 周期 (daily) vs
     # 本周 (weekly) — keeps the daily wording byte-identical to before.
     intro_period = "本周" if weekly else "今日"
@@ -513,18 +534,25 @@ def build_free_slice(
     teaser_period = "本周" if weekly else "今日"
     intro_zh = (
         f"{intro_period}市场周期定位 {badge_zh},"
-        f"置信度 {cycle_badge['confidence']}。{ad_summary}。"
+        f"置信度 {conf_zh}。{ad_summary_zh}。"
     )
-    at_a_glance_zh = (
-        f"{glance_period} 阶段{cycle_badge['stage_num']} · {cycle_badge['confidence']};{ad_summary}。"
+    intro_en = (
+        f"{'This week' if weekly else 'Today'}, the market cycle reads {badge_en}, "
+        f"confidence {conf}. "
+        f"{ad_summary_en[0].upper()}{ad_summary_en[1:]}."
     )
-    teaser_zh = f"SightLab {teaser_period}:{badge_zh};{ad_summary}。"
+    at_a_glance_zh = f"{glance_period} 阶段{stage_n} · {conf_zh};{ad_summary_zh}。"
+    at_a_glance_en = (
+        f"{'This week' if weekly else 'Cycle'} stage {stage_n} · {conf}; {ad_summary_en}."
+    )
+    teaser_zh = f"SightLab {teaser_period}:{badge_zh};{ad_summary_zh}。"
+    teaser_en = f"SightLab {'this week' if weekly else 'today'}: {badge_en}; {ad_summary_en}."
 
     return {
-        "intro": {"zh": intro_zh, "en": ""},
-        "at_a_glance": {"zh": at_a_glance_zh, "en": ""},
+        "intro": {"zh": intro_zh, "en": intro_en},
+        "at_a_glance": {"zh": at_a_glance_zh, "en": at_a_glance_en},
         "cycle_badge": cycle_badge,
-        "teaser": {"zh": teaser_zh, "en": ""},
+        "teaser": {"zh": teaser_zh, "en": teaser_en},
     }
 
 
@@ -584,6 +612,7 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     templeton_zh = str(comp["templeton_stage"])
     templeton_en_ = templeton_en(templeton_zh)
     conf = str(comp.get("confidence") or "")
+    conf_zh = CONFIDENCE_ZH.get(conf, conf)  # ZH prose never mixes "置信度 High"
     va = comp.get("valuation_a_score")
     rows = flows6["rows"]
     disp = cycle7["dispersion"]
@@ -623,7 +652,7 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
         if isinstance(va, (int, float)) and va < 0
         else ""
     )
-    p1_zh = f"周期定位:{templeton_zh},置信度 {conf};板块离散度{disp_zh}。{val_zh}"
+    p1_zh = f"周期定位:{templeton_zh},置信度 {conf_zh};板块离散度{disp_zh}。{val_zh}"
     p1_en = (
         f"Cycle: {templeton_en_}, confidence {conf}; "
         f"sector dispersion {disp_en}.{val_en}"
@@ -761,7 +790,7 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     body_en = "\n\n".join(x for x in (p1_en, p_macro_en, p2_en, p3_en) if x)
 
     teaser_zh = (
-        f"周期 {templeton_zh}、置信度 {conf};"
+        f"周期 {templeton_zh}、置信度 {conf_zh};"
         + ("领涨板块当前在缩量、" if diverge else "")
         + ("周期档位刚出现单次快照跨界(待下次确认)、" if p3_zh else "")
         + "本期深读拆解这组当前市场结构信号。"
@@ -780,6 +809,19 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
 
 
 # ─────────────────────────── translation ───────────────────────────
+
+# Number-token extractor for the post-translation gate (deep-review 2A-①).
+# Signed ints/decimals; the multiset (not sequence) must survive translation,
+# so reordering is fine but dropping/re-rounding/inventing a number is not.
+_NUM_RE = re.compile(r"[-+]?\d+(?:\.\d+)?")
+
+
+def numbers_preserved(zh: str, en: str) -> bool:
+    """True iff the EN translation carries EXACTLY the same multiset of number
+    tokens as the ZH source (iron rule: numbers are sacred — the LLM may reword
+    prose but never touch a digit). Validated against 18 days of production
+    corpus with zero false positives before adoption."""
+    return sorted(_NUM_RE.findall(zh)) == sorted(_NUM_RE.findall(en))
 
 
 def collect_zh_fields(body: dict[str, Any]) -> list[tuple[list[Any], str]]:
@@ -821,12 +863,18 @@ def translate_en(
     True on success (EN filled), False on any failure (caller applies EN-soft-fail).
 
     Only fields whose EN is still empty/pending are sent (collect_zh_fields);
-    deterministically-set EN values are never overwritten. The call is PLAIN and
+    deterministically-set EN values are never overwritten. As of deep-review
+    PR-2 every production prose pair is deterministic bilingual, so on the
+    daily path `fields` is empty and NO LLM call happens — this pass remains
+    as the safety net for any future ZH-only field. The call is PLAIN and
     tool-less by design (a pure text-in/text-out translation), and the model is
     pinned (translation is a cheap task — default haiku) so cost/quality never
     drift with the user's interactive CLI default.
 
-    Numbers are NEVER regenerated — only prose is translated (PLAN §5.1, risk #3)."""
+    Numbers DO travel through the LLM inside prose, so each field is gated by
+    numbers_preserved() on write-back (deep-review 2A-①): a translation that
+    drops, re-rounds, or invents a number is REJECTED and that field EN-soft-
+    fails (EN := ZH via apply_en_soft_fail) instead of shipping a wrong number."""
     fields = collect_zh_fields(body)
     if not fields:
         return True
@@ -886,12 +934,21 @@ def translate_en(
         return False
 
     ok = True
-    for i, (path, _zh) in enumerate(fields):
+    for i, (path, zh) in enumerate(fields):
         en = translated.get(str(i))
-        if isinstance(en, str) and en.strip():
-            set_path(body, path, en.strip())
-        else:
+        if not (isinstance(en, str) and en.strip()):
             ok = False  # a missing field → soft-fail (this field stays empty for now)
+            continue
+        if not numbers_preserved(zh, en):
+            # 2A-①: the machine gate for "numbers are sacred" — reject the field.
+            print(
+                f"assemble_dispatch: translation changed/dropped a number in field {i} "
+                f"(zh={zh[:60]!r}); EN-soft-fail for this field",
+                file=sys.stderr,
+            )
+            ok = False
+            continue
+        set_path(body, path, en.strip())
     return ok
 
 
@@ -984,9 +1041,11 @@ def main() -> None:
     # teaser is public; body is login-gated on the site. Market-only, no holdings.
     body["deepread_section"] = build_deepread_section(flows6, cycle7)
 
-    # Translate ZH → EN (or soft-fail to ZH).
+    # Translate ZH → EN (or soft-fail to ZH). All current prose pairs are
+    # deterministic bilingual (PR-2), so normally nothing is pending and no
+    # LLM call happens; en_pending reflects the truth either way.
     if args.no_translate:
-        body["en_pending"] = True
+        body["en_pending"] = bool(collect_zh_fields(body))
     else:
         ok = translate_en(body, args.claude_bin, args.translate_model)
         if not ok:
