@@ -34,3 +34,6 @@ yarn-error.log*
 
 # local Claude tooling (machine-specific paths)
 .claude/
+
+# internal review notes — reference private-harness internals, NEVER publish
+docs/20260702_00_sightlab_deep_review.md
