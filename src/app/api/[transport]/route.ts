@@ -141,6 +141,29 @@ const handler = createMcpHandler(
     );
 
     server.registerTool(
+      "search_archive",
+      {
+        title: "Search the SightLab archive",
+        description:
+          "Text search across all dispatch content (intros, flow tables, cycle reads, deep-reads; EN and 中文). Returns METADATA matches only — dispatch_date plus the bilingual intro, newest first; follow up with get_dispatch(date) for full content. Query must be 2–100 characters.",
+        inputSchema: {
+          query: z.string().min(2).max(100),
+          limit: z.number().int().min(1).max(30).default(10),
+        },
+      },
+      async ({ query, limit }, extra) => {
+        const spent = await spendCall(extra.authInfo);
+        if (spent) return spent;
+        const { data, error } = await anon().rpc("search_dispatches_public", {
+          p_query: query,
+          p_limit: limit,
+        });
+        if (error) return errContent(`upstream search failed: ${error.message}`);
+        return jsonContent(data);
+      },
+    );
+
+    server.registerTool(
       "get_method_glossary",
       {
         title: "SightLab method & reading rules",
