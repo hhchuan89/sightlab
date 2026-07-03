@@ -14,8 +14,14 @@ TCC-free data dir — never `~/Documents` (launchd cannot read it under macOS TC
 | `com.sightlab.watchdog` | ~01:30 UTC (09:30 KL) | `sightlab_watchdog.sh`: DM if dispatch missing **or** OpenD down |
 
 The producer fires 5 min before daily-news (08:10 KL) to avoid OpenD/FMP collision.
-launchd reruns a missed job **on wake** → a sleeping Mac means a **late**, not lost,
-dispatch. A late day is a known property, not a broken promise (PLAN §14-M4).
+launchd reruns a missed job **on wake**, but it **coalesces** all missed fire
+times into ONE catch-up run. So: a Mac that slept through a single morning means
+a **late** dispatch (known property, not a broken promise — PLAN §14-M4); a Mac
+that slept through **several days** produces only the wake day — the middle days
+**never ran and cannot be truly backfilled** (the flows/dispersion windows have
+moved on). The watchdog's continuity backscan (check (c), last
+`SIGHTLAB_BACKSCAN_DAYS`=14 days, Mondays exempt) DMs any archive hole so a gap
+is at least *seen* instead of discovered weeks later.
 
 ---
 

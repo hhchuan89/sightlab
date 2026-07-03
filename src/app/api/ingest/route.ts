@@ -130,17 +130,28 @@ export async function POST(req: NextRequest) {
         `ingest: digest for ${body.dispatch_date} already sent at ${row.digest_sent_at} — skipping email`,
       );
     } else {
-      await sendDigest(toDispatch(body));
-      // Mark AFTER the fan-out, so a sendDigest throw leaves the marker null and
-      // a re-POST can retry the email.
-      const { error: markErr } = await admin
-        .from("dispatches")
-        .update({ digest_sent_at: new Date().toISOString() })
-        .eq("dispatch_date", body.dispatch_date);
-      if (markErr) {
+      const digest = await sendDigest(toDispatch(body));
+      if (digest.failed > 0) {
+        // deep-review 1.3: sendDigest never THROWS on send failures — it
+        // returns counts. Leave digest_sent_at NULL so a re-POST retries the
+        // fan-out. Tradeoff: recipients who did get this one may receive a
+        // duplicate on the retry — accepted; a silently lost day is worse.
         console.error(
-          `ingest: failed to set digest_sent_at for ${body.dispatch_date}: ${markErr.message}`,
+          `ingest: digest for ${body.dispatch_date} incomplete — sent ${digest.sent}/` +
+            `${digest.attempted}, failed ${digest.failed}; digest_sent_at left null for retry`,
         );
+      } else {
+        // Mark only after a fully-clean fan-out (failed === 0) — both a throw
+        // AND a partial failure leave the marker null so a re-POST can retry.
+        const { error: markErr } = await admin
+          .from("dispatches")
+          .update({ digest_sent_at: new Date().toISOString() })
+          .eq("dispatch_date", body.dispatch_date);
+        if (markErr) {
+          console.error(
+            `ingest: failed to set digest_sent_at for ${body.dispatch_date}: ${markErr.message}`,
+          );
+        }
       }
     }
   } catch (err) {
