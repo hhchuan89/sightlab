@@ -4,6 +4,7 @@ import { resolveLocale } from "@/lib/i18n/request";
 import { pick } from "@/lib/i18n/pick";
 import { getLatest } from "@/lib/dispatch/queries";
 import { etfDisplayName } from "@/lib/dispatch/etfNames";
+import { cyclePhaseLabel, confidenceWord } from "@/lib/dispatch/displayWords";
 import type { Dispatch } from "@/lib/dispatch/types";
 
 /**
@@ -66,13 +67,14 @@ export default async function LandingPage() {
         ? [
             {
               label: t("glanceCycleStage"),
-              value: `Stage ${badge.stage_num} · ${
+              value: cyclePhaseLabel(
                 typeof badge.templeton_stage === "string"
                   ? badge.templeton_stage
-                  : pick(badge.templeton_stage, locale)
-              }`,
+                  : pick(badge.templeton_stage, locale),
+                locale,
+              ),
             },
-            { label: t("glanceConfidence"), value: badge.confidence },
+            { label: t("glanceConfidence"), value: confidenceWord(badge.confidence, locale) },
           ]
         : []),
       ...(leader
@@ -150,7 +152,7 @@ export default async function LandingPage() {
             <span className="article-tag">{`// ${t("glanceTitle")}`}</span>
             <span className="flex items-baseline gap-2">
               {latest ? null : <SampleBadge label={t("sampleBadge")} />}
-              <span className="label-mono text-muted">Flows · Cycle</span>
+              <span className="label-mono text-muted">{t("glanceKicker")}</span>
             </span>
           </div>
           <hr className="rule-hair mt-3 mb-1" />

@@ -121,6 +121,41 @@ TEMPLETON_EN = {
 def templeton_en(zh: str) -> str:
     return TEMPLETON_EN.get(zh.strip(), zh)  # fallback: show zh (never crash)
 
+
+# Templeton ladder wording for PROSE (deep-review PR-3): the word "Stage"/「阶段」
+# collides with the Weinstein sector Stages in §7 (same numbers, opposite
+# meanings), so every producer-written SENTENCE says "Phase"/「第 N 期」. The
+# STRUCTURED fields (cycle_badge.templeton_stage etc.) keep the original enum
+# strings — the web display layer remaps those (src/lib/dispatch/displayWords.ts)
+# — so the data contract is unchanged. Keys = the harness ZH labels; unknown
+# labels fall back to the plain templeton mapping (degrade, never crash).
+TEMPLETON_PHASE_EN = {
+    "阶段 4 亢奋（顶/泡沫·警惕）": "Phase 4 euphoria (top/bubble · caution)",
+    "阶段 4 早期（健康乐观）": "Phase 4 early (healthy optimism)",
+    "阶段 3（乐观）": "Phase 3 (optimism)",
+    "阶段 2/3 过渡": "Phase 2/3 transition",
+    "阶段 1/4 过渡": "Phase 1/4 transition",
+    "阶段 4末/1早": "Phase 4-late / 1-early",
+    "危机": "Crisis",
+}
+TEMPLETON_PHASE_ZH = {
+    "阶段 4 亢奋（顶/泡沫·警惕）": "第 4 期 亢奋（顶/泡沫·警惕）",
+    "阶段 4 早期（健康乐观）": "第 4 期早期（健康乐观）",
+    "阶段 3（乐观）": "第 3 期（乐观）",
+    "阶段 2/3 过渡": "第 2/3 期过渡",
+    "阶段 1/4 过渡": "第 1/4 期过渡",
+    "阶段 4末/1早": "第 4 期末/第 1 期初",
+    "危机": "危机",
+}
+
+
+def phase_zh(zh: str) -> str:
+    return TEMPLETON_PHASE_ZH.get(zh.strip(), zh)
+
+
+def phase_en(zh: str) -> str:
+    return TEMPLETON_PHASE_EN.get(zh.strip(), templeton_en(zh))
+
 # Known contrarian_overlay enum labels the private harness emits (fixed 3-value
 # set; half-width parens canonical). Full-width variants are normalised in
 # project_contrarian_overlay() before this check so producer drift cannot
@@ -471,12 +506,12 @@ def build_cycle_section7(dispersion: dict[str, Any], fast: dict[str, Any]) -> di
         # P0/P1/P2 (report 20260614) alongside reads — None on snapshots predating them.
         "cycle_extras": project_cycle_extras(snap),
         "today_core": {
-            # Deterministic bilingual (deep-review 2A-②): stage via TEMPLETON_EN,
-            # confidence via CONFIDENCE_ZH — never the LLM. No "(阶段N)"
-            # parenthetical — the templeton label already carries the stage (4A#1).
-            "zh": f"周期定位:{composite['templeton_stage']},"
+            # Deterministic bilingual (deep-review 2A-②): ladder via the PHASE
+            # prose maps (PR-3: prose says 期/Phase, never Templeton 阶段/Stage),
+            # confidence via CONFIDENCE_ZH — never the LLM.
+            "zh": f"周期定位:{phase_zh(str(composite['templeton_stage']))},"
             f"置信度 {CONFIDENCE_ZH.get(confidence, confidence)}。板块离散度 {dispersion_label['zh']}。",
-            "en": f"Cycle read: {templeton_en(str(composite['templeton_stage']))}, "
+            "en": f"Cycle read: {phase_en(str(composite['templeton_stage']))}, "
             f"confidence {confidence}. Sector dispersion {dispersion_label['en']}.",
         },
         # weekly/triggered only; the daily fast path leaves it null (PLAN §14-C1).
@@ -522,31 +557,33 @@ def build_free_slice(
     ad_summary_zh = ";".join(ad_zh_bits) if ad_zh_bits else "本周资金信号中性为主"
     ad_summary_en = "; ".join(ad_en_bits) if ad_en_bits else "flow signals mostly neutral this week"
 
-    badge_zh = cycle_badge["templeton_stage"]["zh"]
-    badge_en = cycle_badge["templeton_stage"]["en"]
+    # PROSE labels use the Phase wording (PR-3); the structured badge above keeps
+    # the raw enum. The internal 1-6 stage_num never appears in prose — it is a
+    # different ladder from the Templeton label and read as a contradiction.
+    label_zh = phase_zh(templeton_zh)
+    label_en = phase_en(templeton_zh)
     conf = str(cycle_badge["confidence"])
     conf_zh = CONFIDENCE_ZH.get(conf, conf)
-    stage_n = int(cycle_badge["stage_num"])
     # intro prefix: 今日 (daily) vs 本周 (weekly). at-a-glance prefix: 周期 (daily) vs
     # 本周 (weekly) — keeps the daily wording byte-identical to before.
     intro_period = "本周" if weekly else "今日"
     glance_period = "本周" if weekly else "周期"
     teaser_period = "本周" if weekly else "今日"
     intro_zh = (
-        f"{intro_period}市场周期定位 {badge_zh},"
+        f"{intro_period}市场周期定位 {label_zh},"
         f"置信度 {conf_zh}。{ad_summary_zh}。"
     )
     intro_en = (
-        f"{'This week' if weekly else 'Today'}, the market cycle reads {badge_en}, "
+        f"{'This week' if weekly else 'Today'}, the market cycle reads {label_en}, "
         f"confidence {conf}. "
         f"{ad_summary_en[0].upper()}{ad_summary_en[1:]}."
     )
-    at_a_glance_zh = f"{glance_period} 阶段{stage_n} · {conf_zh};{ad_summary_zh}。"
+    at_a_glance_zh = f"{glance_period} {label_zh} · {conf_zh};{ad_summary_zh}。"
     at_a_glance_en = (
-        f"{'This week' if weekly else 'Cycle'} stage {stage_n} · {conf}; {ad_summary_en}."
+        f"{'This week' if weekly else 'Cycle'} {label_en} · {conf}; {ad_summary_en}."
     )
-    teaser_zh = f"SightLab {teaser_period}:{badge_zh};{ad_summary_zh}。"
-    teaser_en = f"SightLab {'this week' if weekly else 'today'}: {badge_en}; {ad_summary_en}."
+    teaser_zh = f"SightLab {teaser_period}:{label_zh};{ad_summary_zh}。"
+    teaser_en = f"SightLab {'this week' if weekly else 'today'}: {label_en}; {ad_summary_en}."
 
     return {
         "intro": {"zh": intro_zh, "en": intro_en},
@@ -565,7 +602,6 @@ def build_weekly_narrative(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     the dispersion_label bilingual the §7 builder already produced."""
     comp = cycle7["composite"]
     templeton_zh = str(comp["templeton_stage"])
-    templeton_en_ = templeton_en(templeton_zh)
 
     accum = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "ACCUMULATION"]
     distr = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "DISTRIBUTION"]
@@ -582,12 +618,12 @@ def build_weekly_narrative(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     dispersion_en = str(disp_label.get("en", ""))
 
     zh = (
-        f"本周周期定位:{templeton_zh}。"
+        f"本周周期定位:{phase_zh(templeton_zh)}。"
         f"资金面:吸筹 {accum_zh}、派发 {distr_zh},其余中性。"
         f"板块离散度{dispersion_zh}。这是确认信号,不是预测。"
     )
     en = (
-        f"Cycle this week: {templeton_en_}. "
+        f"Cycle this week: {phase_en(templeton_zh)}. "
         f"Flows: accumulation {accum_en}, distribution {distr_en}; the rest neutral. "
         f"Sector dispersion {dispersion_en}. A confirmer, not a forecast."
     )
@@ -609,8 +645,9 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     teaser = the PUBLIC hook (shown to everyone); body = the full read, login-gated
     on the site (PLAN §15.9). Both are pure market commentary, no holdings."""
     comp = cycle7["composite"]
-    templeton_zh = str(comp["templeton_stage"])
-    templeton_en_ = templeton_en(templeton_zh)
+    templeton_zh = str(comp["templeton_stage"])  # raw enum — kept for comparisons
+    label_zh = phase_zh(templeton_zh)  # prose display: Phase wording (PR-3)
+    label_en = phase_en(templeton_zh)
     conf = str(comp.get("confidence") or "")
     conf_zh = CONFIDENCE_ZH.get(conf, conf)  # ZH prose never mixes "置信度 High"
     va = comp.get("valuation_a_score")
@@ -652,9 +689,9 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
         if isinstance(va, (int, float)) and va < 0
         else ""
     )
-    p1_zh = f"周期定位:{templeton_zh},置信度 {conf_zh};板块离散度{disp_zh}。{val_zh}"
+    p1_zh = f"周期定位:{label_zh},置信度 {conf_zh};板块离散度{disp_zh}。{val_zh}"
     p1_en = (
-        f"Cycle: {templeton_en_}, confidence {conf}; "
+        f"Cycle: {label_en}, confidence {conf}; "
         f"sector dispersion {disp_en}.{val_en}"
     )
 
@@ -663,19 +700,20 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     #    PLAN §9/§15.4 keep the formula closed; only the implied stage is surfaced. ──
     bv = extras.get("composite_blockvote") or {}
     bv_zh = str((bv.get("implied_stage") or {}).get("zh") or "")
-    bv_en = str((bv.get("implied_stage") or {}).get("en") or "")
+    bvd_zh = phase_zh(bv_zh)  # prose display (comparison below stays on raw)
+    bvd_en = phase_en(bv_zh)
     if bv_zh and bv_zh != templeton_zh:
         p1_zh += (
-            f"去相关 blockvote(给相关层降权后重算)隐含档位「{bv_zh}」,与头条档位分歧——"
+            f"去相关 blockvote(给相关层降权后重算)隐含档位「{bvd_zh}」,与头条档位分歧——"
             f"头条有一部分是相关簇的重复计数。"
         )
         p1_en += (
-            f' A decorrelated block-vote (correlated layers de-weighted) implies stage "{bv_en}", '
+            f' A decorrelated block-vote (correlated layers de-weighted) implies phase "{bvd_en}", '
             f"diverging from the headline — part of the headline is correlated-cluster double-counting."
         )
     elif bv_zh:
-        p1_zh += f"去相关 blockvote 重算后仍落在「{bv_zh}」,与头条档位一致。"
-        p1_en += f' A decorrelated block-vote recut also lands at "{bv_en}", agreeing with the headline.'
+        p1_zh += f"去相关 blockvote 重算后仍落在「{bvd_zh}」,与头条档位一致。"
+        p1_en += f' A decorrelated block-vote recut also lands at "{bvd_en}", agreeing with the headline.'
 
     # ── macro confirmer (state): NY Fed recession probit + yield curve. Public market
     #    data, already shown in CycleExtras; woven in here as the regime layer. ──
@@ -729,18 +767,19 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     p3_zh = p3_en = ""
     rp = extras.get("regime_persistence") or {}
     smoothed_zh = str((rp.get("hysteresis_smoothed_stage") or {}).get("zh") or "")
-    smoothed_en = str((rp.get("hysteresis_smoothed_stage") or {}).get("en") or "")
+    smd_zh = phase_zh(smoothed_zh)  # prose display (comparison stays on raw)
+    smd_en = phase_en(smoothed_zh)
     direction_zh = str((rp.get("direction") or {}).get("zh") or "")
     if rp.get("transition_suppressed") and smoothed_zh and smoothed_zh != templeton_zh:
         p3_zh = (
-            f"档位状态:即时读数本期跨到「{templeton_zh}」,但这只是单次快照的跨界、尚未获得第二次快照确认"
-            f"(可能是 whipsaw);平滑档位保守地停在上一档「{smoothed_zh}」,待确认后才跟进。"
+            f"档位状态:即时读数本期跨到「{label_zh}」,但这只是单次快照的跨界、尚未获得第二次快照确认"
+            f"(可能是 whipsaw);平滑档位保守地停在上一档「{smd_zh}」,待确认后才跟进。"
             f"这是当下的滞后确认状态,不是拐点预测。"
         )
         p3_en = (
-            f'Stage state: the immediate reading crossed to "{templeton_en_}" this snapshot — a single '
-            f"unconfirmed boundary cross (possibly a whipsaw); the smoothed stage conservatively holds the "
-            f'prior "{smoothed_en}" until a second consecutive snapshot confirms. This is the present '
+            f'Phase state: the immediate reading crossed to "{label_en}" this snapshot — a single '
+            f"unconfirmed boundary cross (possibly a whipsaw); the smoothed phase conservatively holds the "
+            f'prior "{smd_en}" until a second consecutive snapshot confirms. This is the present '
             f"lagging-confirmation state, not a turning-point forecast."
         )
         if "下行" in direction_zh:
@@ -764,20 +803,20 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
             # Upward/flat cross → confirmation frame; falsifier = next snapshot.
             if accum_strong:
                 p3_zh += (
-                    f"可证伪观测:若新档位属实,下次快照应再次读到「{templeton_zh}」,"
+                    f"可证伪观测:若新档位属实,下次快照应再次读到「{label_zh}」,"
                     f"且吸筹(目前:{_names_zh(accum_strong)})应持续扩散。"
                 )
                 p3_en += (
-                    f' Falsifier: if the new stage is real, the next snapshot should read "{templeton_en_}" '
+                    f' Falsifier: if the new phase is real, the next snapshot should read "{label_en}" '
                     f"again, with accumulation (now {_names_en(accum_strong)}) continuing to broaden."
                 )
             else:
                 p3_zh += (
-                    f"可证伪观测:若新档位属实,下次快照应再次读到「{templeton_zh}」,"
+                    f"可证伪观测:若新档位属实,下次快照应再次读到「{label_zh}」,"
                     f"且应看到强吸筹信号出现(本周尚无)。"
                 )
                 p3_en += (
-                    f' Falsifier: if the new stage is real, the next snapshot should read "{templeton_en_}" '
+                    f' Falsifier: if the new phase is real, the next snapshot should read "{label_en}" '
                     f"again, with strong accumulation appearing (none this week)."
                 )
         p3_zh += "模型局限:本周期模型是确认器、非预警器,危机与顶部均有盲区。"
@@ -790,15 +829,15 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     body_en = "\n\n".join(x for x in (p1_en, p_macro_en, p2_en, p3_en) if x)
 
     teaser_zh = (
-        f"周期 {templeton_zh}、置信度 {conf_zh};"
+        f"周期 {label_zh}、置信度 {conf_zh};"
         + ("领涨板块当前在缩量、" if diverge else "")
         + ("周期档位刚出现单次快照跨界(待下次确认)、" if p3_zh else "")
         + "本期深读拆解这组当前市场结构信号。"
     )
     teaser_en = (
-        f"Cycle {templeton_en_}, confidence {conf}; "
+        f"Cycle {label_en}, confidence {conf}; "
         + ("leaders are thinning on volume, " if diverge else "")
-        + ("the cycle stage just crossed on a single snapshot (confirmation pending), " if p3_en else "")
+        + ("the cycle phase just crossed on a single snapshot (confirmation pending), " if p3_en else "")
         + "this deep-read unpacks the current market-structure signals."
     )
 

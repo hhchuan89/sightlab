@@ -1,5 +1,6 @@
 import { pick } from "@/lib/i18n/pick";
 import { etfDisplayName } from "@/lib/dispatch/etfNames";
+import { adSignalWord } from "@/lib/dispatch/displayWords";
 import type { Locale } from "@/lib/i18n/request";
 import type { FlowsSection6 } from "@/lib/dispatch/types";
 
@@ -38,6 +39,7 @@ export function Section6Table({
   headers,
   tag,
   coreReadingLabel,
+  glossaryLink,
 }: {
   data: FlowsSection6;
   locale: Locale;
@@ -51,16 +53,24 @@ export function Section6Table({
     note: string;
     proxyFootnote: string;
     weakMarker: string;
+    weakFootnote: string;
   };
   /** mono article tag, e.g. "WEEKLY FUND FLOWS · §6". */
   tag: string;
   coreReadingLabel: string;
+  /** localized anchor text linking to the foot-of-page glossary. */
+  glossaryLink: string;
 }) {
   const hasProxy = data.rows.some((r) => r.proxy_only);
 
   return (
     <section>
-      <span className="article-tag">{`// ${tag}`}</span>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="article-tag">{`// ${tag}`}</span>
+        <a href="#glossary-heading" className="label-mono text-muted hover:text-accent">
+          {glossaryLink}
+        </a>
+      </div>
 
       <div className="mt-4 overflow-x-auto">
         <table className="w-full border-collapse font-mono text-sm">
@@ -113,7 +123,7 @@ export function Section6Table({
                   {pct1(row.vol_change_pct)}
                 </td>
                 <td className={`py-2.5 pr-4 font-semibold ${signalClass(row.ad_signal)}`}>
-                  {row.ad_signal}
+                  {adSignalWord(row.ad_signal, locale)}
                   {row.ad_confidence === "weak" && row.ad_signal !== "NEUTRAL" ? (
                     <span className="ml-1 font-mono text-xs font-normal text-muted">
                       ({headers.weakMarker})
@@ -129,8 +139,12 @@ export function Section6Table({
         </table>
       </div>
 
+      {/* permanent weak-signal footnote (deep-review 4A#4): the "only strong
+          signals carry conclusions" reading rule must live next to the table,
+          not behind the login-gated deep-read. */}
+      <p className="mt-3 font-mono text-xs text-muted">{headers.weakFootnote}</p>
       {hasProxy ? (
-        <p className="mt-3 font-mono text-xs text-muted">† {headers.proxyFootnote}</p>
+        <p className="mt-1 font-mono text-xs text-muted">† {headers.proxyFootnote}</p>
       ) : null}
 
       <div className="mt-5">

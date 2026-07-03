@@ -9,10 +9,13 @@
  */
 export function AtAGlance({
   title,
+  kicker,
   text,
   rows,
 }: {
   title: string;
+  /** localized top-right kicker, e.g. "Flows · Cycle" / 「资金流 · 周期」. */
+  kicker: string;
   /** the at-a-glance prose for the active locale. */
   text: string;
   /** optional dotted-leader rows (label/value pairs), all free-safe scalars. */
@@ -22,7 +25,7 @@ export function AtAGlance({
     <aside className="rounded-md border border-border bg-surface p-5">
       <div className="flex items-baseline justify-between">
         <span className="article-tag">{`// ${title}`}</span>
-        <span className="label-mono text-muted">Flows · Cycle</span>
+        <span className="label-mono text-muted">{kicker}</span>
       </div>
       <hr className="rule-hair mt-3 mb-1" />
 
