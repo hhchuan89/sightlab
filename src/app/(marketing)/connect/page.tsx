@@ -131,6 +131,16 @@ export default async function ConnectPage() {
   }
 }`}</CodeBlock>
         <p className="mt-3 text-xs text-muted">{t("layer3Drift")}</p>
+
+        {/* Troubleshooting — every item below was hit in real first-user setup
+            (2026-07-03): a CLI mangled the spaced header value into a bare
+            token (401), and tools only appear after a session restart. */}
+        <h3 className="mt-6 label-mono text-muted">{t("troubleTitle")}</h3>
+        <ul className="mt-2 space-y-2 font-body text-sm leading-relaxed text-text-2">
+          <li className="border-l border-border pl-4">{t("trouble401")}</li>
+          <li className="border-l border-border pl-4">{t("troubleReload")}</li>
+          <li className="border-l border-border pl-4">{t("troubleDate")}</li>
+        </ul>
       </section>
 
       {/* ── reading rules ── */}

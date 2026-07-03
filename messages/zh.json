@@ -246,6 +246,10 @@
     "layer3CfgUrl": "第 2 步（支持 URL + headers 的客户端）：",
     "layer3CfgStdio": "第 2 步（仅支持 stdio 的客户端，经 mcp-remote）：",
     "layer3Drift": "客户端配置语法在演进；稳定不变的是端点 URL 和 bearer header。",
+    "troubleTitle": "排障",
+    "trouble401": "401 invalid_token /「No authorization provided」——header 必须原样送达 `Authorization: Bearer slk_…`。部分 CLI 客户端会把含空格的 header 值拆坏：给整条 header 参数加引号；仍失败就检查客户端实际发出的请求头。",
+    "troubleReload": "加完服务器但工具没出现——多数 agent 客户端在 session 启动时加载 MCP。重启 session（或开新窗口）后 sightlab 工具就会出现。",
+    "troubleDate": "get_dispatch 只接受严格的 YYYY-MM-DD（如 2026-07-03），其他格式会被输入校验拒绝。查询无刊日（UTC 周一、上线前日期）返回 null，属设计行为。",
     "rulesTitle": "阅读规则（随数据一起生效）",
     "rulesBody": "周期读数是确认器、不是预测器——它描述当下格局，无法预判拐点。A/D 信号是量价推断；只有强信号承载结论。数字由引擎确定性产出——请逐字引用。这是研究，不是投资建议。",
     "glossaryLink": "完整术语表在每期快报页脚 →"
