@@ -19,10 +19,9 @@ import { validateIngestBody, type DispatchIngestBody } from "@/lib/ingest/schema
  *   5. JSON.parse → §15.4 holdings guard → zod validation (422 on any failure).
  *   6. UPSERT keyed on dispatch_date (idempotent re-POST overwrites — clears the
  *      "Delayed" banner / backfills EN on a soft-fail re-run).
- *   7. After a SUCCESSFUL publish, fire sendDigest(dispatch) (PLAN §15.3) —
- *      AT MOST ONCE per dispatch_date, gated on `dispatches.digest_sent_at`
- *      (migration 0005). Wrapped so an email failure does NOT fail the ingest
- *      (log + continue).
+ *
+ * (The former step 7 — the email digest fan-out — was REMOVED for good on
+ * 2026-07-03, PLAN §15.3. Delivery is the site + the Telegram channel.)
  *
  * Never call req.json() — the HMAC must run over the raw bytes first.
  */
@@ -133,8 +132,6 @@ function withinOneDay(dateStr: string): boolean {
 
 /**
  * Map the validated ingest body → a `dispatches` table row (PLAN §3.1 columns).
- * MUST NOT include `digest_sent_at`: the upsert would reset it on every re-POST
- * and the at-most-once digest gate in POST step (7) would break.
  */
 function rowFromBody(b: DispatchIngestBody) {
   return {
