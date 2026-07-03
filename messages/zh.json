@@ -53,12 +53,13 @@
     "edition": "期号",
     "standfirst": "对周期所处位置的确定性日读——跨板块的资金流向，加上一份 Weinstein 阶段定位，每天开盘前送达。开放研究，免费阅读。",
     "articleTag": "市场周期",
-    "sampleHeadline": "科技吸筹、能源失血——周期稳守第 3 阶段",
+    "sampleHeadline": "科技吸筹、能源失血——周期稳守第 3 期",
     "sampleDeck": "轮动正在收敛到单一领涨主线。真正的信号是这种收窄，而不是突破本身。",
     "sampleBody": "综合读数与上周持平：处于扩张中后段——奖励顺势、惩罚追高。板块离散度正在扩大——少数标的扛着大盘，底层的广度却在变薄。我们把它当作对既有格局的确认器，而不是对下一个格局的预测。",
     "glanceTitle": "速览",
-    "glanceCycleStage": "周期阶段",
-    "glanceCycleValue": "第 3 阶段 · 扩张",
+    "glanceKicker": "资金流 · 周期",
+    "glanceCycleStage": "周期定位",
+    "glanceCycleValue": "第 3 期 · 扩张",
     "glanceConfidence": "置信度",
     "glanceConfidenceValue": "中等",
     "glanceLeader": "领涨板块",
@@ -104,7 +105,9 @@
     "tag": "每日快报",
     "tagWeekly": "每周回顾",
     "glanceTitle": "速览",
-    "badgeStage": "周期阶段",
+    "glanceKicker": "资金流 · 周期",
+    "glossaryLink": "术语 ↓",
+    "badgeStage": "周期定位",
     "badgeConfidence": "置信度",
     "flowsTag": "每周资金流向",
     "cycleTag": "市场周期",
@@ -113,7 +116,7 @@
     "composite": "综合读数",
     "todayCore": "今日核心读数",
     "narrative": "每周叙事",
-    "caveatLabel": "关于这份读数",
+    "caveatLabel": "关于这份快报",
     "staleBanner": "今日刊尚未送达——当前显示 {date} 的内容。",
     "s6": {
       "etf": "ETF",
@@ -123,8 +126,9 @@
       "signal": "吸筹/派发",
       "note": "解读",
       "volChange": "成交量Δ%",
-      "proxyFootnote": "加密 ETF：量价代理，非真实申赎流向——与真实流向矛盾时以真实流向为准。",
-      "weakMarker": "弱"
+      "proxyFootnote": "全表 A/D 均为量价推断。加密 ETF 另有公开的申赎流向数据——两者矛盾时，以真实申赎为准。",
+      "weakMarker": "弱",
+      "weakFootnote": "（弱）＝刚过阈值的边缘信号——仅作背景；结论只看强信号。"
     },
     "s7": {
       "symbol": "板块",
@@ -134,9 +138,9 @@
       "judgment": "判断"
     },
     "cx": {
-      "tag": "周期 — 领先 & 方法 · 与 composite 并列",
+      "tag": "周期 — 领先 & 方法 · 与上方周期读数并读",
       "probit": "衰退概率（未来 12 个月）",
-      "probitSource": "NY Fed Estrella-Mishkin probit",
+      "probitSource": "纽约联储模型（据收益率曲线推算）",
       "asOf": "截至",
       "yieldCurve": "收益率曲线（10年–3月）",
       "level": {
@@ -156,26 +160,30 @@
         "stable": "稳定",
         "improving": "改善"
       },
-      "sleeveFrame": "比周期读数更低置信、更快、更吵——是早期预警倾斜，不是预测。上面的 composite 仍是锚。",
+      "sleeveFrame": "比周期读数更低置信、更快、更吵——是早期预警倾斜，不是预测。上面的周期读数仍是锚。",
       "blockvote": "去相关交叉验证",
       "blockvoteFrame": "块投票会给相关层降权。当它的阶段与上方头条分歧时，头条有一部分是相关簇的重复计数——我们摊开来给你看，不藏。",
       "regime": "周期持续性",
-      "dwell": "已在此阶段 {n} 个读数",
-      "confirmed": "已确认（保持 ≥2 个读数）",
+      "dwell": "当前档位已持续 {n} 个周度快照",
+      "confirmed": "已确认（连续 ≥2 个周度快照）",
       "unconfirmed": "刚跨界 — 尚未确认"
     },
     "deepread": {
       "tag": "市场结构深读",
       "title": "市场结构深读",
       "lockedTitle": "登录阅读完整深读",
-      "lockedBody": "完整的市场结构解读——强资金流信号、被 hysteresis 抑制的周期档位、估值拖累,以及模型局限说明——对注册读者免费开放。免费注册即可继续阅读。",
+      "lockedBody": "完整的市场结构解读——强资金流信号、最新周期档位跨界是否已获确认、估值拖累，以及模型局限说明——对注册读者免费开放。免费注册即可继续阅读。",
       "cta": "免费登录",
       "reassure": "免费 · 无需密码 · 仅市场数据"
     },
     "glossary": {
       "tag": "术语",
-      "title": "如何读这份读数",
-      "intro": "这套读数用 Weinstein 阶段 + 30 周均线 + 板块离散度。下面解释表里几个词,第一次看也能看懂。",
+      "title": "如何读这份快报",
+      "intro": "这份快报用 Weinstein 阶段 + 30 周均线 + 板块离散度。下面解释表里几个词,第一次看也能看懂。",
+      "ladders": {
+        "term": "期（Phase）vs 阶段（Stage）——两套编号",
+        "def": "本页有两套各分四段的编号。页首的周期定位用 Templeton 情绪之「期」——牛市生于悲观、长于怀疑、熟于乐观、死于亢奋；下方板块表用 Weinstein 趋势之「阶段」——筑底、上升、做顶、下跌。数字会重叠但含义不同：第 3 期是乐观期，而阶段 3 是做顶形态——所以两个词刻意分开用。"
+      },
       "stage": {
         "term": "阶段（Stage）",
         "def": "Weinstein 把趋势分四段：阶段 1 筑底（均线走平）、阶段 2 上升（均线上行、价在其上）、阶段 3 做顶（均线走平、动能消退）、阶段 4 下跌（均线下行、价在其下）。它问的是「现在处在大趋势的哪一段」。"
@@ -195,6 +203,14 @@
       "flows": {
         "term": "吸筹 / 派发（Accumulation / Distribution）",
         "def": "来自经典量价分析。吸筹＝板块被持续买入（资金净流入）；派发＝被持续卖出（资金净流出）。它描述「谁在掌控盘面」，不是对明天的预测，而且按设计会滞后。"
+      },
+      "volume": {
+        "term": "成交量Δ%（Volume Δ%）",
+        "def": "本周日均成交量相对上周日均成交量的变化（%）。−30% 即本周每天的量比上周薄了三成。它量的是参与度而非价格：缩量上涨的证据强度，弱于放量上涨。"
+      },
+      "confidence": {
+        "term": "置信度（Confidence）",
+        "def": "周期读数背后各证据层方向的一致程度。高＝各层同向；低＝互相矛盾。它衡量的是这份读数自洽与否，不是行情朝该方向延续的概率。"
       }
     }
   },

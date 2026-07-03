@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { resolveLocale } from "@/lib/i18n/request";
 import { pick } from "@/lib/i18n/pick";
+import { cyclePhaseLabel, confidenceWord } from "@/lib/dispatch/displayWords";
 import { getSession } from "@/lib/auth/getSession";
 import type { Dispatch } from "@/lib/dispatch/types";
 import { Masthead } from "@/components/dispatch/Masthead";
@@ -45,18 +46,19 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
 
       {dispatch.cycle_badge ? (
         <CycleBadge
-          badge={dispatch.cycle_badge}
-          templetonLabel={
+          templetonLabel={cyclePhaseLabel(
             typeof dispatch.cycle_badge.templeton_stage === "string"
               ? dispatch.cycle_badge.templeton_stage
-              : pick(dispatch.cycle_badge.templeton_stage, locale)
-          }
+              : pick(dispatch.cycle_badge.templeton_stage, locale),
+            locale,
+          )}
           stageLabel={t("badgeStage")}
           confidenceLabel={t("badgeConfidence")}
+          confidenceValue={confidenceWord(dispatch.cycle_badge.confidence, locale)}
         />
       ) : null}
 
-      <AtAGlance title={t("glanceTitle")} text={glanceText} />
+      <AtAGlance title={t("glanceTitle")} kicker={t("glanceKicker")} text={glanceText} />
 
       {/* Full §6/§7 — PUBLIC for everyone (PLAN §15.1). */}
       <div className="space-y-12 border-t border-border pt-8">
@@ -65,6 +67,7 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
           locale={locale}
           tag={t("flowsTag")}
           coreReadingLabel={t("coreReading")}
+          glossaryLink={t("glossaryLink")}
           headers={{
             etf: t("s6.etf"),
             sector: t("s6.sector"),
@@ -75,6 +78,7 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
             note: t("s6.note"),
             proxyFootnote: t("s6.proxyFootnote"),
             weakMarker: t("s6.weakMarker"),
+            weakFootnote: t("s6.weakFootnote"),
           }}
         />
         <Section7Table
@@ -84,6 +88,7 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
           dispersionLabel={t("dispersion")}
           todayCoreLabel={t("todayCore")}
           narrativeLabel={t("narrative")}
+          glossaryLink={t("glossaryLink")}
           headers={{
             symbol: t("s7.symbol"),
             stage: t("s7.stage"),

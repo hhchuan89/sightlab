@@ -53,12 +53,13 @@
     "edition": "Edition",
     "standfirst": "A deterministic daily read on where the cycle stands — fund flows across sectors and a Weinstein-stage positioning call, delivered every morning before the open. Open research, free to read.",
     "articleTag": "MARKET CYCLE",
-    "sampleHeadline": "Tech accumulates while energy bleeds — cycle holds at Stage 3",
+    "sampleHeadline": "Tech accumulates while energy bleeds — cycle holds at Phase 3",
     "sampleDeck": "Rotation is concentrating into a single leadership lane. That narrowing is the tell, not the breakout.",
     "sampleBody": "The composite read is unchanged week over week: a mid-to-late expansion that rewards trend but punishes chasing. Sector dispersion is widening — a handful of names carry the tape while the breadth underneath thins. We treat this as a confirmer of the regime already in place, not a prediction of the next one.",
     "glanceTitle": "At a glance",
-    "glanceCycleStage": "Cycle stage",
-    "glanceCycleValue": "Stage 3 · expansion",
+    "glanceKicker": "Flows · Cycle",
+    "glanceCycleStage": "Cycle phase",
+    "glanceCycleValue": "Phase 3 · expansion",
     "glanceConfidence": "Confidence",
     "glanceConfidenceValue": "Medium",
     "glanceLeader": "Sector leader",
@@ -104,7 +105,9 @@
     "tag": "DAILY DISPATCH",
     "tagWeekly": "Weekly Review",
     "glanceTitle": "At a glance",
-    "badgeStage": "Cycle stage",
+    "glanceKicker": "Flows · Cycle",
+    "glossaryLink": "Terms ↓",
+    "badgeStage": "Cycle phase",
     "badgeConfidence": "Confidence",
     "flowsTag": "WEEKLY FUND FLOWS",
     "cycleTag": "MARKET CYCLE",
@@ -122,9 +125,10 @@
       "prevWeek": "Prev wk",
       "signal": "A/D",
       "note": "Read",
-      "volChange": "Vol Δ%",
-      "proxyFootnote": "Crypto ETF: a volume proxy, not real fund-flow data — prefer real flows when they disagree.",
-      "weakMarker": "weak"
+      "volChange": "Volume Δ%",
+      "proxyFootnote": "All A/D reads in this table are volume-price inference. Crypto ETFs also publish real creation/redemption flows — when the two disagree, trust the real flows.",
+      "weakMarker": "weak",
+      "weakFootnote": "(weak) = a marginal signal just past the threshold — context only; conclusions rest on strong signals."
     },
     "s7": {
       "symbol": "Sector",
@@ -134,9 +138,9 @@
       "judgment": "Judgment"
     },
     "cx": {
-      "tag": "CYCLE — LEADING & METHOD · alongside the composite",
+      "tag": "CYCLE — LEADING & METHOD · read alongside the cycle read above",
       "probit": "Recession probability (12-month)",
-      "probitSource": "NY Fed Estrella-Mishkin probit",
+      "probitSource": "NY Fed yield-curve model (Estrella–Mishkin)",
       "asOf": "as of",
       "yieldCurve": "Yield curve (10y–3m)",
       "level": {
@@ -160,7 +164,7 @@
       "blockvote": "Decorrelated cross-check",
       "blockvoteFrame": "Block-vote de-weights correlated layers. When its stage diverges from the headline above, part of the headline is correlated-cluster double-counting — shown in the open, not hidden.",
       "regime": "Regime persistence",
-      "dwell": "in this stage for {n} readings",
+      "dwell": "in this phase for {n, plural, one {# reading} other {# readings}}",
       "confirmed": "confirmed (held ≥2 readings)",
       "unconfirmed": "fresh crossing — not yet confirmed"
     },
@@ -168,14 +172,18 @@
       "tag": "MARKET-STRUCTURE DEEP-READ",
       "title": "Market-structure deep-read",
       "lockedTitle": "Log in to read the full deep-read",
-      "lockedBody": "The full market-structure read — strong fund-flow signals, the hysteresis-suppressed cycle stage, valuation drag, and the model-limitation caveat — is free to registered readers. Create a free account to keep reading.",
+      "lockedBody": "The full market-structure read — strong fund-flow signals, whether the latest cycle-phase crossing is confirmed or still pending, valuation drag, and the model-limitation caveat — is free to registered readers. Create a free account to keep reading.",
       "cta": "Log in (free)",
       "reassure": "Free · no password · market data only"
     },
     "glossary": {
       "tag": "GLOSSARY",
       "title": "How to read this dispatch",
-      "intro": "This read is built from Weinstein stages, the 30-week moving average, and sector dispersion. Here is what the table terms mean, so a first-time reader can decode them.",
+      "intro": "This dispatch is built from Weinstein stages, the 30-week moving average, and sector dispersion. Here is what the table terms mean, so a first-time reader can decode them.",
+      "ladders": {
+        "term": "Phase vs. Stage (two ladders)",
+        "def": "This page uses two different four-step ladders. The page-top cycle read uses Templeton's sentiment phases — bull markets are born in pessimism, grow on skepticism, mature on optimism, die on euphoria — labelled Phase. The sector table uses Weinstein's trend Stages: basing, advance, top, decline. The numbers overlap but the meanings differ — Phase 3 is optimism, while Stage 3 is a topping pattern — so the two words are kept distinct on purpose."
+      },
       "stage": {
         "term": "Stage",
         "def": "Weinstein splits a trend into four phases: Stage 1 basing (flat average), Stage 2 advance (rising average, price above it), Stage 3 top (the average flattens, momentum fades), and Stage 4 decline (falling average, price below it). It answers: which part of the larger arc are we in?"
@@ -195,6 +203,14 @@
       "flows": {
         "term": "Accumulation / Distribution",
         "def": "From classical volume-price analysis. Accumulation is a sector being bought persistently (net inflow); distribution is being sold persistently (net outflow). It describes who controls the tape — not a forecast of tomorrow — and it lags by design."
+      },
+      "volume": {
+        "term": "Volume Δ%",
+        "def": "This week's average daily volume versus the previous week's, in %. −30% means the week traded on 30% thinner volume day to day. It measures participation, not price: an advance on shrinking volume is weaker evidence than the same advance on expanding volume."
+      },
+      "confidence": {
+        "term": "Confidence",
+        "def": "How consistently the evidence layers behind the cycle read point the same way. High means the layers agree; Low means they conflict. It measures the internal coherence of today's read — not the probability that the market keeps moving in that direction."
       }
     }
   },

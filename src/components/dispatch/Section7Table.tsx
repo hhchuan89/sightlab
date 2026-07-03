@@ -39,6 +39,7 @@ export function Section7Table({
   dispersionLabel,
   todayCoreLabel,
   narrativeLabel,
+  glossaryLink,
 }: {
   data: CycleSection7;
   locale: Locale;
@@ -53,6 +54,8 @@ export function Section7Table({
   dispersionLabel: string;
   todayCoreLabel: string;
   narrativeLabel: string;
+  /** localized anchor text linking to the foot-of-page glossary. */
+  glossaryLink: string;
 }) {
   const { dispersion } = data;
   // Normalize the dispersion index to a 0..100 bar (index is roughly 0..10).
@@ -60,17 +63,25 @@ export function Section7Table({
 
   return (
     <section>
-      <span className="article-tag">{`// ${tag}`}</span>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="article-tag">{`// ${tag}`}</span>
+        <a href="#glossary-heading" className="label-mono text-muted hover:text-accent">
+          {glossaryLink}
+        </a>
+      </div>
 
       {/* dispersion summary box (the composite numeric score is internal-only and
           deliberately not surfaced; the stage + confidence live in the CycleBadge) */}
       <div className="mt-4 rounded-md border border-border bg-surface p-4">
         <span className="label-mono text-muted">{dispersionLabel}</span>
         <div className="mt-1 flex items-baseline gap-2">
-          <span className="font-mono text-lg font-semibold text-text tabular-nums">
-            {dispersion.dispersion_index.toFixed(1)}
+          {/* Label + bar only, no naked index (deep-review 4A#8): the index is
+              an UNBOUNDED stdev of sector distances (only *roughly* 0..10), so
+              a bare "7.1" fights the "Medium" label on a ten-point intuition
+              and any "/ 10" denominator would be false in a violent week. */}
+          <span className="font-mono text-lg font-semibold text-text">
+            {pick(dispersion.dispersion_label, locale)}
           </span>
-          <span className="text-sm text-muted">{pick(dispersion.dispersion_label, locale)}</span>
         </div>
         <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
           <div className="h-full rounded-full bg-primary" style={{ width: `${barPct}%` }} />

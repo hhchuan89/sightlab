@@ -9,7 +9,16 @@ import { getTranslations } from "next-intl/server";
  * Static reference content: no data, no holdings, market-only and identical every
  * day. Rendered as the article's closing appendix, below the caveat.
  */
-const TERMS = ["stage", "distance", "slope", "dispersion", "flows"] as const;
+const TERMS = [
+  "ladders",
+  "stage",
+  "distance",
+  "slope",
+  "dispersion",
+  "flows",
+  "volume",
+  "confidence",
+] as const;
 
 export async function CycleGlossary() {
   const t = await getTranslations("dispatch");
