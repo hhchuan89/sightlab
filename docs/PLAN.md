@@ -857,16 +857,18 @@ read RPCs return the full projection to all callers (no `is_locked` for content)
 projection functions stay in the migrations as PARKED (commented "reserved"); the active read path
 returns full content. The dispatch page renders §6/§7 for everyone; no content LockedRegion.
 
-**15.2 Auth = free account for DISTRIBUTION, not content.** *(AMENDED by §15.9: also unlocks the deep-read body.)* Signup is free. A logged-in user gets
-(a) the **Telegram invite link** (env `SIGHTLAB_TELEGRAM_INVITE_LINK`, shown only when authenticated;
-channel joins moderated manually) and (b) opt-in to a **daily email** of the result. `profiles` gains
-`email_opt_in boolean default false`; the `role` column stays but is PARKED (not used for content).
-Nothing content-facing is gated by auth.
+**15.2 Auth = free account for DISTRIBUTION, not content.** *(AMENDED by §15.9: also unlocks the deep-read body. AMENDED 2026-07-03: the email opt-in is gone with §15.3.)* Signup is free. A logged-in user gets
+the **Telegram invite link** (env `SIGHTLAB_TELEGRAM_INVITE_LINK`, shown only when authenticated;
+channel joins moderated manually). `profiles.email_opt_in` remains as an unused column; the `role`
+column stays but is PARKED (not used for content). Nothing content-facing is gated by auth.
 
-**15.3 Daily email digest (NEW — Resend).** After a successful ingest, send the dispatch (market
-§6/§7, bilingual, NO holdings) to all `email_opt_in` users via **Resend** (`RESEND_API_KEY`, sender on
-a verified `fysight.biz` subdomain). Batched; every email carries a one-click unsubscribe
-(`/api/unsubscribe?token=…` flips `email_opt_in`) + a sender footer (basic CAN-SPAM hygiene).
+**15.3 Daily email digest — REMOVED FOR GOOD (2026-07-03).** The original design (Resend fan-out to
+`email_opt_in` users after ingest) required a physical postal address in every email (CAN-SPAM), and
+exposing a personal address is not acceptable; no compliant sender identity exists, so the feature is
+deleted rather than parked: `lib/email/*`, `/api/unsubscribe`, the opt-in action/UI strings, and the
+ingest digest step are all removed. Delivery channels are the SITE + the TELEGRAM channel. Auth
+magic-link email is unaffected (Supabase sends it via its own SMTP config, not app code). The unused
+DB columns (`profiles.email_opt_in`, `dispatches.digest_sent_at`) stay — not worth a migration.
 
 **15.4 🔒 PRIVACY (LOCKED — supersedes any earlier contract).** The dispatch — site, email, Telegram,
 X — carries ONLY market-wide §6 (fund flows) + §7 (cycle / dispersion / Weinstein stage +

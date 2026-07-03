@@ -43,11 +43,11 @@ export default async function AccountPage() {
         </div>
       </dl>
 
-      {/* Email digest is PARKED (PLAN §15.3): the daily-email opt-in UI is removed
-          so no one can subscribe — distribution is the site + Telegram channel
-          only. The backend (setEmailOptIn action, profiles.email_opt_in column,
-          sendDigest, /api/unsubscribe) stays dormant for when email returns with a
-          CAN-SPAM postal address configured. */}
+      {/* Email digest was REMOVED for good (decision 2026-07-03, PLAN §15.3):
+          CAN-SPAM requires a physical postal address and exposing a personal one
+          is not acceptable. Distribution is the site + the Telegram channel.
+          profiles.email_opt_in / dispatches.digest_sent_at remain as unused DB
+          columns (not worth a migration). */}
 
       {/* Telegram invite — authenticated-only (PLAN §15.2). Two columns ≥sm (text +
           QR); stacked and centred on a phone. The QR carries the same invite URL. */}

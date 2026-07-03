@@ -7,9 +7,7 @@ import { createClient } from "@supabase/supabase-js";
  * ┌──────────────────────────────────────────────────────────────────────────┐
  * │ IMPORT POLICY (ENFORCED, PLAN §3.2 / §6.4 / risk #7):                      │
  * │ This module may be imported ONLY by routes that NEED privileged access:     │
- * │   • src/app/api/ingest/route.ts        (Mac → DB service-role write +       │
- * │     digest fan-out via lib/email/sendDigest)                                │
- * │   • src/app/api/unsubscribe/route.ts   (no-session opt-out write)           │
+ * │   • src/app/api/ingest/route.ts        (Mac → DB service-role write)        │
  * │   • src/app/api/stripe/webhook/route.ts (parked — Stripe → DB)              │
  * │ Importing it anywhere else (a page, a server component, another route)      │
  * │ hands that code unrestricted reads of user PII and unrestricted writes,     │
