@@ -209,6 +209,28 @@
       }
     }
   },
+  "connect": {
+    "tag": "FOR AGENTS",
+    "title": "把 SightLab 接进你的 agent",
+    "standfirst": "每一期快报都公开且机器可读。三种接入方式，从零配置到完整 MCP 连接——选你的工作流说得上话的那种。",
+    "layer1Title": "1 · Feed + llms.txt——零配置",
+    "layer1Body": "存档的 Atom feed，加一份说明数据语义的 llms.txt。任何 feed 阅读器、agent 框架或爬虫都能直接指过来。无需账号。",
+    "feedLabel": "Atom feed",
+    "llmsLabel": "Agent 指南（llms.txt）",
+    "layer2Title": "2 · 原始 JSON API——与网站同源的数据",
+    "layer2Body": "网站本身就从公开 RPC 渲染；你的 agent 可以直接调用它们。下面的 key 是公开 anon key（它本来就随本页的 JavaScript 下发）——行级安全策略保证除这些只读 RPC 外一切关闭。无需账号。",
+    "layer2Latest": "最新一期（全文）：",
+    "layer2ByDate": "按日期取某一期：",
+    "layer2List": "存档列表（元数据）：",
+    "layer3Title": "3 · MCP server——即将上线",
+    "layer3Body": "一个 Model Context Protocol 服务，让 Claude、ChatGPT 等 agent 客户端把 SightLab 接成原生工具源：最新一期、任意存档日期、方法术语表——阅读规则随数据一起下发。",
+    "layer3Promise1": "构造上只读——不存在任何写工具，服务端也不持有写凭据。",
+    "layer3Promise2": "免费账号 + 个人 token（在账户页生成），随时可吊销。",
+    "layer3Promise3": "公平使用：每 token 每天 30 次工具调用。",
+    "rulesTitle": "阅读规则（随数据一起生效）",
+    "rulesBody": "周期读数是确认器、不是预测器——它描述当下格局，无法预判拐点。A/D 信号是量价推断；只有强信号承载结论。数字由引擎确定性产出——请逐字引用。这是研究，不是投资建议。",
+    "glossaryLink": "完整术语表在每期快报页脚 →"
+  },
   "archive": {
     "tag": "存档",
     "title": "快报存档",
@@ -218,6 +240,7 @@
   "footer": {
     "rights": "保留所有权利。",
     "disclaimer": "SightLab 是研究，不是投资建议。周期读数是确认器，不是预测器。",
-    "openSource": "开源 — ★ 在 GitHub 上点亮 Star"
+    "openSource": "开源 — ★ 在 GitHub 上点亮 Star",
+    "forAgents": "For agents — feed 与 API"
   }
 }

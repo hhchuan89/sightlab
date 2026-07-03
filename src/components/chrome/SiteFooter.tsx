@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/brand/Wordmark";
 
@@ -30,14 +31,22 @@ export function SiteFooter() {
               © {year} · {t("rights")}
             </span>
           </div>
-          <a
-            href="https://github.com/hhchuan89/sightlab"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="label-mono text-muted transition-colors hover:text-accent"
-          >
-            {t("openSource")}
-          </a>
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:gap-5">
+            <Link
+              href="/connect"
+              className="label-mono text-muted transition-colors hover:text-accent"
+            >
+              {t("forAgents")}
+            </Link>
+            <a
+              href="https://github.com/hhchuan89/sightlab"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="label-mono text-muted transition-colors hover:text-accent"
+            >
+              {t("openSource")}
+            </a>
+          </div>
         </div>
       </div>
     </footer>

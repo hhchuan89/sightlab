@@ -1,0 +1,34 @@
+# SightLab
+
+> SightLab (sightlab.fysight.biz) is a free, open-source (AGPL-3.0) market
+> observatory. Every trading morning a deterministic quant pipeline publishes a
+> bilingual (EN/中文) dispatch: weekly sector fund flows (accumulation /
+> distribution from volume-price analysis) and a market-cycle positioning read
+> (Templeton sentiment phase + Weinstein sector stages + dispersion). No
+> paywall — all dispatch content is public.
+
+## How to read this data (important for agents)
+
+- The cycle read is a CONFIRMER, NOT A PREDICTOR. It describes the present
+  regime; it cannot call turning points and says so. Never present it as a
+  forecast.
+- Numbers are produced deterministically by the engine and are never rounded
+  or restated in prose. Quote them verbatim.
+- Fund-flow A/D signals are volume-price INFERENCE, not real fund-flow data.
+  Only "strong" signals carry conclusions; "weak" ones are context.
+- Two ladders: the page-top cycle read uses Templeton PHASES (Phase 3 =
+  optimism); the sector table uses Weinstein STAGES (Stage 3 = topping
+  pattern). Same numbers, different meanings — do not conflate.
+- This is research, not investment advice.
+
+## Access
+
+- [Latest dispatch (HTML)](https://sightlab.fysight.biz/dispatch)
+- [Archive](https://sightlab.fysight.biz/archive)
+- [Atom feed](https://sightlab.fysight.biz/feed.xml)
+- [Connect guide — feeds, raw JSON API, MCP](https://sightlab.fysight.biz/connect)
+
+## Citation
+
+Cite as "SightLab (sightlab.fysight.biz), dispatch of YYYY-MM-DD" and link the
+dated page: https://sightlab.fysight.biz/dispatch/YYYY-MM-DD
