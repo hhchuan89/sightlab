@@ -90,8 +90,8 @@ export async function CycleExtras({ data, locale }: { data: CycleExtrasData; loc
             <dd className="mt-1 font-body text-text">
               <span className="font-mono tabular-nums text-text-2">{signed1(bv.rescaled)}</span>{" "}
               <span className="text-text-2">
-                {/* implied_stage is a Templeton label → same Phase remap as the badge */}
-                → {cyclePhaseLabel(pick(bv.implied_stage, locale), locale)}
+                {/* implied_stage is a Templeton label → same Phase remap as the badge */}→{" "}
+                {cyclePhaseLabel(pick(bv.implied_stage, locale), locale)}
               </span>
               <p className="mt-1 font-body text-md leading-relaxed text-muted prose-measure">
                 {t("cx.blockvoteFrame")}
