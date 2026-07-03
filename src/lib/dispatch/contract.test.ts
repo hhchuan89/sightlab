@@ -82,19 +82,40 @@ describe("§15.1 public dispatch contract — full content for everyone", () => 
     expect(d.is_locked).toBe(false);
   });
 
-  it("the active SQL projection exposes both §6/§7 blocks to ALL callers (SQL-level)", () => {
+  it("the ACTIVE SQL projection (0008) keeps §6/§7 public and strips formula internals", () => {
     const sql = readFileSync(
-      join(REPO_ROOT, "supabase", "migrations", "0004_public_v3.sql"),
+      join(REPO_ROOT, "supabase", "migrations", "0008_close_numeric_internals.sql"),
       "utf8",
     );
-    // The public projection function builds the FULL object — both content
-    // blocks + is_locked:false — with no role branch.
+    // The public projection function builds the FULL content object — both
+    // blocks + is_locked:false — with no role branch (v3, PLAN §15.1)...
     expect(sql).toMatch(/project_dispatch_full/);
     expect(sql).toMatch(/'flows_section6',\s*d\.flows_section6/);
     expect(sql).toMatch(/'cycle_section7',\s*d\.cycle_section7/);
+    expect(sql).toMatch(/'deepread_section',\s*d\.deepread_section/);
     expect(sql).toMatch(/'is_locked',\s*false/);
-    // The public read RPCs are reachable by anon AND authenticated.
-    expect(sql).toMatch(
+    // ...while the closed-formula NUMERIC internals never ship (iron rule ③,
+    // decision 2026-07-03): raw composite, layer totals, block-vote score.
+    for (const path of [
+      "{composite,composite_score}",
+      "{composite,composite_precise}",
+      "{composite,layer_totals}",
+      "{composite,valuation_a_score}",
+      "{composite,contrarian_overlay,score}",
+      "{composite,contrarian_overlay,per_layer}",
+      "{cycle_extras,composite_blockvote,rescaled}",
+      "{cycle_extras,composite_blockvote,blocks}",
+      "{cycle_extras,leading_sleeve,score}",
+      "{cycle_extras,leading_sleeve,components}",
+    ]) {
+      expect(sql).toContain(`#- '${path}'`);
+    }
+    // The public read RPCs stay reachable by anon AND authenticated (0004).
+    const grants = readFileSync(
+      join(REPO_ROOT, "supabase", "migrations", "0004_public_v3.sql"),
+      "utf8",
+    );
+    expect(grants).toMatch(
       /grant execute on function public\.get_latest_public\(\)\s+to anon, authenticated/,
     );
   });

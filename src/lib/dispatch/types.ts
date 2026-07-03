@@ -99,15 +99,23 @@ export interface Dispersion {
 }
 
 export interface Composite {
-  composite_score: number;
-  composite_precise: number;
+  /**
+   * Numeric formula internals (raw composite, layer scores) are STRIPPED from
+   * the public projection by migration 0008 (iron rule ③: the composite formula
+   * is closed; a naked daily score is a calibration point for reverse-
+   * engineering and information-free for readers). They stay in the DB — a
+   * future tier could re-expose them — so they are optional here, and the UI
+   * must never render them.
+   */
+  composite_score?: number;
+  composite_precise?: number;
   templeton_stage: string;
   cycle_stage_num: number;
   confidence: Confidence;
-  confidence_breakdown: Record<string, unknown>;
+  confidence_breakdown?: Record<string, unknown>;
   contrarian_overlay: Record<string, unknown>;
-  valuation_a_score: number;
-  layer_totals: Record<string, unknown>;
+  valuation_a_score?: number;
+  layer_totals?: Record<string, unknown>;
 }
 
 /**
@@ -126,18 +134,21 @@ export interface CycleExtras {
     trajectory: string | null;
     as_of: string | null;
   };
-  /** Leading tilt (deteriorating/stable/improving) — low-confidence, faster, NOT a forecast. */
+  /** Leading tilt (deteriorating/stable/improving) — low-confidence, faster, NOT a forecast.
+   *  `score`/`components` are formula internals, stripped by migration 0008 (see Composite). */
   leading_sleeve?: {
     tilt: string;
-    score: number;
+    score?: number;
     available_signals: number;
-    components: Record<string, number | null>;
+    components?: Record<string, number | null>;
   };
-  /** Decorrelated block-vote read — shown alongside to surface cluster double-counting. */
+  /** Decorrelated block-vote read — shown alongside to surface cluster double-counting.
+   *  Public payload carries the implied-stage LABEL only; `rescaled`/`blocks` are
+   *  formula internals, stripped by migration 0008 (see Composite). */
   composite_blockvote?: {
-    rescaled: number;
+    rescaled?: number;
     implied_stage: Bilingual;
-    blocks: Record<string, number>;
+    blocks?: Record<string, number>;
   };
   /** Regime persistence: dwell + 2-read hysteresis-smoothed stage. */
   regime_persistence?: {
