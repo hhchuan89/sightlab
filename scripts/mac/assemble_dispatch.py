@@ -630,6 +630,256 @@ def build_weekly_narrative(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     return {"zh": zh, "en": en}
 
 
+# ─────────────────── §6×§7 Flows×Cycle cross (deep-read p2.5) ───────────────────
+
+# The cross rule table (plan 20260703_01; writing-skill §C — the one surface where
+# intent language is licensed, BECAUSE each verdict is the direct deduction of two
+# engine facts: §6 ad_signal at strong confidence × §7 weinstein_stage). Inputs are
+# those two existing enums ONLY — no new thresholds, no LLM, a deterministic lookup.
+# Each cell = one sentence: present-state deduction stated inline + a falsifiable
+# observable (never a forecast). Where the two candidate readings genuinely compete
+# (strong distribution inside a stage-2 uptrend: genuine exit vs profit-taking
+# rotation) the sentence names BOTH and lets the falsifier separate them, instead
+# of picking a side the data can't support.
+# Order = output priority: warning cells (flow fights structure) first, then
+# confirmation cells, the contrarian cell last. Sectors landing in the same cell
+# aggregate into that cell's single sentence.
+_CROSS_CELLS: list[dict[str, Any]] = [
+    {  # ⚠️ warning 1: money leaving while the structure still points up
+        "signal": "DISTRIBUTION",
+        "stage": 2,
+        "warning": True,
+        "zh": (
+            "{names} 价格仍在阶段2上升结构内,资金却触发强派发——量在涨势中净流出,与价格方向相反,"
+            "可读作涨势中的真实撤离,也可能只是获利了结的轮动;若撤离属实,应见量能持续收缩或价格跌破30周均线,"
+            "若价格续涨且派发消退,则此读数属轮动噪音。"
+        ),
+        "en": (
+            "Price in {names} still holds a stage-2 uptrend, yet the flows fired strong distribution — "
+            "money leaving while price rises, flow against structure, which reads as either a genuine exit "
+            "inside the uptrend or profit-taking rotation; were the exit real, volume should keep contracting "
+            "or price should lose the 30-week MA, and if price keeps climbing while the distribution fades, "
+            "it was rotation noise."
+        ),
+    },
+    {  # ⚠️ warning 2: money arriving into a structure that has stopped delivering
+        "signal": "ACCUMULATION",
+        "stage": 3,
+        "warning": True,
+        "zh": (
+            "{names} 结构已走平(阶段3,趋势不再创出新高),却出现强吸筹——买盘在为一个尚未走出的方向下注,"
+            "可读作对强势的追高承接而非新需求;若吸筹属实,应见结构重新翻上(回到阶段2),"
+            "若价格跌破30周均线,则这批买盘被套。"
+        ),
+        "en": (
+            "Structure in {names} has flattened into stage 3 — the topping range where a trend stops making "
+            "new ground — yet strong accumulation shows up, buyers underwriting a direction the structure has "
+            "not delivered, which reads as chasing strength rather than fresh demand; were the buying right, "
+            "the structure should turn back up into stage 2, and a break of the 30-week MA would leave those "
+            "buyers trapped."
+        ),
+    },
+    {  # confirmation: uptrend with volume endorsement
+        "signal": "ACCUMULATION",
+        "stage": 2,
+        "warning": False,
+        "zh": (
+            "{names} 阶段2上升叠加强吸筹——价格与资金同向,趋势获得量能背书;"
+            "若背书消失(吸筹转弱或中性)而价格续涨,即转为无量上行,该确认随之失效。"
+        ),
+        "en": (
+            "In {names}, a stage-2 uptrend pairs with strong accumulation — price and flows point the same "
+            "way, the trend carries volume endorsement; if that endorsement fades (the signal weakening or "
+            "turning neutral) while price keeps rising, the advance loses its volume backing and this "
+            "confirmation lapses."
+        ),
+    },
+    {  # confirmation: a top with volume behind it
+        "signal": "DISTRIBUTION",
+        "stage": 3,
+        "warning": False,
+        "zh": (
+            "{names} 做顶结构(阶段3)叠加强派发——资金流出与走平的结构互相印证,量能在为顶部形态作证,"
+            "可读作真实卖出而非获利了结;若为假顶,应见派发退潮,且均线斜率重新翻上(结构回到阶段2)。"
+        ),
+        "en": (
+            "In {names}, a stage-3 topping structure pairs with strong distribution — outflow and the "
+            "flattened structure corroborate each other, volume is testifying to the top formation, which "
+            "reads as real selling rather than profit-taking; were this a false top, the distribution should "
+            "fade, and the moving-average slope should turn back up (structure back to stage 2)."
+        ),
+    },
+    {  # confirmation: downtrend with supply still present
+        "signal": "DISTRIBUTION",
+        "stage": 4,
+        "warning": False,
+        "zh": (
+            "{names} 阶段4下行叠加强派发——供给持续,下行结构与资金方向一致,趋势与资金互为确认;"
+            "趋势衰竭的前置观测是派发退潮,目前派发仍在。"
+        ),
+        "en": (
+            "In {names}, a stage-4 decline pairs with strong distribution — supply persists and the falling "
+            "structure agrees with the flows, trend and money confirming each other; the leading observable "
+            "for trend exhaustion is the distribution fading, and for now it hasn't."
+        ),
+    },
+    {  # confirmation: the textbook accumulation base
+        "signal": "ACCUMULATION",
+        "stage": 1,
+        "warning": False,
+        "zh": (
+            "{names} 阶段1筑底叠加强吸筹——底部区间内有资金持续承接,是教科书式的吸筹状态;"
+            "若承接属实,应见基区逐步抬高或放量突破,跌出基区下沿则承接失败。"
+        ),
+        "en": (
+            "In {names}, a stage-1 base pairs with strong accumulation — capital is absorbing supply inside "
+            "the base, the textbook accumulation state; were the absorption real, the base should ratchet "
+            "higher or break out on volume, and a drop below the base would mark it failed."
+        ),
+    },
+    {  # confirmation: supply inside a base that should be absorbing it
+        "signal": "DISTRIBUTION",
+        "stage": 1,
+        "warning": False,
+        "zh": (
+            "{names} 仍在阶段1筑底,却触发强派发——基区内的供给未被消化,底部结构存疑;"
+            "基区下沿失守即证实供给占上风,派发转中性则疑虑解除。"
+        ),
+        "en": (
+            "{names} — still basing in stage 1 — fired strong distribution: supply inside the base is not "
+            "being absorbed, which puts the bottoming structure in doubt; a loss of the base's lower edge "
+            "would confirm supply is winning, the signal turning neutral would clear the doubt."
+        ),
+    },
+    {  # contrarian: catching the fall — a state on record, never a signal
+        "signal": "ACCUMULATION",
+        "stage": 4,
+        "warning": False,
+        "zh": (
+            "{names} 阶段4下行中出现强吸筹——有资金逆势接货,这是本交叉里置信度最低的组合"
+            "(逆势状态记录,不构成任何买入信号);在结构脱离阶段4之前,它只是一条状态记录。"
+        ),
+        "en": (
+            "Inside a stage-4 decline, {names} fired strong accumulation — capital catching the fall against "
+            "the trend, the lowest-confidence combination in this cross (a contrarian state on record, not a "
+            "buy signal of any kind); until the structure exits stage 4 it stays exactly that, a record."
+        ),
+    },
+]
+
+_CROSS_LEAD_ZH = "资金×结构交叉:"
+_CROSS_LEAD_EN = "Flows×Cycle cross: "
+# The honest empty read (charter: never manufacture tension). Worded to claim EXACTLY
+# the join predicate — "no sector holds BOTH a strong §6 signal AND a §7 stage" — so
+# the sentence stays true even on the data-gap day where a sector fires strong but its
+# stage is missing upstream (that day also shouts to stderr; see build_cross_paragraph).
+_CROSS_EMPTY_ZH = (
+    _CROSS_LEAD_ZH + "本周没有板块同时具备强资金信号与结构阶段读数,资金方向与结构位置之间没有值得点名的张力。"
+)
+_CROSS_EMPTY_EN = (
+    _CROSS_LEAD_EN
+    + "no sector this week pairs a strong flow signal with a mapped structure stage, "
+    + "so there is no flows-versus-structure tension worth naming."
+)
+
+# Plan cap («整段封顶 3–4 句»): at most 3 fully-written cells — the 2 warning cells
+# sit first in _CROSS_CELLS, so they can never be displaced — and any lower-priority
+# overflow compresses into ONE honest listing sentence instead of a silent drop.
+_CROSS_MAX_CELLS = 3
+
+
+def _cross_names_en(tickers: list[str]) -> str:
+    """EN name list for the cross sentences: "XLE" / "XLF and XLV" /
+    "XLF, XLV, and XLP". The EN templates put {names} inside prose frames
+    ("Price in {names}…"), so a bare comma join would read as a clause break."""
+    if len(tickers) <= 1:
+        return "".join(tickers)
+    if len(tickers) == 2:
+        return f"{tickers[0]} and {tickers[1]}"
+    return ", ".join(tickers[:-1]) + f", and {tickers[-1]}"
+
+
+def build_cross_paragraph(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str, Any]:
+    """The Flows×Cycle cross (deep-read p2.5): JOIN §6 strong-confidence rows onto
+    §7 Weinstein stages by symbol and render the matching _CROSS_CELLS sentences,
+    warning cells first. Deterministic bilingual, zero LLM (plan 20260703_01).
+
+    Only `ad_confidence == "strong"` rows participate (the standing reading rule:
+    weak signals are context, never a conclusion). Rows without a §7 sector stage
+    — SPY/QQQ (broad index) and IBIT/FBTC (crypto) — drop out of the join naturally,
+    so the cross only ever speaks about sectors where BOTH facts are held (skill §C2).
+
+    Returns {"zh", "en", "warning"}; warning=True iff a warning cell fired (feeds
+    the public teaser hook). Empty table → the honest "nothing crosses" sentence.
+    """
+    stage_by_symbol = {
+        str(s.get("symbol")): int(s.get("weinstein_stage") or 0) for s in cycle7["sectors"]
+    }
+    cells: dict[tuple[str, int], list[dict[str, Any]]] = {}
+    for r in flows6["rows"]:
+        if r.get("ad_confidence") != "strong":
+            continue
+        signal = str(r.get("ad_signal") or "")
+        if signal not in ("ACCUMULATION", "DISTRIBUTION"):
+            continue
+        etf = str(r.get("etf"))
+        stage = stage_by_symbol.get(etf, 0)
+        if stage not in (1, 2, 3, 4):
+            # SPY/QQQ/IBIT/FBTC carry no §7 sector row BY DESIGN — dropping them is
+            # the join working. A genuine SECTOR landing here means its stage went
+            # missing upstream: shout, never absorb silently (the empty sentence is
+            # worded to stay true either way).
+            if etf not in EXTRA_NAME_ZH:
+                print(
+                    f"assemble_dispatch: cross join dropped strong sector row {etf} (no §7 stage)",
+                    file=sys.stderr,
+                )
+            continue
+        cells.setdefault((signal, stage), []).append(r)
+
+    if not cells:
+        return {"zh": _CROSS_EMPTY_ZH, "en": _CROSS_EMPTY_EN, "warning": False}
+
+    fired = [
+        (cell, cells[(cell["signal"], cell["stage"])])
+        for cell in _CROSS_CELLS
+        if (cell["signal"], cell["stage"]) in cells
+    ]
+    rendered, overflow = fired[:_CROSS_MAX_CELLS], fired[_CROSS_MAX_CELLS:]
+
+    zh_bits: list[str] = []
+    en_bits: list[str] = []
+    warning = False
+    for cell, rs in rendered:
+        names_zh = "、".join(f"{r['etf']}({r['name_zh']})" for r in rs)
+        names_en = _cross_names_en([str(r["etf"]) for r in rs])
+        zh_bits.append(cell["zh"].format(names=names_zh))
+        en_bits.append(cell["en"].format(names=names_en))
+        warning = warning or bool(cell["warning"])
+
+    if overflow:
+        # Cap release (plan «封顶 3–4 句»): the lowest-priority cells become one
+        # compact factual listing — named, not unpacked, never silently dropped.
+        items_zh = "、".join(
+            f"{r['etf']}({r['name_zh']},{AD_SIGNAL_ZH[cell['signal']]}×阶段{cell['stage']})"
+            for cell, rs in overflow
+            for r in rs
+        )
+        items_en = "; ".join(
+            f"{r['etf']} ({cell['signal'].lower()} × stage {cell['stage']})"
+            for cell, rs in overflow
+            for r in rs
+        )
+        zh_bits.append(f"其余强信号交叉本期仅列不展:{items_zh}。")
+        en_bits.append(f"Further crosses this week, listed but not unpacked: {items_en}.")
+
+    return {
+        "zh": _CROSS_LEAD_ZH + "".join(zh_bits),
+        "en": _CROSS_LEAD_EN + " ".join(en_bits),
+        "warning": warning,
+    }
+
+
 def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str, Any]:
     """DETERMINISTIC bilingual market-structure deep-read for `deepread_section`
     (PLAN §15.9; no LLM, like build_weekly_narrative). Surfaces the buried tensions
@@ -825,18 +1075,25 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
             "blind spots at crises and tops."
         )
 
-    body_zh = "\n\n".join(x for x in (p1_zh, p_macro_zh, p2_zh, p3_zh) if x)
-    body_en = "\n\n".join(x for x in (p1_en, p_macro_en, p2_en, p3_en) if x)
+    # ── Flows×Cycle cross (p2.5, plan 20260703_01): flows direction × Weinstein
+    #    stage, deterministic lookup. Sits between the flows read (p2) and the
+    #    phase-transition state (p3); its warning cells feed the public teaser. ──
+    cross = build_cross_paragraph(flows6, cycle7)
+
+    body_zh = "\n\n".join(x for x in (p1_zh, p_macro_zh, p2_zh, cross["zh"], p3_zh) if x)
+    body_en = "\n\n".join(x for x in (p1_en, p_macro_en, p2_en, cross["en"], p3_en) if x)
 
     teaser_zh = (
         f"周期 {label_zh}、置信度 {conf_zh};"
         + ("领涨板块当前在缩量、" if diverge else "")
+        + ("资金与结构出现交叉张力、" if cross["warning"] else "")
         + ("周期档位刚出现单次快照跨界(待下次确认)、" if p3_zh else "")
         + "本期深读拆解这组当前市场结构信号。"
     )
     teaser_en = (
         f"Cycle {label_en}, confidence {conf}; "
         + ("leaders are thinning on volume, " if diverge else "")
+        + ("flows and structure are crossing in tension, " if cross["warning"] else "")
         + ("the cycle phase just crossed on a single snapshot (confirmation pending), " if p3_en else "")
         + "this deep-read unpacks the current market-structure signals."
     )
