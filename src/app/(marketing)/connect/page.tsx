@@ -90,7 +90,7 @@ export default async function ConnectPage() {
         <CodeBlock>{rpc("list_dispatches_public", '{"p_limit": 30, "p_offset": 0}')}</CodeBlock>
       </section>
 
-      {/* ── layer 3: MCP (Phase 1) ── */}
+      {/* ── layer 3: MCP (live — Phase 1) ── */}
       <section className="mt-10">
         <h2 className="font-serif text-xl font-semibold text-text">{t("layer3Title")}</h2>
         <p className="mt-2 font-body text-md leading-relaxed text-text-2 prose-measure">
@@ -101,6 +101,36 @@ export default async function ConnectPage() {
           <li className="border-l border-border pl-4">{t("layer3Promise2")}</li>
           <li className="border-l border-border pl-4">{t("layer3Promise3")}</li>
         </ul>
+        <p className="mt-5 label-mono text-muted">{t("layer3GetToken")}</p>
+        <Link
+          className="mt-1 inline-block font-mono text-sm text-accent-text hover:underline"
+          href="/account"
+        >
+          {t("layer3AccountLink")}
+        </Link>
+        <p className="mt-4 label-mono text-muted">{t("layer3CfgClaudeCode")}</p>
+        <CodeBlock>{`claude mcp add --transport http sightlab ${site}/api/mcp \\
+  --header "Authorization: Bearer slk_YOUR_TOKEN"`}</CodeBlock>
+        <p className="mt-4 label-mono text-muted">{t("layer3CfgUrl")}</p>
+        <CodeBlock>{`{
+  "mcpServers": {
+    "sightlab": {
+      "url": "${site}/api/mcp",
+      "headers": { "Authorization": "Bearer slk_YOUR_TOKEN" }
+    }
+  }
+}`}</CodeBlock>
+        <p className="mt-4 label-mono text-muted">{t("layer3CfgStdio")}</p>
+        <CodeBlock>{`{
+  "mcpServers": {
+    "sightlab": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "${site}/api/mcp",
+               "--header", "Authorization: Bearer slk_YOUR_TOKEN"]
+    }
+  }
+}`}</CodeBlock>
+        <p className="mt-3 text-xs text-muted">{t("layer3Drift")}</p>
       </section>
 
       {/* ── reading rules ── */}
