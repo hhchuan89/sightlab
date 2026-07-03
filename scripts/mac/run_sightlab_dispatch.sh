@@ -119,6 +119,12 @@ WORK="$SIGHTLAB_DATA_DIR/work/$DATE_UTC"
 LOGDIR="$SIGHTLAB_DATA_DIR/logs"
 mkdir -p "$WORK" "$LOGDIR" || die "cannot create work/log dirs under $SIGHTLAB_DATA_DIR"
 
+# Prune runner artifacts older than 90 days (deep-review 2B-⑩): per-day work/
+# snapshots and logs otherwise grow without bound. Best-effort — never blocks
+# the run. ($SIGHTLAB_DATA_DIR is validated non-empty above.)
+find "$SIGHTLAB_DATA_DIR/work" -mindepth 1 -maxdepth 1 -type d -mtime +90 -exec rm -rf {} + 2>/dev/null || true
+find "$LOGDIR" -maxdepth 1 -type f -name '*.log' -mtime +90 -delete 2>/dev/null || true
+
 FLOWS_JSON="$WORK/flows.json"
 DISP_JSON="$WORK/dispersion.json"
 FAST_JSON="$WORK/fast_monitor.json"

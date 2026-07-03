@@ -45,6 +45,10 @@ SITE_URL="${SIGHTLAB_SITE_URL:-${NEXT_PUBLIC_SITE_URL:-}}"
 
 LOG="${SIGHTLAB_DATA_DIR:-$HOME}/logs/sightlab-watchdog.log"
 mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
+# Keep the append-only watchdog log bounded (deep-review 2B-⑩): >1 MB → keep tail.
+if [ -f "$LOG" ] && [ "$(wc -c <"$LOG" 2>/dev/null || echo 0)" -gt 1048576 ]; then
+  tail -n 500 "$LOG" >"$LOG.tmp" 2>/dev/null && mv "$LOG.tmp" "$LOG"
+fi
 TS="$(date '+%F %T %Z')"
 D_UTC="$(date -u +%F)"
 
@@ -64,8 +68,12 @@ alerts=()
 # fall back to fetching the site's /dispatch page and checking for today's date.
 
 # probe_latest: echo the published-latest probe body; EMPTY output = unreachable.
+PROBE_MODE="site"
+if [ -n "${NEXT_PUBLIC_SUPABASE_URL:-}" ] && [ -n "${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" ]; then
+  PROBE_MODE="rpc"
+fi
 probe_latest() {
-  if [ -n "${NEXT_PUBLIC_SUPABASE_URL:-}" ] && [ -n "${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" ]; then
+  if [ "$PROBE_MODE" = "rpc" ]; then
     curl -s --retry 2 --max-time 30 -X POST \
       "${NEXT_PUBLIC_SUPABASE_URL%/}/rest/v1/rpc/get_latest_public" \
       -H "apikey: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}" \
@@ -73,6 +81,28 @@ probe_latest() {
       -H "Content-Type: application/json" -d '{}' 2>/dev/null
   else
     curl -s --retry 2 --max-time 30 "${SITE_URL%/}/dispatch" 2>/dev/null
+  fi
+}
+
+# latest_landed BODY: did today's dispatch land, judged STRICTLY (deep-review
+# 2B-⑨)? RPC mode parses the top-level `dispatch_date` field — a full-text grep
+# would also match `generated_at` (today's timestamp on a BACKFILL re-POST of an
+# old edition) and false-green the dead-man's-switch exactly when it matters.
+# Site mode keeps the substring check: the /dispatch HTML shows the latest
+# edition's masthead date and carries no generated_at, so it lacks that trap.
+latest_landed() {
+  if [ "$PROBE_MODE" = "rpc" ]; then
+    [ "$(printf '%s' "$1" | "$PYTHON_BIN" -c '
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    if isinstance(d, list):
+        d = d[0] if d else {}
+    print(d.get("dispatch_date") or "")
+except Exception:
+    print("")' 2>/dev/null)" = "$D_UTC" ]
+  else
+    printf '%s' "$1" | grep -q "$D_UTC"
   fi
 }
 
@@ -107,7 +137,7 @@ if [ -z "${NO_PROBE:-}" ]; then
       unreachable=1
     else
       unreachable=""
-      if printf '%s' "$OUT" | grep -q "$D_UTC"; then
+      if latest_landed "$OUT"; then
         landed=1
         break
       fi
@@ -130,6 +160,48 @@ if [ -z "${NO_PROBE:-}" ]; then
     else
       alerts+=("今日($D_UTC)的 dispatch 未落地(已探测 ${attempt} 次,最新一期非今天)。")
     fi
+  fi
+fi
+
+# --- (c) archive continuity backscan (deep-review 2B-⑧) -----------------------
+# launchd COALESCES missed StartCalendarInterval fires into ONE catch-up run, so
+# a multi-day sleep produces only the wake day — the middle days never ran (no
+# die-DM, nothing to retry) and check (a) only looks at today. Scan the last
+# SIGHTLAB_BACKSCAN_DAYS expected days (default 14; Monday UTC rest days are not
+# expected) against the public archive list and alarm on any hole, so a silent
+# gap is NOTICED instead of discovered weeks later. RPC mode only — the site
+# fallback has no cheap archive-list endpoint.
+BACKSCAN_DAYS="${SIGHTLAB_BACKSCAN_DAYS:-14}"
+if [ "$PROBE_MODE" = "rpc" ]; then
+  LIST="$(curl -s --retry 2 --max-time 30 -X POST \
+    "${NEXT_PUBLIC_SUPABASE_URL%/}/rest/v1/rpc/list_dispatches_public" \
+    -H "apikey: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}" \
+    -H "Authorization: Bearer ${NEXT_PUBLIC_SUPABASE_ANON_KEY}" \
+    -H "Content-Type: application/json" \
+    -d "{\"p_limit\": $((BACKSCAN_DAYS + 10)), \"p_offset\": 0}" 2>/dev/null)"
+  if [ -n "$LIST" ]; then
+    HOLES="$(printf '%s' "$LIST" | "$PYTHON_BIN" -c '
+import datetime as dt
+import json, sys
+days = int(sys.argv[1])
+try:
+    have = {str(r.get("dispatch_date")) for r in json.load(sys.stdin)}
+except Exception:
+    sys.exit(0)  # unparseable list → skip silently; check (a) still covers today
+today = dt.datetime.now(dt.timezone.utc).date()
+holes = []
+for i in range(1, days + 1):
+    d = today - dt.timedelta(days=i)
+    if d.isoweekday() == 1:
+        continue  # Monday UTC rest day — no dispatch expected
+    if d.isoformat() not in have:
+        holes.append(d.isoformat())
+print(",".join(holes))' "$BACKSCAN_DAYS" 2>/dev/null)"
+    if [ -n "$HOLES" ]; then
+      alerts+=("archive 连续性缺口(近 ${BACKSCAN_DAYS} 天,不含周一休刊):${HOLES}——多日休眠时 launchd 只补跑唤醒日,中间日从未运行(数据窗口已过,无法真正回填);此告警的意义是让缺口被看见。")
+    fi
+  else
+    echo "$TS NOTE: backscan list RPC unreachable — skipping continuity scan" >>"$LOG"
   fi
 fi
 
