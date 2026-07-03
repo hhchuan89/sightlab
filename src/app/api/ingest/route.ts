@@ -2,8 +2,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { validateIngestBody, type DispatchIngestBody } from "@/lib/ingest/schema";
-import { sendDigest } from "@/lib/email/sendDigest";
-import type { Dispatch } from "@/lib/dispatch/types";
 
 /**
  * POST /api/ingest — Mac harness → DB (PLAN §7.2, §14-B5/C1/S1, §15.4).
@@ -21,10 +19,9 @@ import type { Dispatch } from "@/lib/dispatch/types";
  *   5. JSON.parse → §15.4 holdings guard → zod validation (422 on any failure).
  *   6. UPSERT keyed on dispatch_date (idempotent re-POST overwrites — clears the
  *      "Delayed" banner / backfills EN on a soft-fail re-run).
- *   7. After a SUCCESSFUL publish, fire sendDigest(dispatch) (PLAN §15.3) —
- *      AT MOST ONCE per dispatch_date, gated on `dispatches.digest_sent_at`
- *      (migration 0005). Wrapped so an email failure does NOT fail the ingest
- *      (log + continue).
+ *
+ * (The former step 7 — the email digest fan-out — was REMOVED for good on
+ * 2026-07-03, PLAN §15.3. Delivery is the site + the Telegram channel.)
  *
  * Never call req.json() — the HMAC must run over the raw bytes first.
  */
@@ -103,64 +100,21 @@ export async function POST(req: NextRequest) {
     return json(401, { error: "date_header_mismatch" });
   }
 
-  // (6) UPSERT keyed on dispatch_date (idempotent). Service-role write. The
-  // chained .select() returns the POST-upsert row in the same round trip;
-  // `rowFromBody` omits `digest_sent_at`, so the value that comes back is the
-  // PRE-existing marker (never cleared by a re-POST) — exactly what step (7)
-  // needs, without a standalone read of `dispatches` (B2: RPCs stay the sole
-  // read path for content; this returns only the bookkeeping column).
+  // (6) UPSERT keyed on dispatch_date (idempotent). Service-role write.
   const admin = createAdminClient();
-  const { data: row, error: upsertErr } = await admin
+  const { error: upsertErr } = await admin
     .from("dispatches")
-    .upsert(rowFromBody(body), { onConflict: "dispatch_date" })
-    .select("digest_sent_at")
-    .single();
+    .upsert(rowFromBody(body), { onConflict: "dispatch_date" });
   if (upsertErr) {
     console.error(`ingest: upsert failed for ${body.dispatch_date}: ${upsertErr.message}`);
     return json(500, { error: "db_write_failed" });
   }
 
-  // (7) Daily email digest — best-effort AND at-most-once per dispatch_date:
-  // only the FIRST ingest of a date emails; later re-POSTs (EN backfill /
-  // delayed re-run) skip. Any failure in this block must NOT fail the ingest
-  // (the dispatch is already published).
-  try {
-    if (row.digest_sent_at) {
-      console.info(
-        `ingest: digest for ${body.dispatch_date} already sent at ${row.digest_sent_at} — skipping email`,
-      );
-    } else {
-      const digest = await sendDigest(toDispatch(body));
-      if (digest.failed > 0) {
-        // deep-review 1.3: sendDigest never THROWS on send failures — it
-        // returns counts. Leave digest_sent_at NULL so a re-POST retries the
-        // fan-out. Tradeoff: recipients who did get this one may receive a
-        // duplicate on the retry — accepted; a silently lost day is worse.
-        console.error(
-          `ingest: digest for ${body.dispatch_date} incomplete — sent ${digest.sent}/` +
-            `${digest.attempted}, failed ${digest.failed}; digest_sent_at left null for retry`,
-        );
-      } else {
-        // Mark only after a fully-clean fan-out (failed === 0) — both a throw
-        // AND a partial failure leave the marker null so a re-POST can retry.
-        const { error: markErr } = await admin
-          .from("dispatches")
-          .update({ digest_sent_at: new Date().toISOString() })
-          .eq("dispatch_date", body.dispatch_date);
-        if (markErr) {
-          console.error(
-            `ingest: failed to set digest_sent_at for ${body.dispatch_date}: ${markErr.message}`,
-          );
-        }
-      }
-    }
-  } catch (err) {
-    console.error(
-      `ingest: digest step failed for ${body.dispatch_date} (ingest still OK): ${
-        err instanceof Error ? err.message : String(err)
-      }`,
-    );
-  }
+  // (7) The email digest that used to fan out here was REMOVED for good on
+  // 2026-07-03 (decision §三-C): CAN-SPAM requires a physical postal address
+  // and exposing a personal one is not acceptable. Distribution is the site +
+  // the Telegram channel. `dispatches.digest_sent_at` / `profiles.email_opt_in`
+  // remain as unused DB columns (dropping them is not worth a migration).
 
   return json(200, { ok: true, dispatch_date: body.dispatch_date });
 }
@@ -178,8 +132,6 @@ function withinOneDay(dateStr: string): boolean {
 
 /**
  * Map the validated ingest body → a `dispatches` table row (PLAN §3.1 columns).
- * MUST NOT include `digest_sent_at`: the upsert would reset it on every re-POST
- * and the at-most-once digest gate in POST step (7) would break.
  */
 function rowFromBody(b: DispatchIngestBody) {
   return {
@@ -197,27 +149,5 @@ function rowFromBody(b: DispatchIngestBody) {
     deepread_section: b.deepread_section, // §15.9 (null when producer predates it)
     teaser_en: b.teaser.en,
     teaser_zh: b.teaser.zh,
-  };
-}
-
-/**
- * Map the validated body → the projected `Dispatch` shape `sendDigest` consumes
- * (the same full-projection shape the public read RPC returns). Content is public
- * in v3, so `is_locked` is always false.
- */
-function toDispatch(b: DispatchIngestBody): Dispatch {
-  return {
-    dispatch_date: b.dispatch_date,
-    generated_at: b.generated_at,
-    kind: b.kind,
-    intro_en: b.intro.en,
-    intro_zh: b.intro.zh,
-    at_a_glance_en: b.at_a_glance.en,
-    at_a_glance_zh: b.at_a_glance.zh,
-    cycle_badge: b.cycle_badge,
-    is_locked: false,
-    flows_section6: b.flows_section6,
-    cycle_section7: b.cycle_section7,
-    deepread_section: b.deepread_section, // §15.9
   };
 }
