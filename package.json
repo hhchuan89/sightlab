@@ -18,7 +18,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:paywall": "node --test 'supabase/tests/*.test.mjs'"
+    "test:paywall": "node --test 'supabase/tests/*.test.mjs'",
+    "test:producer": "python3 scripts/mac/test_assemble_dispatch.py"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.26.0",

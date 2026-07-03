@@ -1,0 +1,272 @@
+#!/usr/bin/env python3
+"""Unit tests for assemble_dispatch.py — currently the Flows×Cycle cross
+(build_cross_paragraph + its deep-read/teaser wiring; plan 20260703_01).
+
+Run:  python3 scripts/mac/test_assemble_dispatch.py
+(pure functions, no network, no harness inputs needed)
+"""
+from __future__ import annotations
+
+import importlib.util
+import pathlib
+import sys
+import unittest
+
+_HERE = pathlib.Path(__file__).resolve().parent
+_spec = importlib.util.spec_from_file_location("assemble_dispatch", _HERE / "assemble_dispatch.py")
+ad = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(ad)
+
+
+def row(etf: str, name_zh: str, signal: str, conf: str) -> dict:
+    return {"etf": etf, "name_zh": name_zh, "ad_signal": signal, "ad_confidence": conf}
+
+
+def sector(symbol: str, stage: int) -> dict:
+    return {"symbol": symbol, "weinstein_stage": stage}
+
+
+def cross(rows: list[dict], sectors: list[dict]) -> dict:
+    return ad.build_cross_paragraph({"rows": rows}, {"sectors": sectors})
+
+
+# One §6/§7 pair per cell: (signal, stage, warning, zh key-phrase, en key-phrase).
+CELL_CASES = [
+    ("DISTRIBUTION", 2, True, "可读作涨势中的真实撤离", "reads as either a genuine exit"),
+    ("ACCUMULATION", 3, True, "可读作对强势的追高承接", "reads as chasing strength"),
+    ("ACCUMULATION", 2, False, "趋势获得量能背书", "the trend carries volume endorsement"),
+    ("DISTRIBUTION", 3, False, "可读作真实卖出而非获利了结", "reads as real selling rather than profit-taking"),
+    ("DISTRIBUTION", 4, False, "趋势与资金互为确认", "trend and money confirming each other"),
+    ("ACCUMULATION", 1, False, "教科书式的吸筹状态", "the textbook accumulation state"),
+    ("DISTRIBUTION", 1, False, "底部结构存疑", "puts the bottoming structure in doubt"),
+    ("ACCUMULATION", 4, False, "置信度最低的组合", "the lowest-confidence combination"),
+]
+
+
+class TestCrossCells(unittest.TestCase):
+    def test_each_cell_fires_with_expected_reading(self) -> None:
+        for signal, stage, warning, zh_key, en_key in CELL_CASES:
+            with self.subTest(signal=signal, stage=stage):
+                out = cross([row("XLK", "科技", signal, "strong")], [sector("XLK", stage)])
+                self.assertIn(zh_key, out["zh"])
+                self.assertIn(en_key, out["en"])
+                self.assertIn("XLK(科技)", out["zh"])
+                self.assertIn("XLK", out["en"])
+                self.assertEqual(out["warning"], warning)
+                self.assertTrue(out["zh"].startswith("资金×结构交叉:"))
+                self.assertTrue(out["en"].startswith("Flows×Cycle cross: "))
+
+    def test_empty_when_no_strong_signal(self) -> None:
+        out = cross(
+            [row("XLK", "科技", "ACCUMULATION", "weak"), row("XLE", "能源", "NEUTRAL", "none")],
+            [sector("XLK", 2), sector("XLE", 4)],
+        )
+        self.assertEqual(out["zh"], ad._CROSS_EMPTY_ZH)
+        self.assertEqual(out["en"], ad._CROSS_EMPTY_EN)
+        self.assertFalse(out["warning"])
+
+    def test_weak_confidence_never_fires(self) -> None:
+        out = cross([row("XLK", "科技", "DISTRIBUTION", "weak")], [sector("XLK", 2)])
+        self.assertEqual(out["zh"], ad._CROSS_EMPTY_ZH)
+
+    def test_strong_neutral_never_fires(self) -> None:
+        out = cross([row("XLK", "科技", "NEUTRAL", "strong")], [sector("XLK", 2)])
+        self.assertEqual(out["zh"], ad._CROSS_EMPTY_ZH)
+
+    def test_index_and_crypto_rows_drop_out_of_the_join(self) -> None:
+        # SPY/QQQ/IBIT/FBTC have no §7 sector row → the cross cannot run on them,
+        # even at strong confidence (skill §C2: both facts must be held).
+        out = cross(
+            [
+                row("SPY", "标普500", "DISTRIBUTION", "strong"),
+                row("IBIT", "贝莱德比特币ETF", "ACCUMULATION", "strong"),
+            ],
+            [sector("XLK", 2)],
+        )
+        self.assertEqual(out["zh"], ad._CROSS_EMPTY_ZH)
+        self.assertFalse(out["warning"])
+        # positive control: a joinable sector in the SAME batch still fires, and the
+        # non-joinable rows stay out of the text (guards against a dead join passing)
+        out2 = cross(
+            [
+                row("SPY", "标普500", "DISTRIBUTION", "strong"),
+                row("IBIT", "贝莱德比特币ETF", "ACCUMULATION", "strong"),
+                row("XLE", "能源", "DISTRIBUTION", "strong"),
+            ],
+            [sector("XLE", 2)],
+        )
+        self.assertIn("XLE(能源)", out2["zh"])
+        self.assertTrue(out2["warning"])
+        self.assertNotIn("SPY", out2["zh"])
+        self.assertNotIn("SPY", out2["en"])
+        self.assertNotIn("IBIT", out2["en"])
+
+    def test_unknown_stage_drops_out(self) -> None:
+        out = cross([row("XLK", "科技", "DISTRIBUTION", "strong")], [sector("XLK", 0)])
+        self.assertEqual(out["zh"], ad._CROSS_EMPTY_ZH)
+
+    def test_same_cell_aggregates_names_into_one_sentence(self) -> None:
+        out = cross(
+            [row("XLV", "医疗", "ACCUMULATION", "strong"), row("XLP", "必需消费", "ACCUMULATION", "strong")],
+            [sector("XLV", 1), sector("XLP", 1)],
+        )
+        self.assertIn("XLV(医疗)、XLP(必需消费)", out["zh"])
+        self.assertIn("XLV and XLP", out["en"])
+        # one cell → exactly one occurrence of the cell's reading
+        self.assertEqual(out["zh"].count("教科书式的吸筹状态"), 1)
+
+    def test_en_name_join_is_prose_safe(self) -> None:
+        self.assertEqual(ad._cross_names_en(["XLE"]), "XLE")
+        self.assertEqual(ad._cross_names_en(["XLF", "XLV"]), "XLF and XLV")
+        self.assertEqual(ad._cross_names_en(["XLF", "XLV", "XLP"]), "XLF, XLV, and XLP")
+
+    def test_warning_cell_renders_before_confirmation_cell(self) -> None:
+        out = cross(
+            [
+                row("XLV", "医疗", "ACCUMULATION", "strong"),  # ACC×S2 confirmation
+                row("XLE", "能源", "DISTRIBUTION", "strong"),  # DIST×S2 warning
+            ],
+            [sector("XLV", 2), sector("XLE", 2)],
+        )
+        self.assertLess(out["zh"].index("XLE(能源)"), out["zh"].index("XLV(医疗)"))
+        self.assertLess(out["en"].index("XLE"), out["en"].index("XLV"))
+        self.assertTrue(out["warning"])
+
+    def test_full_priority_order_warnings_then_contrarian_last(self) -> None:
+        # warning1 (DIST×S2) → warning2 (ACC×S3) → contrarian (ACC×S4) last
+        out = cross(
+            [
+                row("XLU", "公用", "ACCUMULATION", "strong"),  # ACC×S4 contrarian
+                row("XLF", "金融", "ACCUMULATION", "strong"),  # ACC×S3 warning2
+                row("XLE", "能源", "DISTRIBUTION", "strong"),  # DIST×S2 warning1
+            ],
+            [sector("XLU", 4), sector("XLF", 3), sector("XLE", 2)],
+        )
+        i_w1 = out["zh"].index("XLE(能源)")
+        i_w2 = out["zh"].index("XLF(金融)")
+        i_ct = out["zh"].index("XLU(公用)")
+        self.assertLess(i_w1, i_w2)
+        self.assertLess(i_w2, i_ct)
+
+    def test_overflow_beyond_cap_compresses_into_listing_line(self) -> None:
+        # 4 distinct cells fire → first 3 (both warnings + top confirmation) render
+        # in full, the 4th (contrarian, lowest priority) compresses into the honest
+        # listing line — named, never silently dropped, full template absent.
+        out = cross(
+            [
+                row("XLE", "能源", "DISTRIBUTION", "strong"),  # DIST×S2 warning1
+                row("XLF", "金融", "ACCUMULATION", "strong"),  # ACC×S3 warning2
+                row("XLV", "医疗", "ACCUMULATION", "strong"),  # ACC×S2 confirmation
+                row("XLU", "公用", "ACCUMULATION", "strong"),  # ACC×S4 contrarian → overflow
+            ],
+            [sector("XLE", 2), sector("XLF", 3), sector("XLV", 2), sector("XLU", 4)],
+        )
+        self.assertIn("其余强信号交叉本期仅列不展:XLU(公用,吸筹×阶段4)。", out["zh"])
+        self.assertIn("Further crosses this week, listed but not unpacked: XLU (accumulation × stage 4).", out["en"])
+        self.assertNotIn("置信度最低的组合", out["zh"])  # the full contrarian template did NOT render
+        self.assertTrue(out["warning"])
+
+    def test_data_gap_sector_drop_shouts_to_stderr(self) -> None:
+        import contextlib
+        import io
+
+        # a REAL sector fires strong but its §7 stage is missing → stderr warning;
+        # SPY (known non-sector) stays silent; the honest empty line still holds.
+        buf = io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            out = cross(
+                [
+                    row("XLE", "能源", "DISTRIBUTION", "strong"),
+                    row("SPY", "标普500", "DISTRIBUTION", "strong"),
+                ],
+                [sector("XLE", 0)],  # stage missing upstream
+            )
+        err = buf.getvalue()
+        self.assertIn("dropped strong sector row XLE", err)
+        self.assertNotIn("SPY", err)
+        self.assertEqual(out["zh"], ad._CROSS_EMPTY_ZH)
+
+
+def minimal_cycle7(sectors: list[dict]) -> dict:
+    return {
+        "sectors": sectors,
+        "dispersion": {"dispersion_label": {"zh": "中", "en": "Medium"}},
+        "composite": {
+            "templeton_stage": "阶段 3（乐观）",
+            "confidence": "High",
+            "valuation_a_score": -1.0,
+            "cycle_stage_num": 3,
+            "composite_score": 1.0,
+        },
+        "cycle_extras": None,
+    }
+
+
+def minimal_flows6(rows: list[dict]) -> dict:
+    full_rows = [
+        {**r, "this_week_return_pct": 0.5, "vol_change_pct": 0.0} for r in rows
+    ]
+    return {"rows": full_rows}
+
+
+class TestDeepreadWiring(unittest.TestCase):
+    def test_cross_paragraph_sits_between_flows_and_transition(self) -> None:
+        flows6 = minimal_flows6([row("XLE", "能源", "DISTRIBUTION", "strong")])
+        cycle7 = minimal_cycle7([sector("XLE", 2)])
+        deep = ad.build_deepread_section(flows6, cycle7)
+        body = deep["body"]["zh"]
+        self.assertIn("资金×结构交叉:", body)
+        self.assertLess(body.index("资金面只有强信号"), body.index("资金×结构交叉:"))
+        self.assertIn("Flows×Cycle cross:", deep["body"]["en"])
+
+    def test_cross_renders_before_p3_transition_paragraph(self) -> None:
+        # p3 fires only on a suppressed transition — pin cross (p2.5) BEFORE it.
+        flows6 = minimal_flows6([row("XLE", "能源", "DISTRIBUTION", "strong")])
+        cycle7 = minimal_cycle7([sector("XLE", 2)])
+        cycle7["cycle_extras"] = {
+            "regime_persistence": {
+                "transition_suppressed": True,
+                "hysteresis_smoothed_stage": {"zh": "阶段 2/3 过渡", "en": "Stage 2/3 transition"},
+                "direction": {"zh": "↑ 上行", "en": "↑ rising"},
+                "dwell_snapshots": 1,
+            }
+        }
+        deep = ad.build_deepread_section(flows6, cycle7)
+        body = deep["body"]["zh"]
+        self.assertIn("档位状态:", body)  # p3 present
+        self.assertLess(body.index("资金×结构交叉:"), body.index("档位状态:"))
+
+    def test_teaser_hook_fires_on_warning_cell_only(self) -> None:
+        warn_flows = minimal_flows6([row("XLE", "能源", "DISTRIBUTION", "strong")])
+        calm_flows = minimal_flows6([row("XLE", "能源", "DISTRIBUTION", "weak")])
+        cycle7 = minimal_cycle7([sector("XLE", 2)])
+        warn = ad.build_deepread_section(warn_flows, cycle7)
+        calm = ad.build_deepread_section(calm_flows, cycle7)
+        self.assertIn("资金与结构出现交叉张力", warn["teaser"]["zh"])
+        self.assertIn("flows and structure are crossing in tension", warn["teaser"]["en"])
+        self.assertNotIn("资金与结构出现交叉张力", calm["teaser"]["zh"])
+        self.assertNotIn("crossing in tension", calm["teaser"]["en"])
+
+    def test_confirmation_cell_does_not_hook_teaser(self) -> None:
+        flows6 = minimal_flows6([row("XLV", "医疗", "ACCUMULATION", "strong")])
+        cycle7 = minimal_cycle7([sector("XLV", 2)])
+        deep = ad.build_deepread_section(flows6, cycle7)
+        self.assertIn("资金×结构交叉:", deep["body"]["zh"])  # cross renders…
+        self.assertNotIn("资金与结构出现交叉张力", deep["teaser"]["zh"])  # …but no alarm hook
+
+    def test_empty_cross_still_renders_the_honest_empty_line(self) -> None:
+        flows6 = minimal_flows6([row("XLK", "科技", "NEUTRAL", "none")])
+        cycle7 = minimal_cycle7([sector("XLK", 2)])
+        deep = ad.build_deepread_section(flows6, cycle7)
+        self.assertIn(ad._CROSS_EMPTY_ZH, deep["body"]["zh"])
+        self.assertIn(ad._CROSS_EMPTY_EN, deep["body"]["en"])
+
+    def test_no_holdings_key_anywhere(self) -> None:
+        flows6 = minimal_flows6([row("XLE", "能源", "DISTRIBUTION", "strong")])
+        cycle7 = minimal_cycle7([sector("XLE", 2)])
+        deep = ad.build_deepread_section(flows6, cycle7)
+        ad.assert_no_holdings(deep)  # dies (SystemExit) on violation
+
+
+if __name__ == "__main__":
+    sys.exit(unittest.main(verbosity=2))

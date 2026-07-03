@@ -39,3 +39,6 @@ yarn-error.log*
 docs/20260702_00_sightlab_deep_review.md
 docs/20260703_00_mcp_agent_access_plan.md
 docs/20260703_01_flows_cycle_cross_plan.md
+
+# session-generated internal report (references private-harness internals)
+docs/20260703_02_flows_cycle_cross_report.md
