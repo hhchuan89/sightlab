@@ -236,7 +236,7 @@
     "layer2ByDate": "按日期取某一期：",
     "layer2List": "存档列表（元数据）：",
     "layer3Title": "3 · MCP server——已上线",
-    "layer3Body": "一个 Model Context Protocol 服务：Claude、ChatGPT 等 agent 客户端把 SightLab 接成原生工具源。四个只读工具——get_latest_dispatch、get_dispatch(date)、list_archive、get_method_glossary（阅读规则随数据一起下发）。",
+    "layer3Body": "一个 Model Context Protocol 服务：Claude、ChatGPT 等 agent 客户端把 SightLab 接成原生工具源。五个只读工具——get_latest_dispatch、get_dispatch(date)、list_archive、search_archive、get_method_glossary（阅读规则随数据一起下发）。",
     "layer3Promise1": "构造上只读——不存在任何写工具，服务端也不持有写凭据。",
     "layer3Promise2": "免费账号 + 个人 token（在账户页生成），随时可吊销。",
     "layer3Promise3": "公平使用：每 token 每天 30 次工具调用。",

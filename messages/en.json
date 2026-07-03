@@ -236,7 +236,7 @@
     "layer2ByDate": "One dispatch by date:",
     "layer2List": "Archive list (metadata):",
     "layer3Title": "3 · MCP server — live",
-    "layer3Body": "A Model Context Protocol server: Claude, ChatGPT, and other agent clients connect SightLab as a native tool source. Four read-only tools — get_latest_dispatch, get_dispatch(date), list_archive, and get_method_glossary (the reading rules ship alongside the data).",
+    "layer3Body": "A Model Context Protocol server: Claude, ChatGPT, and other agent clients connect SightLab as a native tool source. Five read-only tools — get_latest_dispatch, get_dispatch(date), list_archive, search_archive, and get_method_glossary (the reading rules ship alongside the data).",
     "layer3Promise1": "Read-only by construction — no write tools exist, and the server holds no write credentials.",
     "layer3Promise2": "Free account + personal token (minted on your account page), revocable any time.",
     "layer3Promise3": "Fair use: 30 tool calls per token per day.",
