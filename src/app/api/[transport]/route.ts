@@ -69,6 +69,7 @@ const READING_RULES = `SightLab reading rules (they bind every consumer, agents 
 - Numbers are deterministic engine output. Quote them verbatim; never re-round or restate.
 - Fund-flow A/D signals are volume-price INFERENCE, not real fund-flow data. Only "strong" signals carry conclusions; "weak" ones are context.
 - Two ladders: the page-top cycle read uses Templeton PHASES (Phase 3 = optimism); the sector table uses Weinstein STAGES (Stage 3 = topping pattern). Same numbers, different meanings.
+- FIELD-NAMING CAVEAT: the STRUCTURED enum fields (cycle_badge.templeton_stage, composite.templeton_stage, hysteresis_smoothed_stage, implied_stage) carry legacy strings like "Stage 2/3 transition" / 「阶段 2/3 过渡」 — those are Templeton PHASES (data contract kept stable), NOT Weinstein sector stages. Prose fields already say "Phase"/「期」. When you present these enums to a human, render them as "Phase …".
 - This is research, not investment advice.
 
 Glossary (short):

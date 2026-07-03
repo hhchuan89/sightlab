@@ -246,6 +246,10 @@
     "layer3CfgUrl": "Step 2 (clients that take a URL + headers):",
     "layer3CfgStdio": "Step 2 (stdio-only clients, via mcp-remote):",
     "layer3Drift": "Client config syntax evolves; the stable parts are the endpoint URL and the bearer header.",
+    "troubleTitle": "Troubleshooting",
+    "trouble401": "401 invalid_token / \"No authorization provided\" — the header must arrive as exactly `Authorization: Bearer slk_…`. Some CLI clients mangle header values containing spaces: quote the whole header argument, and if it still fails, inspect what your client actually sends.",
+    "troubleReload": "Tools not showing up after adding the server — most agent clients load MCP servers at session start. Restart the session (or open a new one) and the sightlab tools appear.",
+    "troubleDate": "get_dispatch wants strict YYYY-MM-DD (e.g. 2026-07-03); anything else is rejected by input validation. A date with no edition (Mondays UTC, pre-launch days) returns null by design.",
     "rulesTitle": "Reading rules (they travel with the data)",
     "rulesBody": "The cycle read is a confirmer, not a predictor — it describes the present regime and cannot call turns. A/D signals are volume-price inference; only strong signals carry conclusions. Numbers are deterministic — quote them verbatim. Research, not investment advice.",
     "glossaryLink": "Full glossary lives at the foot of every dispatch →"
