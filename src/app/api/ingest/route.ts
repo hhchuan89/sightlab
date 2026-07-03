@@ -154,4 +154,3 @@ function rowFromBody(b: DispatchIngestBody) {
     teaser_zh: b.teaser.zh,
   };
 }
-
