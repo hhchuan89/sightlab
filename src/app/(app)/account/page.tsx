@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(auth)/actions";
 import { inviteQrSvg } from "@/lib/qr";
+import { AgentTokensCard, type AgentTokenRow } from "./AgentTokensCard";
 
 // PARKED — reserved for a future paid tier (PLAN §15). When a paid tier returns,
 // re-import these and render <PortalButton /> in the account body. Content is no
@@ -23,6 +24,15 @@ export default async function AccountPage() {
   if (!user) redirect("/login");
 
   const t = await getTranslations("account");
+
+  // MCP personal tokens (PLAN §15.10) — the user's own rows via RLS.
+  const { data: tokenRows } = await supabase
+    .from("agent_tokens")
+    .select("id, last4, created_at, day_count, day_date")
+    .is("revoked_at", null)
+    .order("created_at", { ascending: true });
+  const agentTokens: AgentTokenRow[] = tokenRows ?? [];
+  const todayUtc = new Date().toISOString().slice(0, 10);
 
   // Telegram invite link — shown ONLY to authenticated users (PLAN §15.2).
   // Channel joins are moderated manually; absent env → hide the row.
@@ -81,6 +91,28 @@ export default async function AccountPage() {
           </div>
         </div>
       ) : null}
+
+      {/* MCP "Connect your agent" card (PLAN §15.10) — deliberately on the SAME
+          screen as the Telegram card above: the token mint moment is when the
+          user's attention is here, so both delivery channels convert together. */}
+      <AgentTokensCard
+        tokens={agentTokens}
+        todayUtc={todayUtc}
+        labels={{
+          title: t("agentTitle"),
+          body: t("agentBody"),
+          mint: t("agentMint"),
+          mintedNote: t("agentMintedNote"),
+          tokenLabel: t("agentTokenLabel"),
+          active: t("agentActive"),
+          revoke: t("agentRevoke"),
+          usedToday: t("agentUsedToday"),
+          limitError: t("agentLimitError"),
+          genericError: t("agentGenericError"),
+          docsLink: t("agentDocsLink"),
+          empty: t("agentEmpty"),
+        }}
+      />
 
       <div className="mt-8 flex flex-col gap-3">
         {/* PARKED — Stripe Customer Portal (PLAN §15). When a paid tier returns,
