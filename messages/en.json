@@ -162,7 +162,7 @@
       },
       "sleeveFrame": "Lower-confidence, faster, noisier than the cycle read — an early-warning lean, not a forecast. The composite above stays the anchor.",
       "blockvote": "Decorrelated cross-check",
-      "blockvoteFrame": "Block-vote de-weights correlated layers. When its stage diverges from the headline above, part of the headline is correlated-cluster double-counting — shown in the open, not hidden.",
+      "blockvoteFrame": "Block-vote de-weights correlated layers. When its implied phase diverges from the headline above, part of the headline is correlated-cluster double-counting — shown in the open, not hidden.",
       "regime": "Regime persistence",
       "dwell": "in this phase for {n, plural, one {# reading} other {# readings}}",
       "confirmed": "confirmed (held ≥2 readings)",
@@ -186,7 +186,7 @@
       },
       "stage": {
         "term": "Stage",
-        "def": "Weinstein splits a trend into four phases: Stage 1 basing (flat average), Stage 2 advance (rising average, price above it), Stage 3 top (the average flattens, momentum fades), and Stage 4 decline (falling average, price below it). It answers: which part of the larger arc are we in?"
+        "def": "Weinstein splits a trend into four Stages: Stage 1 basing (flat average), Stage 2 advance (rising average, price above it), Stage 3 top (the average flattens, momentum fades), and Stage 4 decline (falling average, price below it). It answers: which part of the larger arc are we in?"
       },
       "distance": {
         "term": "Distance",

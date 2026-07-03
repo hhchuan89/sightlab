@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { pick } from "@/lib/i18n/pick";
+import { cyclePhaseLabel } from "@/lib/dispatch/displayWords";
 import type { Locale } from "@/lib/i18n/request";
 import type { CycleExtras as CycleExtrasData } from "@/lib/dispatch/types";
 
@@ -88,7 +89,10 @@ export async function CycleExtras({ data, locale }: { data: CycleExtrasData; loc
             <dt className="label-mono text-muted">{t("cx.blockvote")}</dt>
             <dd className="mt-1 font-body text-text">
               <span className="font-mono tabular-nums text-text-2">{signed1(bv.rescaled)}</span>{" "}
-              <span className="text-text-2">→ {pick(bv.implied_stage, locale)}</span>
+              <span className="text-text-2">
+                {/* implied_stage is a Templeton label → same Phase remap as the badge */}
+                → {cyclePhaseLabel(pick(bv.implied_stage, locale), locale)}
+              </span>
               <p className="mt-1 font-body text-md leading-relaxed text-muted prose-measure">
                 {t("cx.blockvoteFrame")}
               </p>
