@@ -146,7 +146,10 @@
       "stage": "Stage",
       "distance": "Dist",
       "slope": "Slope",
-      "judgment": "Judgment"
+      "judgment": "Judgment",
+      "stageGloss": "1 base · 2 up · 3 top · 4 down",
+      "distanceGloss": "price vs its 30-week average",
+      "slopeGloss": "how fast that average is rising or falling"
     },
     "cx": {
       "tag": "CYCLE — LEADING & METHOD · read alongside the cycle read above",

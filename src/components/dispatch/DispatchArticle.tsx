@@ -108,8 +108,11 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
           headers={{
             symbol: t("s7.symbol"),
             stage: t("s7.stage"),
+            stageGloss: t("s7.stageGloss"),
             distance: t("s7.distance"),
+            distanceGloss: t("s7.distanceGloss"),
             slope: t("s7.slope"),
+            slopeGloss: t("s7.slopeGloss"),
             judgment: t("s7.judgment"),
           }}
         />

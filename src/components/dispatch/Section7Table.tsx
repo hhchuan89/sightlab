@@ -46,8 +46,14 @@ export function Section7Table({
   headers: {
     symbol: string;
     stage: string;
+    /** in-place one-line glosses (audit 20260704 PR-C): the three most opaque
+        columns explain themselves in the header instead of only in the
+        foot-of-page glossary. */
+    stageGloss: string;
     distance: string;
+    distanceGloss: string;
     slope: string;
+    slopeGloss: string;
     judgment: string;
   };
   tag: string;
@@ -98,12 +104,21 @@ export function Section7Table({
               </th>
               <th scope="col" className="py-2 pr-4 text-left font-semibold">
                 {headers.stage}
+                <span className="mt-0.5 block font-normal normal-case tracking-normal text-2xs text-muted">
+                  {headers.stageGloss}
+                </span>
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-semibold">
                 {headers.distance}
+                <span className="mt-0.5 block font-normal normal-case tracking-normal text-2xs text-muted">
+                  {headers.distanceGloss}
+                </span>
               </th>
               <th scope="col" className="py-2 pr-4 text-right font-semibold">
                 {headers.slope}
+                <span className="mt-0.5 block font-normal normal-case tracking-normal text-2xs text-muted">
+                  {headers.slopeGloss}
+                </span>
               </th>
               <th scope="col" className="py-2 text-left font-semibold">
                 {headers.judgment}

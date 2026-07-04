@@ -34,7 +34,7 @@ def cross(rows: list[dict], sectors: list[dict]) -> dict:
 CELL_CASES = [
     ("DISTRIBUTION", 2, True, "可读作涨势中的真实撤离", "reads as either a genuine exit"),
     ("ACCUMULATION", 3, True, "可读作对强势的追高承接", "reads as chasing strength"),
-    ("ACCUMULATION", 2, False, "趋势获得量能背书", "the trend carries volume endorsement"),
+    ("ACCUMULATION", 2, False, "涨势有量支撑", "the advance has volume behind it"),
     ("DISTRIBUTION", 3, False, "可读作真实卖出而非获利了结", "reads as real selling rather than profit-taking"),
     ("DISTRIBUTION", 4, False, "趋势与资金互为确认", "trend and money confirming each other"),
     ("ACCUMULATION", 1, False, "教科书式的吸筹状态", "the textbook accumulation state"),
@@ -216,7 +216,7 @@ class TestDeepreadWiring(unittest.TestCase):
         deep = ad.build_deepread_section(flows6, cycle7)
         body = deep["body"]["zh"]
         self.assertIn("资金×结构交叉:", body)
-        self.assertLess(body.index("资金面只有强信号"), body.index("资金×结构交叉:"))
+        self.assertLess(body.index("资金面只看强信号"), body.index("资金×结构交叉:"))
         self.assertIn("Flows×Cycle cross:", deep["body"]["en"])
 
     def test_cross_renders_before_p3_transition_paragraph(self) -> None:
@@ -233,8 +233,8 @@ class TestDeepreadWiring(unittest.TestCase):
         }
         deep = ad.build_deepread_section(flows6, cycle7)
         body = deep["body"]["zh"]
-        self.assertIn("档位状态:", body)  # p3 present
-        self.assertLess(body.index("资金×结构交叉:"), body.index("档位状态:"))
+        self.assertIn("档位状态(", body)  # p3 present
+        self.assertLess(body.index("资金×结构交叉:"), body.index("档位状态("))
 
     def test_teaser_hook_fires_on_warning_cell_only(self) -> None:
         warn_flows = minimal_flows6([row("XLE", "能源", "DISTRIBUTION", "strong")])

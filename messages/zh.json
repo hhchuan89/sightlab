@@ -146,7 +146,10 @@
       "stage": "阶段",
       "distance": "距离",
       "slope": "斜率",
-      "judgment": "判断"
+      "judgment": "判断",
+      "stageGloss": "1筑底·2升·3顶·4跌",
+      "distanceGloss": "现价高/低于 30 周均线多少%",
+      "slopeGloss": "那条均线自身的升降快慢"
     },
     "cx": {
       "tag": "周期 — 领先 & 方法 · 与上方周期读数并读",
