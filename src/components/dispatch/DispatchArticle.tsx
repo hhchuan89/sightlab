@@ -40,6 +40,22 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
         label={dispatch.kind === "weekly" ? t("tagWeekly") : t("tag")}
       />
 
+      {/* Page theme sentence (audit 20260704 P0-2): the page's first element used
+          to be a bare date — no <h1>, no information scent. The title states the
+          one thing the edition is about: where the cycle stands today. */}
+      {dispatch.cycle_badge ? (
+        <h1 className="font-serif text-4xl font-semibold text-text">
+          {t("pageTitle", {
+            phase: cyclePhaseLabel(
+              typeof dispatch.cycle_badge.templeton_stage === "string"
+                ? dispatch.cycle_badge.templeton_stage
+                : pick(dispatch.cycle_badge.templeton_stage, locale),
+              locale,
+            ),
+          })}
+        </h1>
+      ) : null}
+
       {introText ? (
         <p className="font-body text-lg leading-relaxed text-text prose-measure">{introText}</p>
       ) : null}
@@ -113,7 +129,9 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
             lockedTitle: t("deepread.lockedTitle"),
             lockedBody: t("deepread.lockedBody"),
             cta: t("deepread.cta"),
-            ctaHref: "/login?next=/dispatch",
+            // carry the CURRENT edition's date so a reader unlocking an archived
+            // deep-read lands back on that edition, not the latest (deep-review 2C-⑫)
+            ctaHref: `/login?next=/dispatch/${dispatch.dispatch_date}`,
             reassure: t("deepread.reassure"),
           }}
         />

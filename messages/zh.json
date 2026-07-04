@@ -59,7 +59,7 @@
   "landing": {
     "dispatchNo": "每日快报",
     "edition": "期号",
-    "standfirst": "对周期所处位置的确定性日读——跨板块的资金流向，加上一份 Weinstein 阶段定位，每天开盘前送达。开放研究，免费阅读。",
+    "standfirst": "它是确认器，不是预测器——只描述盘面此刻站在哪，不猜下一步往哪拐。开放研究，免费阅读。",
     "articleTag": "市场周期",
     "sampleHeadline": "科技吸筹、能源失血——周期稳守第 3 期",
     "sampleDeck": "轮动正在收敛到单一领涨主线。真正的信号是这种收窄，而不是突破本身。",
@@ -79,7 +79,10 @@
     "ctaBody": "完整每日快报、每周资金流向表，以及全部存档——开放、免费。欢迎贡献。",
     "ctaButton": "阅读今日快报",
     "ctaSecondary": "运作方式",
-    "sampleBadge": "示例"
+    "sampleBadge": "示例",
+    "heroTitle": "资金流向 × 周期阶段，每个开盘前的一份确定性定位。",
+    "heroDeckLabel": "今日盘面",
+    "ctaSignup": "免费建号 — 深读全文 + Telegram 日推"
   },
   "pricing": {
     "title": "订阅价格",
@@ -220,7 +223,8 @@
         "term": "置信度（Confidence）",
         "def": "周期读数背后各证据层方向的一致程度。高＝各层同向；低＝互相矛盾。它衡量的是这份读数自洽与否，不是行情朝该方向延续的概率。"
       }
-    }
+    },
+    "pageTitle": "周期：{phase}"
   },
   "connect": {
     "tag": "面向 AGENT",

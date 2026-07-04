@@ -59,7 +59,7 @@
   "landing": {
     "dispatchNo": "Daily Dispatch",
     "edition": "Edition",
-    "standfirst": "A deterministic daily read on where the cycle stands — fund flows across sectors and a Weinstein-stage positioning call, delivered every morning before the open. Open research, free to read.",
+    "standfirst": "A confirmer, not a predictor — it describes where the tape stands right now, and never guesses the next turn. Open research, free to read.",
     "articleTag": "MARKET CYCLE",
     "sampleHeadline": "Tech accumulates while energy bleeds — cycle holds at Phase 3",
     "sampleDeck": "Rotation is concentrating into a single leadership lane. That narrowing is the tell, not the breakout.",
@@ -79,7 +79,10 @@
     "ctaBody": "The full daily dispatch, the weekly fund-flow table, and the complete archive are open and free. Contributions welcome.",
     "ctaButton": "Read today's dispatch",
     "ctaSecondary": "How it works",
-    "sampleBadge": "Sample"
+    "sampleBadge": "Sample",
+    "heroTitle": "Fund flows and cycle stage — a deterministic read before every open.",
+    "heroDeckLabel": "Today's read",
+    "ctaSignup": "Free account — deep-read + Telegram"
   },
   "pricing": {
     "title": "Pricing",
@@ -220,7 +223,8 @@
         "term": "Confidence",
         "def": "How consistently the evidence layers behind the cycle read point the same way. High means the layers agree; Low means they conflict. It measures the internal coherence of today's read — not the probability that the market keeps moving in that direction."
       }
-    }
+    },
+    "pageTitle": "Cycle: {phase}"
   },
   "connect": {
     "tag": "FOR AGENTS",

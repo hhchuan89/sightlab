@@ -54,7 +54,6 @@ export default async function LandingPage() {
   const glanceText = latest
     ? pick({ en: latest.at_a_glance_en ?? "", zh: latest.at_a_glance_zh ?? "" }, locale)
     : "";
-  const headline = latest ? introText || t("ctaTitle") : t("sampleHeadline");
 
   let glanceRows: { label: string; value: string }[];
   if (latest) {
@@ -121,14 +120,19 @@ export default async function LandingPage() {
       </div>
       <hr className="rule-ink mt-3" />
 
-      {/* ── hero standfirst ── */}
-      <section className="grid grid-cols-1 gap-10 pt-12 lg:grid-cols-[1.4fr_1fr] lg:gap-14">
+      {/* ── hero (audit 20260704 PR-B): H1 is a FIXED product promise — never the
+             live intro. The old hero printed the whole intro sentence (57 chars +
+             6 tickers) at display size, which alone ate half a phone's first
+             screen and pushed the CTA below the fold. The live intro now lives in
+             a dated deck BELOW the CTA, so the first screen = headline + one-line
+             standfirst + button, exactly the reader's orientation set. ── */}
+      <section className="grid grid-cols-1 gap-8 pt-8 lg:grid-cols-[1.4fr_1fr] lg:gap-14 lg:pt-12">
         <div>
-          <h1 className="text-5xl font-semibold text-text">{headline}</h1>
-          <p className="mt-6 font-body text-lg leading-relaxed text-text prose-measure">
+          <h1 className="text-5xl font-semibold text-text">{t("heroTitle")}</h1>
+          <p className="mt-5 font-body text-lg leading-relaxed text-text prose-measure">
             {t("standfirst")}
           </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
+          <div className="mt-6 flex flex-wrap items-center gap-4">
             {/* v3 open/free pivot (PLAN §15.7): the CTA opens the live dispatch —
                 content is free — not a pricing page. */}
             <Link
@@ -143,6 +147,22 @@ export default async function LandingPage() {
             >
               {t("ctaSecondary")}
             </Link>
+          </div>
+
+          {/* live deck — today's real intro with its real date, or the labelled
+              sample (the honesty rule in this file's header comment survives). */}
+          <div className="mt-8 border-l-2 border-border pl-4">
+            <span className="flex items-baseline gap-2">
+              <span className="article-tag">{`// ${t("heroDeckLabel")}`}</span>
+              {latest ? (
+                <span className="label-mono text-muted">{latest.dispatch_date}</span>
+              ) : (
+                <SampleBadge label={t("sampleBadge")} />
+              )}
+            </span>
+            <p className="mt-2 font-body text-lg leading-relaxed text-text prose-measure">
+              {latest ? introText : t("sampleHeadline")}
+            </p>
           </div>
         </div>
 
@@ -185,12 +205,22 @@ export default async function LandingPage() {
         <span className="article-tag">{`// ${t("ctaButton")}`}</span>
         <h2 className="mt-3 text-4xl font-semibold text-text">{t("ctaTitle")}</h2>
         <p className="mt-4 max-w-xl leading-relaxed text-text-2">{t("ctaBody")}</p>
-        <Link
-          href="/dispatch"
-          className="mt-7 inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-on-primary transition-colors hover:bg-primary-hover"
-        >
-          {t("ctaButton")}
-        </Link>
+        <div className="mt-7 flex flex-wrap items-center gap-4">
+          <Link
+            href="/dispatch"
+            className="inline-flex min-h-11 items-center rounded-full bg-primary px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-on-primary transition-colors hover:bg-primary-hover"
+          >
+            {t("ctaButton")}
+          </Link>
+          {/* the site's only account entry outside /login itself (audit 4B-2):
+              the free account's real returns — deep-read + Telegram. */}
+          <Link
+            href="/login"
+            className="inline-flex min-h-11 items-center rounded-full border border-border px-6 py-3 font-mono text-sm font-semibold uppercase tracking-wider text-text-2 transition-colors hover:border-accent hover:text-accent"
+          >
+            {t("ctaSignup")}
+          </Link>
+        </div>
       </section>
     </div>
   );
