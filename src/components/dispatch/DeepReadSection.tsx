@@ -50,7 +50,7 @@ export function DeepReadSection({
       {body !== null ? (
         <div className="space-y-4 prose-measure">
           {body.split("\n\n").map((para, i) => (
-            <p key={i} className="font-body leading-relaxed text-text-2">
+            <p key={i} className="font-body leading-relaxed text-text">
               {para}
             </p>
           ))}

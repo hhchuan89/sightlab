@@ -26,11 +26,14 @@ export function CycleBadge({
     <div className="inline-flex flex-wrap items-stretch gap-2">
       <div className="rounded-md border border-border bg-surface px-3.5 py-2">
         <div className="label-mono text-muted">{stageLabel}</div>
-        <div className="mt-0.5 font-mono text-lg font-semibold text-text">{templetonLabel}</div>
+        {/* serif, not mono: the phase label is CONTENT (Chinese words), and the
+            mono chain has no CJK — Han here used to fall through to the system
+            sans, the page's most visible mixed-font spot (audit 20260704). */}
+        <div className="mt-0.5 font-serif text-lg font-semibold text-text">{templetonLabel}</div>
       </div>
       <div className="rounded-md border border-border bg-primary-soft px-3.5 py-2">
         <div className="label-mono text-muted">{confidenceLabel}</div>
-        <div className="mt-0.5 font-mono text-lg font-semibold text-accent">{confidenceValue}</div>
+        <div className="mt-0.5 font-serif text-lg font-semibold text-accent">{confidenceValue}</div>
       </div>
     </div>
   );

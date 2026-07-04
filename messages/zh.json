@@ -223,7 +223,7 @@
     }
   },
   "connect": {
-    "tag": "FOR AGENTS",
+    "tag": "面向 AGENT",
     "title": "把 SightLab 接进你的 agent",
     "standfirst": "每一期快报都公开且机器可读。三种接入方式，从零配置到完整 MCP 连接——选你的工作流说得上话的那种。",
     "layer1Title": "1 · Feed + llms.txt——零配置",
@@ -264,6 +264,6 @@
     "rights": "保留所有权利。",
     "disclaimer": "SightLab 是研究，不是投资建议。周期读数是确认器，不是预测器。",
     "openSource": "开源 — ★ 在 GitHub 上点亮 Star",
-    "forAgents": "For agents — feed 与 API"
+    "forAgents": "面向 agent — feed 与 API"
   }
 }
