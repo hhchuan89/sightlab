@@ -112,6 +112,25 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Paper grain — LIGHT THEME ONLY (2026-07-04: 亮色要读起来像纸). A tiled
+   inline-SVG fractal-noise overlay, fixed above the page at 5% opacity:
+   enough tooth to read as paper fibre, an order of magnitude below any
+   amplitude that would shift text contrast (grayscale speckle at 0.05 moves
+   effective ratios by <2%, all AA gates hold). pointer-events:none keeps it
+   inert; the tile is a data URI — zero network requests, CSP-safe. The dark
+   "warm ink" theme stays untextured by design (ink, not paper).
+   Tunable knob: the `opacity` below (0.04 subtle ↔ 0.07 pronounced). */
+html:not(.dark) body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+
 h1,
 h2,
 h3 {
