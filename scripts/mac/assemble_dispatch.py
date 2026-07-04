@@ -76,28 +76,28 @@ EXTRA_NAME_ZH = {
 # engine's classifier (query_tech_layer._weinstein_stage): above/below the
 # 30-week MA × MA-slope sign — no thresholds invented here.
 WEINSTEIN_READ_ZH = {
-    1: "价格在30周均线下方、均线企稳——筑底",
-    2: "价格在30周均线上方、均线上行——上升趋势",
-    3: "价格在30周均线上方、但均线走平或回落——派发(顶部风险)",
-    4: "价格在30周均线下方、均线下行——下行趋势",
+    1: "筑底中(价格在 30 周均线下方,均线已走平企稳)",
+    2: "处于上升趋势(价格站上 30 周均线,均线也在上行)",
+    3: "有做顶风险(价格仍在 30 周均线上方,但均线走平或回落,动能在消退)",
+    4: "处于下行趋势(价格在 30 周均线下方,均线向下)",
 }
 WEINSTEIN_READ_EN = {
-    1: "price below a stabilising 30-week MA — basing",
-    2: "price above a rising 30-week MA — advancing",
-    3: "price above a flat or rolling-over 30-week MA — distribution (top risk)",
-    4: "price below a falling 30-week MA — declining",
+    1: "basing (price below the 30-week average, which has flattened out)",
+    2: "in an uptrend (price above a rising 30-week average)",
+    3: "at topping risk (price still above the 30-week average, but the average is flattening or rolling over — momentum fading)",
+    4: "in a downtrend (price below a falling 30-week average)",
 }
 # volume_flag enum → narrative read. ZH wording = the engine's own zh_warning
 # strings (query_sector_dispersion._volume_flag); narrative only, never scored.
 VOLUME_FLAG_ZH = {
-    "low_vol_breakout": "无量上行,阶段2存疑",
-    "confirmed_breakout": "放量确认上行",
-    "dist_confirmed": "放量派发,顶部背书",
+    "low_vol_breakout": "近期涨势缺少成交量配合,这个上升判断要打个问号",
+    "confirmed_breakout": "放量配合,趋势得到成交量确认",
+    "dist_confirmed": "放量下跌,顶部形态有量作证",
 }
 VOLUME_FLAG_EN = {
-    "low_vol_breakout": "the advance lacks volume (stage-2 unconfirmed)",
-    "confirmed_breakout": "volume confirms the advance",
-    "dist_confirmed": "volume confirms the distribution",
+    "low_vol_breakout": "the recent advance lacks volume behind it, so the uptrend read carries a caveat",
+    "confirmed_breakout": "volume is following, so the trend has volume confirmation",
+    "dist_confirmed": "the decline comes on volume, corroborating the top formation",
 }
 
 # ZH templeton_stage → EN label (PLAN §14-C1: the badge label must be bilingual so
@@ -147,6 +147,38 @@ TEMPLETON_PHASE_ZH = {
     "阶段 4末/1早": "第 4 期末/第 1 期初",
     "危机": "危机",
 }
+
+
+# One-line plain-language gloss per Templeton phase label — a GENERIC property
+# of the label (true of any reading carrying it), never a forecast (charter A3).
+# Used by the intro template so the page's first sentence explains itself
+# (audit 20260704 PR-C). Unknown label → empty gloss, template omits the clause.
+TEMPLETON_GLOSS_ZH = {
+    "阶段 4 亢奋（顶/泡沫·警惕）": "买盘情绪已到极端、上行空间被透支的区间",
+    "阶段 4 早期（健康乐观）": "乐观但尚未过热的阶段",
+    "阶段 3（乐观）": "市场情绪转向乐观的阶段",
+    "阶段 2/3 过渡": "情绪从怀疑走向乐观的交界",
+    "阶段 1/4 过渡": "情绪环上顶与底的交界",
+    "阶段 4末/1早": "亢奋退潮、转入悲观的区间",
+    "危机": "恐慌抛售的危机区",
+}
+TEMPLETON_GLOSS_EN = {
+    "阶段 4 亢奋（顶/泡沫·警惕）": "where sentiment has run to an extreme and upside is stretched",
+    "阶段 4 早期（健康乐观）": "optimistic but not yet overheated",
+    "阶段 3（乐观）": "sentiment turning optimistic",
+    "阶段 2/3 过渡": "the boundary where scepticism gives way to optimism",
+    "阶段 1/4 过渡": "the top-meets-bottom boundary of the sentiment circle",
+    "阶段 4末/1早": "euphoria fading into pessimism",
+    "危机": "the panic-selling crisis zone",
+}
+
+
+def phase_gloss_zh(zh: str) -> str:
+    return TEMPLETON_GLOSS_ZH.get(zh.strip(), "")
+
+
+def phase_gloss_en(zh: str) -> str:
+    return TEMPLETON_GLOSS_EN.get(zh.strip(), "")
 
 
 def phase_zh(zh: str) -> str:
@@ -426,10 +458,11 @@ def build_cycle_section7(dispersion: dict[str, Any], fast: dict[str, Any]) -> di
         excluded = s.get("in_std") is False
         judgment_zh = (f"{name_zh}({symbol}):Weinstein 阶段{stage},{read_zh}"
                        + (f";{vol_zh}" if vol_zh else "")
-                       + ("(不计入离散度指数)" if excluded else "") + "。")
+                       + ("(独立追踪行——如子板块,不计入板块离散度的计算)" if excluded else "") + "。")
         judgment_en = (f"{symbol}: Weinstein stage {stage}, {read_en}"
                        + (f"; {vol_en}" if vol_en else "")
-                       + (" (not in the dispersion index)" if excluded else "") + ".")
+                       + (" (tracked separately — e.g. a sub-sector — not counted in the dispersion index)"
+                          if excluded else "") + ".")
         sectors.append(
             {
                 "symbol": symbol,
@@ -557,6 +590,25 @@ def build_free_slice(
     ad_summary_zh = ";".join(ad_zh_bits) if ad_zh_bits else "本周资金信号中性为主"
     ad_summary_en = "; ".join(ad_en_bits) if ad_en_bits else "flow signals mostly neutral this week"
 
+    # intro-only variant with sector display names + glossed verbs (PR-C): the
+    # first sentence anyone reads must explain itself; at-a-glance keeps the
+    # compressed ticker scan line above, so the two surfaces stop duplicating.
+    accum_named_zh = "、".join(f"{r['name_zh']}({r['etf']})" for r in flows6["rows"]
+                              if r["ad_signal"] == "ACCUMULATION")
+    distr_named_zh = "、".join(f"{r['name_zh']}({r['etf']})" for r in flows6["rows"]
+                              if r["ad_signal"] == "DISTRIBUTION")
+    intro_ad_zh_bits = []
+    intro_ad_en_bits = []
+    if accum_named_zh:
+        intro_ad_zh_bits.append(f"资金在持续买入(吸筹)的是 {accum_named_zh}")
+        intro_ad_en_bits.append(f"money is flowing steadily in (accumulation): {', '.join(accum)}")
+    if distr_named_zh:
+        intro_ad_zh_bits.append(f"持续卖出(派发)的是 {distr_named_zh}")
+        intro_ad_en_bits.append(f"flowing out (distribution): {', '.join(distr)}")
+    intro_ad_zh = ";".join(intro_ad_zh_bits) if intro_ad_zh_bits else "本周资金信号以中性为主,没有明确的买卖方向"
+    intro_ad_en = ("; ".join(intro_ad_en_bits) if intro_ad_en_bits
+                   else "flow signals are mostly neutral this week, with no clear buy or sell tilt")
+
     # PROSE labels use the Phase wording (PR-3); the structured badge above keeps
     # the raw enum. The internal 1-6 stage_num never appears in prose — it is a
     # different ladder from the Templeton label and read as a contradiction.
@@ -569,14 +621,18 @@ def build_free_slice(
     intro_period = "本周" if weekly else "今日"
     glance_period = "本周" if weekly else "周期"
     teaser_period = "本周" if weekly else "今日"
+    gloss_zh = phase_gloss_zh(templeton_zh)
+    gloss_en = phase_gloss_en(templeton_zh)
     intro_zh = (
-        f"{intro_period}市场周期定位 {label_zh},"
-        f"置信度 {conf_zh}。{ad_summary_zh}。"
+        f"{intro_period}盘面:市场周期读到 {label_zh}"
+        + (f"——{gloss_zh}" if gloss_zh else "")
+        + f",置信度 {conf_zh}(各证据层方向的一致程度)。{intro_ad_zh}。"
     )
     intro_en = (
-        f"{'This week' if weekly else 'Today'}, the market cycle reads {label_en}, "
-        f"confidence {conf}. "
-        f"{ad_summary_en[0].upper()}{ad_summary_en[1:]}."
+        f"{'This week' if weekly else 'Today'}, the market cycle reads {label_en}"
+        + (f" — {gloss_en}" if gloss_en else "")
+        + f"; confidence {conf} (how closely the evidence layers agree in direction). "
+        f"{intro_ad_en[0].upper()}{intro_ad_en[1:]}."
     )
     at_a_glance_zh = f"{glance_period} {label_zh} · {conf_zh};{ad_summary_zh}。"
     at_a_glance_en = (
@@ -684,14 +740,14 @@ _CROSS_CELLS: list[dict[str, Any]] = [
         "stage": 2,
         "warning": False,
         "zh": (
-            "{names} 阶段2上升叠加强吸筹——价格与资金同向,趋势获得量能背书;"
-            "若背书消失(吸筹转弱或中性)而价格续涨,即转为无量上行,该确认随之失效。"
+            "{names} 既在上升趋势(阶段2),又有资金持续买入(强吸筹)——价格在涨、成交量也跟上,"
+            "涨势有量支撑;若买盘转弱或转中性而价格续涨,就成了缩量上涨,这份有量支撑的判断随之失效。"
         ),
         "en": (
-            "In {names}, a stage-2 uptrend pairs with strong accumulation — price and flows point the same "
-            "way, the trend carries volume endorsement; if that endorsement fades (the signal weakening or "
-            "turning neutral) while price keeps rising, the advance loses its volume backing and this "
-            "confirmation lapses."
+            "In {names}, a stage-2 uptrend pairs with strong accumulation — price is rising and volume is "
+            "following, so the advance has volume behind it; if the buying weakens or turns neutral while "
+            "price keeps rising, it becomes an advance on shrinking volume and this volume-backed read no "
+            "longer holds."
         ),
     },
     {  # confirmation: a top with volume behind it
@@ -774,7 +830,7 @@ _CROSS_LEAD_EN = "Flows×Cycle cross: "
 # the sentence stays true even on the data-gap day where a sector fires strong but its
 # stage is missing upstream (that day also shouts to stderr; see build_cross_paragraph).
 _CROSS_EMPTY_ZH = (
-    _CROSS_LEAD_ZH + "本周没有板块同时具备强资金信号与结构阶段读数,资金方向与结构位置之间没有值得点名的张力。"
+    _CROSS_LEAD_ZH + "本周没有板块同时具备强资金信号与趋势阶段读数,资金方向与结构位置之间没有值得点名的张力。"
 )
 _CROSS_EMPTY_EN = (
     _CROSS_LEAD_EN
@@ -930,19 +986,23 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     #    separate overlay — the old "8-layer" claim was wrong, deep-review 2A-③;
     #    and a naked score leans on the closed formula, PLAN §9/§15.4). ──
     val_zh = (
-        "估值层当前为周期读数的负向拖累。"
+        "估值层(衡量整体市场贵不贵的一层)当前在拖低周期读数。"
         if isinstance(va, (int, float)) and va < 0
         else ""
     )
     val_en = (
-        " The valuation layer is currently a drag on the cycle read."
+        " The valuation layer — the block that measures how expensive the market is — "
+        "is currently pulling the cycle read down."
         if isinstance(va, (int, float)) and va < 0
         else ""
     )
-    p1_zh = f"周期定位:{label_zh},置信度 {conf_zh};板块离散度{disp_zh}。{val_zh}"
+    p1_zh = (
+        f"周期定位:{label_zh},置信度 {conf_zh};"
+        f"板块离散度{disp_zh}(各板块趋势步调的分化程度)。{val_zh}"
+    )
     p1_en = (
         f"Cycle: {label_en}, confidence {conf}; "
-        f"sector dispersion {disp_en}.{val_en}"
+        f"sector dispersion {disp_en} (how far the sectors' trends have drifted apart).{val_en}"
     )
 
     # ── decorrelated block-vote cross-check (a stage LABEL only; already shown in
@@ -954,16 +1014,22 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     bvd_en = phase_en(bv_zh)
     if bv_zh and bv_zh != templeton_zh:
         p1_zh += (
-            f"去相关 blockvote(给相关层降权后重算)隐含档位「{bvd_zh}」,与头条档位分歧——"
-            f"头条有一部分是相关簇的重复计数。"
+            f"交叉核对:把互相关联的证据层降权后重算,隐含档位变为「{bvd_zh}」,与头条分歧——"
+            f"说明头条读数有一部分靠同类证据的重复计数撑着。"
         )
         p1_en += (
-            f' A decorrelated block-vote (correlated layers de-weighted) implies phase "{bvd_en}", '
-            f"diverging from the headline — part of the headline is correlated-cluster double-counting."
+            f' Cross-check: recomputing with correlated evidence layers de-weighted implies "{bvd_en}", '
+            f"diverging from the headline — part of the headline leans on double-counted, similar evidence."
         )
     elif bv_zh:
-        p1_zh += f"去相关 blockvote 重算后仍落在「{bvd_zh}」,与头条档位一致。"
-        p1_en += f' A decorrelated block-vote recut also lands at "{bvd_en}", agreeing with the headline.'
+        p1_zh += (
+            f"交叉核对:把互相关联的证据层降权后重算,隐含档位仍是「{bvd_zh}」,与头条一致——"
+            f"头条读数没有被重复计数撑起来。"
+        )
+        p1_en += (
+            f' Cross-check: recomputing with correlated evidence layers de-weighted still lands at '
+            f'"{bvd_en}", agreeing with the headline — the read is not propped up by double-counting.'
+        )
 
     # ── macro confirmer (state): NY Fed recession probit + yield curve. Public market
     #    data, already shown in CycleExtras; woven in here as the regime layer. ──
@@ -975,8 +1041,10 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     macro_en_bits: list[str] = []
     rec_pct = rpm.get("value_pct")
     if isinstance(rec_pct, (int, float)) and not isinstance(rec_pct, bool):
-        macro_zh_bits.append(f"NY Fed 未来 12 个月衰退概率 {rec_pct:g}%")
-        macro_en_bits.append(f"NY Fed 12-month recession probability {rec_pct:g}%")
+        macro_zh_bits.append(f"纽约联储模型(据收益率曲线推算)给出的未来 12 个月衰退概率为 {rec_pct:g}%")
+        macro_en_bits.append(
+            f"the NY Fed model (derived from the yield curve) puts the 12-month recession probability at {rec_pct:g}%"
+        )
     spread = ycv.get("spread_bps")
     if isinstance(spread, (int, float)) and not isinstance(spread, bool):
         lvl_en = str(ycv.get("level") or "")
@@ -984,25 +1052,36 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
         lvl_zh = _YC_LVL_ZH.get(lvl_en, lvl_en)
         traj_zh = _YC_TRAJ_ZH.get(traj_en, "")
         macro_zh_bits.append(
-            f"收益率曲线利差 {spread:+.0f}bps({lvl_zh}{('·' + traj_zh) if traj_zh else ''})"
+            f"10 年期与 3 个月期美债利差 {spread:+.0f}bps"
+            f"(1bp=0.01 个百分点;{lvl_zh}{('·' + traj_zh) if traj_zh else ''})"
         )
         macro_en_bits.append(
-            f"yield-curve spread {spread:+.0f}bps ({lvl_en}{', ' + traj_en if traj_en else ''})"
+            f"the 10-year-minus-3-month Treasury spread is {spread:+.0f}bps "
+            f"(1bp = 0.01 percentage points; {lvl_en}{', ' + traj_en if traj_en else ''})"
         )
-    p_macro_zh = ("宏观确认层:" + ";".join(macro_zh_bits) + "。") if macro_zh_bits else ""
-    p_macro_en = ("Macro layer: " + "; ".join(macro_en_bits) + ".") if macro_en_bits else ""
+    p_macro_zh = (
+        "宏观交叉核对(用公开宏观数据给周期读数做旁证):" + ";".join(macro_zh_bits) + "。"
+    ) if macro_zh_bits else ""
+    p_macro_en = (
+        "Macro cross-check (public macro data corroborating the cycle read): "
+        + "; ".join(macro_en_bits) + "."
+    ) if macro_en_bits else ""
 
     # ── flows (state) ──
-    p2_zh = f"资金面只有强信号值得下结论:派发 {_names_zh(distr_strong)};吸筹 {_names_zh(accum_strong)},其余中性。"
+    p2_zh = (
+        f"资金面只看强信号(弱信号只作背景、不据以下结论):"
+        f"强吸筹 {_names_zh(accum_strong)};强派发 {_names_zh(distr_strong)};其余中性。"
+    )
     p2_en = (
-        f"Only strong-conviction flows count this week: distribution {_names_en(distr_strong)}; "
-        f"accumulation {_names_en(accum_strong)}; the rest neutral."
+        f"Flows — only strong-conviction signals carry a conclusion (weak ones are background): "
+        f"strong accumulation {_names_en(accum_strong)}; strong distribution {_names_en(distr_strong)}; "
+        f"the rest neutral."
     )
     if diverge:
-        p2_zh += "量价背离(当前上涨但缩量,资金未确认):" + "、".join(
+        p2_zh += "涨价但缩量(资金没有跟上,涨势未被确认):" + "、".join(
             f"{r['etf']} {r['this_week_return_pct']:+.1f}%/量{r['vol_change_pct']:+.0f}%" for r in diverge
         ) + "。"
-        p2_en += " Price-up/volume-down divergence right now (advance without volume confirmation): " + ", ".join(
+        p2_en += " Price up on shrinking volume right now (the advance lacks volume confirmation): " + ", ".join(
             f"{r['etf']} {r['this_week_return_pct']:+.1f}%/vol {r['vol_change_pct']:+.0f}%" for r in diverge
         ) + "."
 
@@ -1022,57 +1101,68 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     direction_zh = str((rp.get("direction") or {}).get("zh") or "")
     if rp.get("transition_suppressed") and smoothed_zh and smoothed_zh != templeton_zh:
         p3_zh = (
-            f"档位状态:即时读数本期跨到「{label_zh}」,但这只是单次快照的跨界、尚未获得第二次快照确认"
-            f"(可能是 whipsaw);平滑档位保守地停在上一档「{smd_zh}」,待确认后才跟进。"
-            f"这是当下的滞后确认状态,不是拐点预测。"
+            f"档位状态(为何本页出现两个档位):本期即时读数首次越过边界、读到「{label_zh}」,"
+            f"但只出现一次、还没等到下一次快照复核(单次越界可能是来回拉锯的假动作);"
+            f"对外的平滑档位因此保守停在上一档「{smd_zh}」,要连续两次快照读到同一档才跟进。"
+            f"这是有意保留的滞后确认,不是拐点预测。"
         )
         p3_en = (
-            f'Phase state: the immediate reading crossed to "{label_en}" this snapshot — a single '
-            f"unconfirmed boundary cross (possibly a whipsaw); the smoothed phase conservatively holds the "
-            f'prior "{smd_en}" until a second consecutive snapshot confirms. This is the present '
-            f"lagging-confirmation state, not a turning-point forecast."
+            f'Phase state (why this page shows two phases): the immediate reading crossed a boundary for '
+            f'the first time this snapshot, into "{label_en}" — but it has crossed only once and has not '
+            f"been rechecked by the next snapshot (a single crossing can be back-and-forth noise); the "
+            f'published smoothed phase therefore conservatively holds the prior "{smd_en}", and only moves '
+            f"once two consecutive snapshots read the same phase. This is a deliberate confirmation lag, "
+            f"not a turning-point forecast."
         )
         if "下行" in direction_zh:
             # Downward cross → weakening frame; falsifier = distribution breadth.
             if distr_strong:
                 p3_zh += (
-                    f"可证伪观测:若这是真实的转弱,派发应蔓延到 {_names_zh(distr_strong)} 之外;"
-                    f"目前仍局限于此。"
+                    f"怎么验证这个读数:若这是真实的转弱,资金持续卖出(强派发)应蔓延到 "
+                    f"{_names_zh(distr_strong)} 之外;目前仍局限于此。"
                 )
                 p3_en += (
-                    f" Falsifier: were this a genuine weakening, distribution would broaden beyond "
-                    f"{_names_en(distr_strong)}; for now it stays confined there."
+                    f" How to check this read: were this a genuine weakening, steady selling (strong "
+                    f"distribution) should broaden beyond {_names_en(distr_strong)}; for now it stays "
+                    f"confined there."
                 )
             else:
-                p3_zh += "可证伪观测:本周尚无板块触发强派发;若这是真实的转弱,应先看到强派发信号出现并扩散。"
+                p3_zh += (
+                    "怎么验证这个读数:本周尚无板块触发强派发;若这是真实的转弱,"
+                    "应先看到强派发信号出现并扩散。"
+                )
                 p3_en += (
-                    " Falsifier: no sector shows strong distribution this week; a genuine weakening "
-                    "should first show strong distribution appearing and broadening."
+                    " How to check this read: no sector shows strong distribution this week; a genuine "
+                    "weakening should first show strong distribution appearing and broadening."
                 )
         else:
             # Upward/flat cross → confirmation frame; falsifier = next snapshot.
             if accum_strong:
                 p3_zh += (
-                    f"可证伪观测:若新档位属实,下次快照应再次读到「{label_zh}」,"
-                    f"且吸筹(目前:{_names_zh(accum_strong)})应持续扩散。"
+                    f"怎么验证这个读数:若新档位属实,下次快照应再次读到「{label_zh}」,"
+                    f"且资金持续买入(目前:{_names_zh(accum_strong)})应继续扩散。"
                 )
                 p3_en += (
-                    f' Falsifier: if the new phase is real, the next snapshot should read "{label_en}" '
-                    f"again, with accumulation (now {_names_en(accum_strong)}) continuing to broaden."
+                    f' How to check this read: if the new phase is real, the next snapshot should read '
+                    f'"{label_en}" again, with the steady buying (now {_names_en(accum_strong)}) '
+                    f"continuing to broaden."
                 )
             else:
                 p3_zh += (
-                    f"可证伪观测:若新档位属实,下次快照应再次读到「{label_zh}」,"
+                    f"怎么验证这个读数:若新档位属实,下次快照应再次读到「{label_zh}」,"
                     f"且应看到强吸筹信号出现(本周尚无)。"
                 )
                 p3_en += (
-                    f' Falsifier: if the new phase is real, the next snapshot should read "{label_en}" '
-                    f"again, with strong accumulation appearing (none this week)."
+                    f' How to check this read: if the new phase is real, the next snapshot should read '
+                    f'"{label_en}" again, with strong accumulation appearing (none this week).'
                 )
-        p3_zh += "模型局限:本周期模型是确认器、非预警器,危机与顶部均有盲区。"
+        p3_zh += (
+            "模型边界:这套周期模型是确认器(事后确认盘面站位),不是预警器(不会提前示警),"
+            "在市场顶部与突发危机处都有盲区。"
+        )
         p3_en += (
-            " Model limit: this cycle engine is a confirmer, not an early warning — "
-            "blind spots at crises and tops."
+            " Model boundary: this cycle engine is a confirmer (it confirms where the tape already "
+            "stands), not an early warning — it has blind spots at market tops and sudden crises."
         )
 
     # ── Flows×Cycle cross (p2.5, plan 20260703_01): flows direction × Weinstein
@@ -1087,14 +1177,14 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
         f"周期 {label_zh}、置信度 {conf_zh};"
         + ("领涨板块当前在缩量、" if diverge else "")
         + ("资金与结构出现交叉张力、" if cross["warning"] else "")
-        + ("周期档位刚出现单次快照跨界(待下次确认)、" if p3_zh else "")
+        + ("周期读数刚跨到新档(待下次快照复核)、" if p3_zh else "")
         + "本期深读拆解这组当前市场结构信号。"
     )
     teaser_en = (
         f"Cycle {label_en}, confidence {conf}; "
         + ("leaders are thinning on volume, " if diverge else "")
         + ("flows and structure are crossing in tension, " if cross["warning"] else "")
-        + ("the cycle phase just crossed on a single snapshot (confirmation pending), " if p3_en else "")
+        + ("the cycle read just crossed into a new phase (recheck pending), " if p3_en else "")
         + "this deep-read unpacks the current market-structure signals."
     )
 
