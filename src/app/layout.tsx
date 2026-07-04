@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Newsreader, Source_Serif_4, JetBrains_Mono, Noto_Serif_TC } from "next/font/google";
+import { Newsreader, Source_Serif_4, JetBrains_Mono, Noto_Serif_SC } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { resolveLocale } from "@/lib/i18n/request";
@@ -33,11 +33,15 @@ const jetBrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const notoSerifTC = Noto_Serif_TC({
-  weight: ["400", "500", "700", "900"],
-  variable: "--font-noto-serif-tc",
+// SC, not TC: the product's Chinese content is Simplified (zh-CN); TC serves
+// Traditional regional glyph forms for shared codepoints (audit 20260704).
+// 400 = body workhorse; 600 matches Source Serif's semibold headings so mixed
+// Han/Latin headlines carry ONE weight; 700 = true bold. 500/900 had no Han use.
+const notoSerifSC = Noto_Serif_SC({
+  weight: ["400", "600", "700"],
+  variable: "--font-noto-serif-sc",
   display: "swap",
-  // Google serves the TC (CJK) glyphs via unicode-range, not a named subset,
+  // Google serves the CJK glyphs via unicode-range, not a named subset,
   // so next/font can't preload them — disable preload rather than preload Latin.
   preload: false,
 });
@@ -58,7 +62,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang={locale}
-      className={`${newsreader.variable} ${sourceSerif.variable} ${jetBrainsMono.variable} ${notoSerifTC.variable}`}
+      className={`${newsreader.variable} ${sourceSerif.variable} ${jetBrainsMono.variable} ${notoSerifSC.variable}`}
       suppressHydrationWarning
     >
       <head>

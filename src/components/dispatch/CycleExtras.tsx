@@ -73,7 +73,9 @@ export async function CycleExtras({ data, locale }: { data: CycleExtrasData; loc
             <dt className="label-mono text-muted">{t("cx.leadingSleeve")}</dt>
             <dd className="mt-1 font-body text-text">
               <span className={`font-semibold ${tiltClass}`}>{t(`cx.tilt.${sleeve.tilt}`)}</span>
-              <p className="mt-1 font-body text-md leading-relaxed text-muted prose-measure">
+              {/* explanatory running prose — text-2, never muted (brand §3/§10:
+                  muted is for captions; these frames carry the hardest jargon). */}
+              <p className="mt-1 font-body text-md leading-relaxed text-text-2 prose-measure">
                 {t("cx.sleeveFrame")}
               </p>
             </dd>
@@ -92,7 +94,7 @@ export async function CycleExtras({ data, locale }: { data: CycleExtrasData; loc
                     migration 0008 also strips it from the public projection. */}
                 {cyclePhaseLabel(pick(bv.implied_stage, locale), locale)}
               </span>
-              <p className="mt-1 font-body text-md leading-relaxed text-muted prose-measure">
+              <p className="mt-1 font-body text-md leading-relaxed text-text-2 prose-measure">
                 {t("cx.blockvoteFrame")}
               </p>
             </dd>

@@ -35,13 +35,13 @@ export async function CycleGlossary() {
       <h2 id="glossary-heading" className="mt-2 font-serif text-xl font-semibold text-text">
         {t("glossary.title")}
       </h2>
-      <p className="mt-2 font-body text-md leading-relaxed text-text-2">{t("glossary.intro")}</p>
+      <p className="mt-2 font-body text-md leading-relaxed text-text">{t("glossary.intro")}</p>
 
       <dl className="mt-6 space-y-5">
         {TERMS.map((k) => (
           <div key={k} className="border-l border-border pl-4">
             <dt className="label-mono text-text">{t(`glossary.${k}.term`)}</dt>
-            <dd className="mt-1.5 font-body text-md leading-relaxed text-text-2">
+            <dd className="mt-1.5 font-body text-md leading-relaxed text-text">
               {t(`glossary.${k}.def`)}
             </dd>
           </div>

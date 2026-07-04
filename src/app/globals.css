@@ -69,13 +69,18 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
 
-  /* Noto Serif TC MUST be second in --font-body: Newsreader has no Han glyphs,
-     so wrong order = silent system-serif Chinese. */
+  /* Noto Serif SC MUST be second in --font-body: Newsreader has no Han glyphs,
+     so wrong order = silent system-serif Chinese. The mono chain ALSO carries SC
+     (after the real monos, before generic) so any Han that lands in a mono
+     context falls back to the brand serif instead of the system CJK sans —
+     that fallthrough was the single biggest "两种字体深浅混排" source
+     (audit 20260704: CycleBadge Han in a CJK-less mono chain → PingFang). */
   --font-body:
-    var(--font-newsreader), var(--font-noto-serif-tc), Georgia, serif; /* running prose */
+    var(--font-newsreader), var(--font-noto-serif-sc), Georgia, serif; /* running prose */
   --font-serif:
-    var(--font-source-serif), var(--font-noto-serif-tc), Georgia, serif; /* display/headings */
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", monospace;
+    var(--font-source-serif), var(--font-noto-serif-sc), Georgia, serif; /* display/headings */
+  --font-mono:
+    var(--font-jetbrains-mono), ui-monospace, "SF Mono", var(--font-noto-serif-sc), monospace;
 
   /* type scale (PLAN §4.3) — base 18px */
   --text-2xs: 0.6875rem; /* 11px micro metadata only */
@@ -119,6 +124,19 @@ h3 {
 /* Han needs more air than Latin at the same size. */
 :lang(zh) {
   line-height: 1.85;
+}
+
+/* …but NOT in display headings: :lang(zh) (0,1,0) outranks the h1,h2,h3
+   element rule (0,0,1), so without this override every Chinese heading
+   inherits the 1.85 prose leading — the landing hero was 68% taller than
+   designed (audit 20260704). 1.2 (not 1.1) leaves room for Han ascenders.
+   The -0.02em display tracking is Latin-only tightening; Han glyphs fill
+   their em box already, so negative tracking hurts CJK legibility. */
+h1:lang(zh),
+h2:lang(zh),
+h3:lang(zh) {
+  line-height: 1.2;
+  letter-spacing: normal;
 }
 
 /* reading-measure cap — ~66ch at 18px */
