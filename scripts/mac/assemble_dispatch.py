@@ -1068,7 +1068,91 @@ def build_cross_paragraph(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dic
     }
 
 
-def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str, Any]:
+_GLOBAL_TAPE_STAGE_ZH = {1: "筑底", 2: "上行", 3: "做顶", 4: "下行"}
+_GLOBAL_TAPE_STAGE_EN = {1: "basing", 2: "advancing", 3: "topping", 4: "declining"}
+
+
+def build_global_tape_paragraph(global_tape: list[dict[str, Any]] | None) -> dict[str, str]:
+    """Task 3 (2026-07-19 phase2): one deep-read paragraph for the global-market
+    overlay (query_sector_dispersion.py's new `global_tape` key — non-US ETF
+    proxies EWY/EWT/EWJ/FEZ/MCHI/ACWX). DETERMINISTIC, no LLM, matches the rest
+    of this function's style. Renders nothing when the list is empty/absent —
+    an older dispersion.json without the key, or a run where every proxy fetch
+    failed, must not produce a broken paragraph.
+
+    State-only per sightlab-writing: names which markets disagree/are under
+    pressure right now; the "why it matters" line is a PAST-TENSE fact about
+    Korea/Taiwan's place in the AI/semiconductor supply chain, not a forecast
+    of what they will do next."""
+    tape = [g for g in (global_tape or []) if isinstance(g, dict)]
+    if not tape:
+        return {"zh": "", "en": ""}
+
+    stages = {g.get("weinstein_stage") for g in tape}
+    same_direction = len(stages) <= 1
+    lede_zh = "海外主要市场的趋势状态大体同向" if same_direction else "海外主要市场的趋势状态出现分化"
+    lede_en = ("major overseas markets are broadly in the same trend state"
+               if same_direction else
+               "major overseas markets are diverging in trend state")
+
+    flagged = [
+        g for g in tape
+        if g.get("weinstein_stage") in (3, 4) or g.get("pressure_flag")
+    ]
+
+    def _one_zh(g: dict[str, Any]) -> str:
+        # Each market is described by WHY it's flagged, individually — a
+        # stage-3/4 read and a stage-2-but-pressured read are different facts
+        # and must not be flattened into one shared "topping/declining" label
+        # (an earlier draft did this and mislabeled a still-S2 market as if
+        # its Weinstein stage itself had turned down).
+        name = f"{g.get('market_zh', g.get('symbol'))}({g.get('symbol')})"
+        stage_lbl = _GLOBAL_TAPE_STAGE_ZH.get(g.get("weinstein_stage"), "n/a")
+        dd = g.get("drawdown_from_52w_high_pct")
+        dd_txt = f",距52周高点{dd:+.1f}%" if isinstance(dd, (int, float)) else ""
+        if g.get("weinstein_stage") in (3, 4):
+            return f"{name} 阶段已{stage_lbl}{dd_txt}"
+        return f"{name} 阶段仍读{stage_lbl},但价格已明显回落(结构滞后于价格){dd_txt}"
+
+    def _one_en(g: dict[str, Any]) -> str:
+        name = f"{g.get('symbol')} ({g.get('market_zh')})"
+        stage_lbl = _GLOBAL_TAPE_STAGE_EN.get(g.get("weinstein_stage"), "n/a")
+        dd = g.get("drawdown_from_52w_high_pct")
+        dd_txt = f", {dd:+.1f}% off its 52-week high" if isinstance(dd, (int, float)) else ""
+        if g.get("weinstein_stage") in (3, 4):
+            return f"{name} has already turned {stage_lbl}{dd_txt}"
+        return f"{name} still reads {stage_lbl} by stage, but price has fallen well off its high — the stage read is lagging the price move{dd_txt}"
+
+    if flagged:
+        names_zh = "；".join(_one_zh(g) for g in flagged)
+        names_en = "; ".join(_one_en(g) for g in flagged)
+        p_zh = (
+            f"全球盘面 overlay(海外主要市场趋势,不计入周期综合分):{lede_zh}。值得点名:{names_zh}。"
+            "为什么值得看:韩国、台湾是全球 AI/半导体供应链的前哨,历史上它们转弱常常早于美股反应,"
+            "所以这里描述的是它们当前的状态,不是对美股接下来会怎样的预测。"
+        )
+        p_en = (
+            "Global-tape overlay (major overseas markets, not part of the cycle composite): "
+            f"{lede_en}. Worth naming: {names_en}. "
+            "Why it matters: Korea and Taiwan sit at the front of the global AI/semiconductor "
+            "supply chain, and historically their weakening has often shown up before the US "
+            "market reacted — this describes their current state, not a forecast of what US "
+            "equities do next."
+        )
+    else:
+        p_zh = f"全球盘面 overlay(海外主要市场趋势,不计入周期综合分):{lede_zh},没有标的处于做顶/下行或承压状态。"
+        p_en = (
+            "Global-tape overlay (major overseas markets, not part of the cycle composite): "
+            f"{lede_en}, with none currently topping, declining, or under pressure."
+        )
+    return {"zh": p_zh, "en": p_en}
+
+
+def build_deepread_section(
+    flows6: dict[str, Any],
+    cycle7: dict[str, Any],
+    global_tape: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     """DETERMINISTIC bilingual market-structure deep-read for `deepread_section`
     (PLAN §15.9; no LLM, like build_weekly_narrative). Surfaces the buried tensions
     SightLab's thin core_reading misses — strong A/D signals, price↑/volume↓
@@ -1163,6 +1247,14 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
             f' Cross-check: recomputing with correlated evidence layers de-weighted still lands at '
             f'"{bvd_en}", agreeing with the headline. The read is not propped up by double-counting.'
         )
+
+    # ── global-tape overlay (task 3, 2026-07-19 phase2): non-US market proxies.
+    #    Sits right after the cycle-position paragraph — it's the same "how much
+    #    do trends agree" question p1 asks of dispersion, just for foreign markets
+    #    instead of US sectors. Renders nothing when the list is empty (older
+    #    dispersion.json / all-proxy-fetch-failure). ──
+    p_global = build_global_tape_paragraph(global_tape)
+    p_global_zh, p_global_en = p_global["zh"], p_global["en"]
 
     # ── macro confirmer (state): NY Fed recession probit + yield curve. Public market
     #    data, already shown in CycleExtras; woven in here as the regime layer. ──
@@ -1307,8 +1399,8 @@ def build_deepread_section(flows6: dict[str, Any], cycle7: dict[str, Any]) -> di
     #    phase-transition state (p3); its warning cells feed the public teaser. ──
     cross = build_cross_paragraph(flows6, cycle7)
 
-    body_zh = "\n\n".join(x for x in (p1_zh, p_macro_zh, p2_zh, cross["zh"], p3_zh) if x)
-    body_en = "\n\n".join(x for x in (p1_en, p_macro_en, p2_en, cross["en"], p3_en) if x)
+    body_zh = "\n\n".join(x for x in (p1_zh, p_global_zh, p_macro_zh, p2_zh, cross["zh"], p3_zh) if x)
+    body_en = "\n\n".join(x for x in (p1_en, p_global_en, p_macro_en, p2_en, cross["en"], p3_en) if x)
 
     teaser_zh = (
         f"周期 {label_zh}、置信度 {conf_zh};"
@@ -1562,7 +1654,9 @@ def main() -> None:
 
     # Market-structure deep-read (PLAN §15.9) — deterministic bilingual, no LLM.
     # teaser is public; body is login-gated on the site. Market-only, no holdings.
-    body["deepread_section"] = build_deepread_section(flows6, cycle7)
+    body["deepread_section"] = build_deepread_section(
+        flows6, cycle7, dispersion.get("global_tape")
+    )
 
     # Translate ZH → EN (or soft-fail to ZH). All current prose pairs are
     # deterministic bilingual (PR-2), so normally nothing is pending and no

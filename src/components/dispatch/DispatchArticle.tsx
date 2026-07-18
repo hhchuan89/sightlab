@@ -71,6 +71,9 @@ export async function DispatchArticle({ dispatch }: { dispatch: Dispatch }) {
           stageLabel={t("badgeStage")}
           confidenceLabel={t("badgeConfidence")}
           confidenceValue={confidenceWord(dispatch.cycle_badge.confidence, locale)}
+          tensionText={
+            dispatch.cycle_badge.tension ? pick(dispatch.cycle_badge.tension, locale) : undefined
+          }
         />
       ) : null}
 
