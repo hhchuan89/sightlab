@@ -156,6 +156,34 @@ describe("§14-C1 fail-closed bilingual — empty EN prose is rejected", () => {
   });
 });
 
+describe("cycle_badge.tension — optional flows-vs-structure warning (task D, 2026-07-18)", () => {
+  it("ACCEPTS a clean body WITHOUT tension (ordinary day, and every archived dispatch)", () => {
+    const body = cleanBody();
+    expect((body.cycle_badge as Record<string, unknown>).tension).toBeUndefined();
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(true);
+    expect(result.data?.cycle_badge?.tension).toBeUndefined();
+  });
+
+  it("ACCEPTS a body WITH a valid tension pair", () => {
+    const body = cleanBody();
+    (body.cycle_badge as Record<string, unknown>).tension = {
+      en: "money leaving while structure holds (strong distribution in 2 sectors)",
+      zh: "资金逆结构撤离(强派发 2 个板块)",
+    };
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(true);
+    expect(result.data?.cycle_badge?.tension?.zh).toMatch(/资金逆结构撤离/);
+  });
+
+  it("REJECTS tension with an empty EN string (§14-C1 fail-closed bilingual still applies)", () => {
+    const body = cleanBody();
+    (body.cycle_badge as Record<string, unknown>).tension = { en: "", zh: "资金逆结构撤离" };
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(false);
+  });
+});
+
 describe("§15.9 deepread_section — additive, optional, still privacy-guarded", () => {
   const deepread = {
     teaser: { en: "Cycle holds, leaders thinning on volume.", zh: "周期维持,领涨缩量。" },

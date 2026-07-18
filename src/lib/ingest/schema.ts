@@ -58,6 +58,13 @@ const cycleBadge = z
     // EN UI never leaks the raw Chinese stage string. The Mac maps zh → en before POST.
     templeton_stage: bilingual,
     confidence,
+    // Optional flows-vs-structure tension warning (task D, 2026-07-18 audit fix
+    // F4): only present when the producer detects strong DISTRIBUTION in ≥2
+    // core sectors whose §7 Weinstein stage is still 2. `.optional()` so BOTH
+    // older archived dispatches (field absent) and today's ordinary no-tension
+    // dispatches (field also absent) validate — `.strict()` above still
+    // rejects any OTHER unknown key, so this is the one deliberate addition.
+    tension: bilingual.optional(),
   })
   .strict();
 

@@ -95,7 +95,11 @@ FAST_PY="$SIGHTLAB_SKILLS_DIR/cycle/scripts/compute_fast_monitor.py"
 # Weekly full composite (migrated here from daily-news 2026-06-17): the shared cycle
 # snapshot that fast_monitor / radar / daily-news all read. Runs Sun only (see below).
 COMPOSITE_PY="$SIGHTLAB_SKILLS_DIR/cycle/scripts/compute_composite_score.py"
-for f in "$FLOWS_PY" "$DISP_PY" "$FAST_PY" "$COMPOSITE_PY"; do
+# Daily trigger check (phase1 task B, 2026-07-18): §10.3 triggers were computed
+# but never scheduled anywhere. A fired trigger refreshes the full composite
+# as a "-triggered" snapshot BEFORE fast_monitor reads it today.
+TRIGGERS_PY="$SIGHTLAB_SKILLS_DIR/cycle/scripts/check_triggers.py"
+for f in "$FLOWS_PY" "$DISP_PY" "$FAST_PY" "$COMPOSITE_PY" "$TRIGGERS_PY"; do
   [ -f "$f" ] || die "harness script missing: $f"
 done
 
@@ -141,6 +145,51 @@ if [ ${#WEEKLY_FLAG[@]} -ne 0 ]; then
     echo "run_sightlab_dispatch: weekly composite refreshed ($DATE_UTC)" >>"$LOGDIR/$DATE_UTC.log"
   else
     warn_dm "weekly compute_composite_score.py FAILED — fast_monitor/radar/SightLab will read the PRIOR (stale) weekly snapshot. See logs/$DATE_UTC.log"
+  fi
+fi
+
+# --- 0.5 daily trigger check (Tue–Sat only; Sunday already refreshes the full
+#         composite above, no trigger check needed). §10.3 triggers (HY OAS /
+#         VIX / SPY / breadth / Sahm / CFNAI jumps) previously had no scheduler
+#         (phase1 task B, 2026-07-18 audit). A fired trigger refreshes the
+#         composite as a "-triggered" snapshot so today's fast_monitor reads it.
+#
+#         check_triggers.py's exit code is AMBIGUOUS: `main()` returns 1 for
+#         BOTH "a trigger fired" (should_refresh_composite=true, valid JSON on
+#         stdout) AND "the script crashed" (caught exception, ALSO returns 1,
+#         but NOTHING is written to stdout — verified against its source, see
+#         the `try/except` around `compute()`). So the exit code alone cannot
+#         tell fire from crash; parse $TRIG_JSON's `should_refresh_composite`
+#         field as the real signal and treat the exit code only as context in
+#         the crash-path warning message.
+#
+#         Best-effort throughout: any failure here WARNs via Telegram DM, never
+#         die()s — the public §6/§7 dispatch must not go down over a trigger
+#         check. A refresh failure just leaves fast_monitor on the prior
+#         snapshot (stale, not broken).
+if [ ${#WEEKLY_FLAG[@]} -eq 0 ]; then
+  TRIG_JSON="$WORK/triggers.json"
+  "$PYTHON_BIN" "$TRIGGERS_PY" --json >"$TRIG_JSON" 2>>"$LOGDIR/$DATE_UTC.log"
+  TRIG_RC=$?
+  SHOULD_REFRESH="$("$PYTHON_BIN" -c '
+import json, sys
+try:
+    d = json.load(open(sys.argv[1], encoding="utf-8"))
+    print("true" if d.get("should_refresh_composite") else "false")
+except Exception:
+    print("unparsable")
+' "$TRIG_JSON" 2>/dev/null)"
+  if [ "$SHOULD_REFRESH" = "true" ]; then
+    echo "run_sightlab_dispatch: trigger fired — refreshing composite (triggered snapshot, $DATE_UTC)" \
+      >>"$LOGDIR/$DATE_UTC.log"
+    "$PYTHON_BIN" "$COMPOSITE_PY" --snapshot-type triggered >>"$LOGDIR/$DATE_UTC.log" 2>&1 \
+      || warn_dm "triggered composite refresh FAILED (a §10.3 trigger fired) — fast_monitor reads the prior snapshot. See logs/$DATE_UTC.log"
+  elif [ "$SHOULD_REFRESH" = "false" ]; then
+    : # no trigger fired today — nothing to do
+  else
+    # rc=1 with no parsable JSON on stdout = check_triggers.py crashed, not a
+    # fired trigger (see the ambiguity note above).
+    warn_dm "check_triggers.py crashed (rc=$TRIG_RC) — trigger check skipped today. See logs/$DATE_UTC.log"
   fi
 fi
 

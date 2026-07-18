@@ -93,11 +93,16 @@ VOLUME_FLAG_ZH = {
     "low_vol_breakout": "近期涨势缺少成交量配合,这个上升判断要打个问号",
     "confirmed_breakout": "放量配合,趋势得到成交量确认",
     "dist_confirmed": "放量下跌,顶部形态有量作证",
+    # 2026-07-18 phase1 task A: query_sector_dispersion._volume_flag's direction-
+    # aware fix — S2 (still labeled "advancing") + high volume + a falling
+    # 5-day return reads as distribution, not a breakout confirmation.
+    "high_vol_selloff": "放量下跌,派发迹象出现",
 }
 VOLUME_FLAG_EN = {
     "low_vol_breakout": "the recent advance lacks volume behind it, so the uptrend read carries a caveat",
     "confirmed_breakout": "volume is following, so the trend has volume confirmation",
     "dist_confirmed": "the decline comes on volume, corroborating the top formation",
+    "high_vol_selloff": "the decline comes on high volume — a distribution sign",
 }
 
 # ZH templeton_stage → EN label (PLAN §14-C1: the badge label must be bilingual so
@@ -109,6 +114,11 @@ VOLUME_FLAG_EN = {
 # alone (it only touches pairs whose en is still empty).
 TEMPLETON_EN = {
     "阶段 4 亢奋（顶/泡沫·警惕）": "Stage 4 Euphoria (top/bubble · caution)",
+    # 2026-07-18 phase1 task A (top-blindness audit): the composite has slipped
+    # off its euphoria high while valuation is still extreme — the top-risk
+    # warning must not clear just because the headline number ticked down one
+    # notch. Describes state (still extreme, now easing), not a forecast.
+    "阶段 4 亢奋·回落（警惕）": "Stage 4 euphoria fading (caution)",
     "阶段 4 早期（健康乐观）": "Stage 4 early (healthy optimism)",
     "阶段 3（乐观）": "Stage 3 (optimism)",
     "阶段 2/3 过渡": "Stage 2/3 transition",
@@ -131,6 +141,7 @@ def templeton_en(zh: str) -> str:
 # labels fall back to the plain templeton mapping (degrade, never crash).
 TEMPLETON_PHASE_EN = {
     "阶段 4 亢奋（顶/泡沫·警惕）": "Phase 4 euphoria (top/bubble · caution)",
+    "阶段 4 亢奋·回落（警惕）": "Phase 4 euphoria fading (caution)",
     "阶段 4 早期（健康乐观）": "Phase 4 early (healthy optimism)",
     "阶段 3（乐观）": "Phase 3 (optimism)",
     "阶段 2/3 过渡": "Phase 2/3 transition",
@@ -140,6 +151,7 @@ TEMPLETON_PHASE_EN = {
 }
 TEMPLETON_PHASE_ZH = {
     "阶段 4 亢奋（顶/泡沫·警惕）": "第 4 期 亢奋（顶/泡沫·警惕）",
+    "阶段 4 亢奋·回落（警惕）": "第 4 期 亢奋·回落（警惕）",
     "阶段 4 早期（健康乐观）": "第 4 期早期（健康乐观）",
     "阶段 3（乐观）": "第 3 期（乐观）",
     "阶段 2/3 过渡": "第 2/3 期过渡",
@@ -155,6 +167,10 @@ TEMPLETON_PHASE_ZH = {
 # (audit 20260704 PR-C). Unknown label → empty gloss, template omits the clause.
 TEMPLETON_GLOSS_ZH = {
     "阶段 4 亢奋（顶/泡沫·警惕）": "买盘情绪已到极端、上行空间被透支的区间",
+    # 2026-07-18 phase1 task A: valuation is still extreme while the composite
+    # slips off its high — the top-risk warning stays on until valuation
+    # normalises or the downturn is confirmed (describes state, not a forecast).
+    "阶段 4 亢奋·回落（警惕）": "估值仍处极端、但读数已从高点回落——警报在估值回归常态或下行被确认前持续",
     "阶段 4 早期（健康乐观）": "乐观但尚未过热的阶段",
     "阶段 3（乐观）": "市场情绪转向乐观的阶段",
     "阶段 2/3 过渡": "情绪从怀疑走向乐观的交界",
@@ -164,6 +180,11 @@ TEMPLETON_GLOSS_ZH = {
 }
 TEMPLETON_GLOSS_EN = {
     "阶段 4 亢奋（顶/泡沫·警惕）": "where sentiment has run to an extreme and upside is stretched",
+    "阶段 4 亢奋·回落（警惕）": (
+        "valuation is still extreme while the composite slips from its high — "
+        "the top-risk warning stays on until valuation normalises or the "
+        "downturn is confirmed"
+    ),
     "阶段 4 早期（健康乐观）": "optimistic but not yet overheated",
     "阶段 3（乐观）": "sentiment turning optimistic",
     "阶段 2/3 过渡": "the boundary where scepticism gives way to optimism",
@@ -576,6 +597,23 @@ def build_free_slice(
         "confidence": str(comp["confidence"]),
     }
 
+    # Flows×structure tension escalation (task D, 2026-07-18 audit fix F4): ≥2
+    # core sectors firing strong DISTRIBUTION while their §7 Weinstein stage is
+    # still 2 (structure still points up) = money leaving a structure that
+    # hasn't broken down yet. Reuses build_cross_paragraph's own join
+    # (_flow_structure_cells) rather than a second "strong signal × stage 2"
+    # check that could silently drift out of sync with it. Additive: the field
+    # is present ONLY when the condition fires (schema.ts `.optional()`).
+    tension_rows = _flow_structure_cells(flows6, cycle7).get(("DISTRIBUTION", 2), [])
+    tension: dict[str, str] | None = None
+    if len(tension_rows) >= 2:
+        n = len(tension_rows)
+        tension = {
+            "zh": f"⚠️ 资金逆结构撤离(强派发 {n} 个板块)",
+            "en": f"⚠️ money leaving while structure holds (strong distribution in {n} sectors)",
+        }
+        cycle_badge["tension"] = tension
+
     # qualitative A/D summary, no numbers (B3 / S8).
     accum = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "ACCUMULATION"]
     distr = [r["etf"] for r in flows6["rows"] if r["ad_signal"] == "DISTRIBUTION"]
@@ -640,6 +678,15 @@ def build_free_slice(
     )
     teaser_zh = f"SightLab {teaser_period}:{label_zh};{ad_summary_zh}。"
     teaser_en = f"SightLab {'this week' if weekly else 'today'}: {label_en}; {ad_summary_en}."
+
+    # Tension warning appended ONLY when it fired — same sentence on both
+    # at_a_glance and intro (task D). Never inserted into teaser (public hook
+    # stays as-is; the badge + these two surfaces already carry it).
+    if tension is not None:
+        intro_zh += tension["zh"]
+        intro_en += " " + tension["en"]
+        at_a_glance_zh += tension["zh"]
+        at_a_glance_en += " " + tension["en"]
 
     return {
         "intro": {"zh": intro_zh, "en": intro_en},
@@ -855,18 +902,24 @@ def _cross_names_en(tickers: list[str]) -> str:
     return ", ".join(tickers[:-1]) + f", and {tickers[-1]}"
 
 
-def build_cross_paragraph(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str, Any]:
-    """The Flows×Cycle cross (deep-read p2.5): JOIN §6 strong-confidence rows onto
-    §7 Weinstein stages by symbol and render the matching _CROSS_CELLS sentences,
-    warning cells first. Deterministic bilingual, zero LLM (plan 20260703_01).
+def _flow_structure_cells(
+    flows6: dict[str, Any], cycle7: dict[str, Any], *, warn: bool = False
+) -> dict[tuple[str, int], list[dict[str, Any]]]:
+    """JOIN §6 strong-confidence flow rows onto §7 Weinstein stage by symbol,
+    keyed by (ad_signal, stage). The single shared join behind BOTH
+    build_cross_paragraph's full narrative AND the cycle_badge tension
+    escalation (task D, 2026-07-18 audit fix F4) — one join, not two
+    independently-drifting copies of "strong signal × stage" logic.
 
     Only `ad_confidence == "strong"` rows participate (the standing reading rule:
     weak signals are context, never a conclusion). Rows without a §7 sector stage
     — SPY/QQQ (broad index) and IBIT/FBTC (crypto) — drop out of the join naturally,
-    so the cross only ever speaks about sectors where BOTH facts are held (skill §C2).
+    so callers only ever see sectors where BOTH facts are held (skill §C2).
 
-    Returns {"zh", "en", "warning"}; warning=True iff a warning cell fired (feeds
-    the public teaser hook). Empty table → the honest "nothing crosses" sentence.
+    `warn=True` (build_cross_paragraph only, to avoid duplicate stderr spam if
+    another caller also joins the same snapshot) shouts when a genuine SECTOR
+    fired strong but its stage went missing upstream, instead of silently
+    absorbing it.
     """
     stage_by_symbol = {
         str(s.get("symbol")): int(s.get("weinstein_stage") or 0) for s in cycle7["sectors"]
@@ -885,13 +938,25 @@ def build_cross_paragraph(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dic
             # the join working. A genuine SECTOR landing here means its stage went
             # missing upstream: shout, never absorb silently (the empty sentence is
             # worded to stay true either way).
-            if etf not in EXTRA_NAME_ZH:
+            if warn and etf not in EXTRA_NAME_ZH:
                 print(
                     f"assemble_dispatch: cross join dropped strong sector row {etf} (no §7 stage)",
                     file=sys.stderr,
                 )
             continue
         cells.setdefault((signal, stage), []).append(r)
+    return cells
+
+
+def build_cross_paragraph(flows6: dict[str, Any], cycle7: dict[str, Any]) -> dict[str, Any]:
+    """The Flows×Cycle cross (deep-read p2.5): JOIN §6 strong-confidence rows onto
+    §7 Weinstein stages by symbol and render the matching _CROSS_CELLS sentences,
+    warning cells first. Deterministic bilingual, zero LLM (plan 20260703_01).
+
+    Returns {"zh", "en", "warning"}; warning=True iff a warning cell fired (feeds
+    the public teaser hook). Empty table → the honest "nothing crosses" sentence.
+    """
+    cells = _flow_structure_cells(flows6, cycle7, warn=True)
 
     if not cells:
         return {"zh": _CROSS_EMPTY_ZH, "en": _CROSS_EMPTY_EN, "warning": False}
