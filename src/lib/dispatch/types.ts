@@ -31,6 +31,16 @@ export interface CycleBadge {
    */
   templeton_stage: Bilingual;
   confidence: Confidence;
+  /**
+   * Optional flows-vs-structure tension warning (task D, 2026-07-18 audit fix
+   * F4): present only when ≥2 core sectors fire strong DISTRIBUTION while
+   * their §7 Weinstein stage is still 2 (structure still points up) — "money
+   * leaving while structure holds". Absent/undefined on ordinary dispatches;
+   * older archived dispatches never had this field at all. Rendering is
+   * deferred to Phase 2 — this only needs to round-trip through the schema
+   * without breaking either old or new payloads.
+   */
+  tension?: Bilingual;
 }
 
 // ─────────────────────────── §6: weekly fund flows (public) ───────────────────────────

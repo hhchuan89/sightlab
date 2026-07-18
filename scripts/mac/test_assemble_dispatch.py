@@ -268,5 +268,68 @@ class TestDeepreadWiring(unittest.TestCase):
         ad.assert_no_holdings(deep)  # dies (SystemExit) on violation
 
 
+class TestCycleBadgeTension(unittest.TestCase):
+    """task D (2026-07-18 audit fix F4): cycle_badge.tension escalates the
+    flows-vs-structure warning that build_cross_paragraph already renders in
+    prose — reusing the same join (_flow_structure_cells), not a second copy
+    of the "strong DISTRIBUTION × stage 2" check."""
+
+    def test_two_sectors_fire_tension(self) -> None:
+        flows6 = minimal_flows6(
+            [
+                row("XLE", "能源", "DISTRIBUTION", "strong"),
+                row("XLF", "金融", "DISTRIBUTION", "strong"),
+            ]
+        )
+        cycle7 = minimal_cycle7([sector("XLE", 2), sector("XLF", 2)])
+        out = ad.build_free_slice(flows6, cycle7)
+        self.assertIn("tension", out["cycle_badge"])
+        self.assertIn("2 个板块", out["cycle_badge"]["tension"]["zh"])
+        self.assertIn("2 sectors", out["cycle_badge"]["tension"]["en"])
+        self.assertIn("⚠️", out["at_a_glance"]["zh"])
+        self.assertIn("money leaving while structure holds", out["at_a_glance"]["en"])
+        self.assertIn("⚠️", out["intro"]["zh"])
+
+    def test_one_sector_below_threshold_no_tension(self) -> None:
+        flows6 = minimal_flows6([row("XLE", "能源", "DISTRIBUTION", "strong")])
+        cycle7 = minimal_cycle7([sector("XLE", 2)])
+        out = ad.build_free_slice(flows6, cycle7)
+        self.assertNotIn("tension", out["cycle_badge"])
+        self.assertNotIn("⚠️", out["at_a_glance"]["zh"])
+
+    def test_distribution_at_stage_3_does_not_count_as_tension(self) -> None:
+        # DISTRIBUTION + stage 3 is a CONFIRMATION cell in the cross (top +
+        # volume corroborating each other), not "structure still holds" — must
+        # not be miscounted into the stage-2 tension bucket.
+        flows6 = minimal_flows6(
+            [
+                row("XLE", "能源", "DISTRIBUTION", "strong"),
+                row("XLF", "金融", "DISTRIBUTION", "strong"),
+            ]
+        )
+        cycle7 = minimal_cycle7([sector("XLE", 3), sector("XLF", 3)])
+        out = ad.build_free_slice(flows6, cycle7)
+        self.assertNotIn("tension", out["cycle_badge"])
+
+    def test_weak_confidence_does_not_count(self) -> None:
+        flows6 = minimal_flows6(
+            [
+                row("XLE", "能源", "DISTRIBUTION", "weak"),
+                row("XLF", "金融", "DISTRIBUTION", "weak"),
+            ]
+        )
+        cycle7 = minimal_cycle7([sector("XLE", 2), sector("XLF", 2)])
+        out = ad.build_free_slice(flows6, cycle7)
+        self.assertNotIn("tension", out["cycle_badge"])
+
+    def test_cycle_badge_stays_strict_schema_compatible_shape_when_absent(self) -> None:
+        # no accidental empty/null "tension" key when the condition doesn't fire —
+        # schema.ts's cycle_badge is .strict(), the key must be truly ABSENT.
+        flows6 = minimal_flows6([row("XLK", "科技", "NEUTRAL", "none")])
+        cycle7 = minimal_cycle7([sector("XLK", 2)])
+        out = ad.build_free_slice(flows6, cycle7)
+        self.assertNotIn("tension", out["cycle_badge"].keys())
+
+
 if __name__ == "__main__":
     sys.exit(unittest.main(verbosity=2))

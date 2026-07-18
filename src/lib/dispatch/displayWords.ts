@@ -19,6 +19,11 @@ import type { Locale } from "@/lib/i18n/request";
  */
 const PHASE_EN: Record<string, string> = {
   "Stage 4 Euphoria (top/bubble · caution)": "Phase 4 euphoria (top/bubble · caution)",
+  // 2026-07-18 phase1 task A: the producer already emits the bilingual
+  // "Stage 4 euphoria fading (caution)" / "第 4 期 亢奋·回落（警惕）" pair
+  // (assemble_dispatch.py TEMPLETON_PHASE_EN/ZH), but archived dispatches from
+  // before that change carry the raw ZH harness label here too — remap it.
+  "Stage 4 euphoria fading (caution)": "Phase 4 euphoria fading (caution)",
   "Stage 4 early (healthy optimism)": "Phase 4 early (healthy optimism)",
   "Stage 3 (optimism)": "Phase 3 (optimism)",
   "Stage 2/3 transition": "Phase 2/3 transition",
@@ -28,6 +33,7 @@ const PHASE_EN: Record<string, string> = {
 
 const PHASE_ZH: Record<string, string> = {
   "阶段 4 亢奋（顶/泡沫·警惕）": "第 4 期 亢奋（顶/泡沫·警惕）",
+  "阶段 4 亢奋·回落（警惕）": "第 4 期 亢奋·回落（警惕）",
   "阶段 4 早期（健康乐观）": "第 4 期早期（健康乐观）",
   "阶段 3（乐观）": "第 3 期（乐观）",
   "阶段 2/3 过渡": "第 2/3 期过渡",
