@@ -271,6 +271,72 @@ class TestDeepreadWiring(unittest.TestCase):
         ad.assert_no_holdings(deep)  # dies (SystemExit) on violation
 
 
+def global_proxy(symbol: str, market_zh: str, stage: int, dd_pct: float,
+                  pressure_flag: str | None = None) -> dict:
+    return {
+        "symbol": symbol, "market_zh": market_zh, "weinstein_stage": stage,
+        "drawdown_from_52w_high_pct": dd_pct, "pressure_flag": pressure_flag,
+    }
+
+
+class TestGlobalTapeParagraph(unittest.TestCase):
+    """Task 3 (2026-07-19 phase2): §7 deep-read global-market overlay paragraph."""
+
+    def test_empty_list_renders_nothing(self) -> None:
+        out = ad.build_global_tape_paragraph([])
+        self.assertEqual(out, {"zh": "", "en": ""})
+
+    def test_none_renders_nothing(self) -> None:
+        # older dispersion.json without the global_tape key at all
+        out = ad.build_global_tape_paragraph(None)
+        self.assertEqual(out, {"zh": "", "en": ""})
+
+    def test_all_calm_same_stage_no_flags(self) -> None:
+        tape = [global_proxy("EWJ", "日本", 2, -3.0), global_proxy("FEZ", "欧元区", 2, -2.0)]
+        out = ad.build_global_tape_paragraph(tape)
+        self.assertIn("大体同向", out["zh"])
+        self.assertNotIn("为什么值得看", out["zh"])  # no flagged market → no bellwether line
+        self.assertIn("broadly in the same trend state", out["en"])
+
+    def test_flags_stage4_and_pressure_markets_by_name(self) -> None:
+        tape = [
+            global_proxy("EWY", "韩国", 2, -25.85, pressure_flag="s2_climax_selloff"),
+            global_proxy("MCHI", "中国", 4, -20.96),
+            global_proxy("EWJ", "日本", 2, -6.68),
+        ]
+        out = ad.build_global_tape_paragraph(tape)
+        self.assertIn("韩国(EWY)", out["zh"])
+        self.assertIn("中国(MCHI)", out["zh"])
+        self.assertNotIn("日本(EWJ)", out["zh"])  # calm S2, no pressure flag → not called out
+        self.assertIn("为什么值得看", out["zh"])
+        self.assertIn("supply chain", out["en"])
+
+    def test_state_description_not_forecast_wording(self) -> None:
+        # §D3/writing-craft guard: "常早于" (has often preceded) is a past-tense
+        # fact; "将预示"/"will foreshadow" (a forecast claim) must never appear.
+        tape = [global_proxy("EWY", "韩国", 4, -25.0)]
+        out = ad.build_global_tape_paragraph(tape)
+        self.assertIn("常常早于", out["zh"])
+        self.assertNotIn("将预示", out["zh"])
+        self.assertNotIn("will foreshadow", out["en"])
+
+    def test_wired_into_deepread_body_after_cycle_position(self) -> None:
+        flows6 = minimal_flows6([row("XLK", "科技", "NEUTRAL", "none")])
+        cycle7 = minimal_cycle7([sector("XLK", 2)])
+        tape = [global_proxy("MCHI", "中国", 4, -20.0)]
+        deep = ad.build_deepread_section(flows6, cycle7, tape)
+        body = deep["body"]["zh"]
+        self.assertIn("全球盘面 overlay", body)
+        self.assertLess(body.index("周期定位:"), body.index("全球盘面 overlay"))
+
+    def test_no_global_tape_arg_defaults_to_no_paragraph(self) -> None:
+        # backward compatible: existing callers (and tests) omit the arg.
+        flows6 = minimal_flows6([row("XLK", "科技", "NEUTRAL", "none")])
+        cycle7 = minimal_cycle7([sector("XLK", 2)])
+        deep = ad.build_deepread_section(flows6, cycle7)
+        self.assertNotIn("全球盘面 overlay", deep["body"]["zh"])
+
+
 class TestCycleBadgeTension(unittest.TestCase):
     """task D (2026-07-18 audit fix F4): cycle_badge.tension escalates the
     flows-vs-structure warning that build_cross_paragraph already renders in
