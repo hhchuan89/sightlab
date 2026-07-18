@@ -32,8 +32,12 @@ const PHASE_EN: Record<string, string> = {
 };
 
 const PHASE_ZH: Record<string, string> = {
-  "阶段 4 亢奋（顶/泡沫·警惕）": "第 4 期 亢奋（顶/泡沫·警惕）",
-  "阶段 4 亢奋·回落（警惕）": "第 4 期 亢奋·回落（警惕）",
+  // Phase 1b (2026-07-18 plain-ZH pass): "亢奋" (a word most readers would have
+  // to look up) → "过热"(顶部风险) — same state, plainer word. Keys stay the
+  // harness's raw "阶段 4 亢奋…" strings (data contract untouched); only the
+  // rendered value changed, mirroring assemble_dispatch.py TEMPLETON_PHASE_ZH.
+  "阶段 4 亢奋（顶/泡沫·警惕）": "第 4 期 过热（顶部风险·警惕）",
+  "阶段 4 亢奋·回落（警惕）": "第 4 期 过热·回落（警惕）",
   "阶段 4 早期（健康乐观）": "第 4 期早期（健康乐观）",
   "阶段 3（乐观）": "第 3 期（乐观）",
   "阶段 2/3 过渡": "第 2/3 期过渡",
@@ -58,9 +62,12 @@ export function confidenceWord(confidence: string, locale: Locale): string {
   return locale === "en" ? confidence : (CONFIDENCE_ZH[confidence] ?? confidence);
 }
 
+// Phase 1b: narrow-context short word for the §6 table cell — "流入/流出"
+// instead of the jargon nouns "吸筹/派发" (those still get explained, spelled
+// out, in the foot-of-page glossary and the article's intro paragraph).
 const AD_SIGNAL_ZH: Record<string, string> = {
-  ACCUMULATION: "吸筹",
-  DISTRIBUTION: "派发",
+  ACCUMULATION: "流入",
+  DISTRIBUTION: "流出",
   NEUTRAL: "中性",
 };
 

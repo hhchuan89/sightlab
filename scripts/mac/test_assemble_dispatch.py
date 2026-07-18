@@ -31,15 +31,18 @@ def cross(rows: list[dict], sectors: list[dict]) -> dict:
 
 
 # One §6/§7 pair per cell: (signal, stage, warning, zh key-phrase, en key-phrase).
+# Phase 1b (2026-07-18 plain-ZH rewrite): key-phrases updated to the new plain
+# wording ("高可信度"/"资金流入/流出" instead of "强信号"/"吸筹/派发"); the
+# underlying trigger conditions (signal × stage → cell) are unchanged.
 CELL_CASES = [
-    ("DISTRIBUTION", 2, True, "可读作涨势中的真实撤离", "reads as either a genuine exit"),
-    ("ACCUMULATION", 3, True, "可读作对强势的追高承接", "reads as chasing strength"),
-    ("ACCUMULATION", 2, False, "涨势有量支撑", "the advance has volume behind it"),
-    ("DISTRIBUTION", 3, False, "可读作真实卖出而非获利了结", "reads as real selling rather than profit-taking"),
-    ("DISTRIBUTION", 4, False, "趋势与资金互为确认", "trend and money confirming each other"),
-    ("ACCUMULATION", 1, False, "教科书式的吸筹状态", "the textbook accumulation state"),
-    ("DISTRIBUTION", 1, False, "底部结构存疑", "puts the bottoming structure in doubt"),
-    ("ACCUMULATION", 4, False, "置信度最低的组合", "the lowest-confidence combination"),
+    ("DISTRIBUTION", 2, True, "这可能是真撤离", "This could be a real exit"),
+    ("ACCUMULATION", 3, True, "这更像是追高接盘", "reads more like chasing strength"),
+    ("ACCUMULATION", 2, False, "这轮涨势有资金撑腰", "the advance has real backing"),
+    ("DISTRIBUTION", 3, False, "这更像是真实的卖出", "reads as real selling rather than profit-taking"),
+    ("DISTRIBUTION", 4, False, "趋势和资金方向一致,互相确认", "trend and flows agree"),
+    ("ACCUMULATION", 1, False, "教科书式的筑底吸筹", "the textbook accumulation pattern"),
+    ("DISTRIBUTION", 1, False, "让筑底的判断打上问号", "puts the basing read in doubt"),
+    ("ACCUMULATION", 4, False, "可信度最低的组合", "the lowest-confidence combination"),
 ]
 
 
@@ -113,7 +116,7 @@ class TestCrossCells(unittest.TestCase):
         self.assertIn("XLV(医疗)、XLP(必需消费)", out["zh"])
         self.assertIn("XLV and XLP", out["en"])
         # one cell → exactly one occurrence of the cell's reading
-        self.assertEqual(out["zh"].count("教科书式的吸筹状态"), 1)
+        self.assertEqual(out["zh"].count("教科书式的筑底吸筹"), 1)
 
     def test_en_name_join_is_prose_safe(self) -> None:
         self.assertEqual(ad._cross_names_en(["XLE"]), "XLE")
@@ -161,9 +164,9 @@ class TestCrossCells(unittest.TestCase):
             ],
             [sector("XLE", 2), sector("XLF", 3), sector("XLV", 2), sector("XLU", 4)],
         )
-        self.assertIn("其余强信号交叉本期仅列不展:XLU(公用,吸筹×阶段4)。", out["zh"])
+        self.assertIn("其余高可信度交叉本期仅列不展:XLU(公用,流入×阶段4)。", out["zh"])
         self.assertIn("Further crosses this week, listed but not unpacked: XLU (accumulation × stage 4).", out["en"])
-        self.assertNotIn("置信度最低的组合", out["zh"])  # the full contrarian template did NOT render
+        self.assertNotIn("可信度最低的组合", out["zh"])  # the full contrarian template did NOT render
         self.assertTrue(out["warning"])
 
     def test_data_gap_sector_drop_shouts_to_stderr(self) -> None:
@@ -216,7 +219,7 @@ class TestDeepreadWiring(unittest.TestCase):
         deep = ad.build_deepread_section(flows6, cycle7)
         body = deep["body"]["zh"]
         self.assertIn("资金×结构交叉:", body)
-        self.assertLess(body.index("资金面只看强信号"), body.index("资金×结构交叉:"))
+        self.assertLess(body.index("资金面:"), body.index("资金×结构交叉:"))
         self.assertIn("Flows×Cycle cross:", deep["body"]["en"])
 
     def test_cross_renders_before_p3_transition_paragraph(self) -> None:

@@ -15,8 +15,8 @@ describe("cyclePhaseLabel — Stage 4 euphoria fading (caution)", () => {
     );
   });
 
-  it("maps the raw ZH harness label to the '第 N 期' wording", () => {
-    expect(cyclePhaseLabel("阶段 4 亢奋·回落（警惕）", "zh")).toBe("第 4 期 亢奋·回落（警惕）");
+  it("maps the raw ZH harness label to the '第 N 期' wording (Phase 1b: 亢奋 → 过热)", () => {
+    expect(cyclePhaseLabel("阶段 4 亢奋·回落（警惕）", "zh")).toBe("第 4 期 过热·回落（警惕）");
   });
 
   it("passes through unknown labels unchanged (producer drift degrades, never crashes)", () => {
