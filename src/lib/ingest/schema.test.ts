@@ -230,3 +230,48 @@ describe("§15.9 deepread_section — additive, optional, still privacy-guarded"
     expect(result.error).toMatch(/holding_note/);
   });
 });
+
+describe("sector.drawdown_from_52w_high_pct / pressure_flag — Phase 1 52-week pressure render fix (2026-07-19)", () => {
+  it("ACCEPTS a clean body WITHOUT the two fields (every archived pre-Phase-1 dispatch)", () => {
+    const body = cleanBody();
+    const rawSector = (
+      (body.cycle_section7 as Record<string, unknown>).sectors as Record<string, unknown>[]
+    )[0];
+    expect(rawSector.drawdown_from_52w_high_pct).toBeUndefined();
+    expect(rawSector.pressure_flag).toBeUndefined();
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(true);
+    expect(result.data?.cycle_section7.sectors[0].drawdown_from_52w_high_pct).toBeUndefined();
+    expect(result.data?.cycle_section7.sectors[0].pressure_flag).toBeUndefined();
+  });
+
+  it("ACCEPTS a sector row WITH a real pressure flag + drawdown", () => {
+    const body = cleanBody();
+    const sectors = (body.cycle_section7 as Record<string, unknown>).sectors as Record<
+      string,
+      unknown
+    >[];
+    sectors[0] = {
+      ...sectors[0],
+      drawdown_from_52w_high_pct: -16.8,
+      pressure_flag: "s2_under_pressure",
+    };
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(true);
+    expect(result.data?.cycle_section7.sectors[0].drawdown_from_52w_high_pct).toBe(-16.8);
+    expect(result.data?.cycle_section7.sectors[0].pressure_flag).toBe("s2_under_pressure");
+  });
+
+  it("ACCEPTS a sector row where the producer sends explicit null (ordinary no-pressure day)", () => {
+    const body = cleanBody();
+    const sectors = (body.cycle_section7 as Record<string, unknown>).sectors as Record<
+      string,
+      unknown
+    >[];
+    sectors[0] = { ...sectors[0], drawdown_from_52w_high_pct: null, pressure_flag: null };
+    const result = validateIngestBody(body);
+    expect(result.ok).toBe(true);
+    expect(result.data?.cycle_section7.sectors[0].drawdown_from_52w_high_pct).toBeNull();
+    expect(result.data?.cycle_section7.sectors[0].pressure_flag).toBeNull();
+  });
+});

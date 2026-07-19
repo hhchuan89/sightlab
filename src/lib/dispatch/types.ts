@@ -86,6 +86,14 @@ export interface SectorRow {
   volume_flag: string;
   in_std: boolean;
   /**
+   * Phase 1 (2026-07-18 audit) 52-week drawdown/pressure fields — market
+   * STATE only (no forecast). `null`/absent on rows with no pressure flag or
+   * on pre-Phase-1 archived dispatches.
+   */
+  drawdown_from_52w_high_pct?: number | null;
+  /** e.g. "s2_under_pressure" / "s2_climax_selloff" — null when not flagged. */
+  pressure_flag?: string | null;
+  /**
    * Market-structure judgment prose ONLY (PLAN §15.4 PRIVACY, LOCKED): 资金×趋势
    * commentary such as "tech stage-2 confirmed uptrend; energy distributing".
    * NEVER "what to do with your position" — no holdings / portfolio action.
