@@ -106,6 +106,14 @@ const sectorRow = z.object({
   volume_flag: z.string(),
   in_std: z.boolean(),
   /**
+   * Phase 1 (2026-07-18 audit) 52-week pressure fields — market-structure
+   * STATE only (no forecast). `.optional()` + nullable so both older archived
+   * dispatches (field absent) and today's ordinary no-pressure rows (producer
+   * sends `null`) validate.
+   */
+  drawdown_from_52w_high_pct: z.number().nullable().optional(),
+  pressure_flag: z.string().nullable().optional(),
+  /**
    * MARKET-STRUCTURE judgment ONLY (PLAN §15.4): 资金×趋势 commentary, e.g.
    * "tech stage-2 confirmed uptrend; energy distributing". NEVER "what to do
    * with your position". Bilingual, both required.

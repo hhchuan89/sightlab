@@ -11,7 +11,36 @@ import type { CycleSection7 } from "@/lib/dispatch/types";
  * dispatch object.
  */
 
-function StageBadge({ stage }: { stage: number }) {
+/** pressure_flag → localized chip text (Phase 1 52-week pressure render fix,
+ *  2026-07-19). Only defined for stage-2 flags — the flag never fires on
+ *  other stages. */
+const PRESSURE_CHIP_TEXT: Record<string, { zh: string; en: string }> = {
+  s2_under_pressure: { zh: "S2·承压", en: "S2 · pressured" },
+  s2_climax_selloff: { zh: "S2·急跌", en: "S2 · sell-off" },
+};
+
+function StageBadge({
+  stage,
+  locale,
+  pressureFlag,
+}: {
+  stage: number;
+  locale: Locale;
+  /** Phase 1 52-week pressure flag (e.g. "s2_under_pressure"); null/absent = no warning. */
+  pressureFlag?: string | null;
+}) {
+  const pressureChip = pressureFlag ? PRESSURE_CHIP_TEXT[pressureFlag] : undefined;
+  if (pressureChip) {
+    // Warm-paper warning chip (brand §3), same tokens as CycleBadge's tension
+    // chip (bg-primary-soft + text-danger) — zero new colors. STATE only: the
+    // stage read itself is unchanged, this just flags "trend intact, price
+    // under visible pressure".
+    return (
+      <span className="rounded bg-primary-soft px-1.5 py-0.5 font-mono text-xs font-semibold text-danger">
+        {locale === "zh" ? pressureChip.zh : pressureChip.en}
+      </span>
+    );
+  }
   // Weinstein stages: 2 = advancing (good), 4 = declining (bad), 1/3 = base/top.
   const tone =
     stage === 2
@@ -132,7 +161,11 @@ export function Section7Table({
                   {s.symbol}
                 </th>
                 <td className="py-2.5 pr-4">
-                  <StageBadge stage={s.weinstein_stage} />
+                  <StageBadge
+                    stage={s.weinstein_stage}
+                    locale={locale}
+                    pressureFlag={s.pressure_flag}
+                  />
                 </td>
                 <td className="py-2.5 pr-4 text-right tabular-nums text-text-2">
                   {pct(s.distance_pct)}

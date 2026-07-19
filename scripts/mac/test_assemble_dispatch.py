@@ -400,5 +400,97 @@ class TestCycleBadgeTension(unittest.TestCase):
         self.assertNotIn("tension", out["cycle_badge"].keys())
 
 
+def raw_dispersion_sector(symbol: str, **overrides: object) -> dict:
+    """One `dispersion.json` sectors[symbol] row — the raw harness shape
+    build_cycle_section7 consumes (not the minimal_cycle7 test fixture)."""
+    base = {
+        "symbol": symbol,
+        "sector_zh": symbol,
+        "distance_pct": 5.0,
+        "slope_pct": 1.0,
+        "weinstein_stage": 2,
+        "weinstein_label": "上行",
+        "trend_score": 3,
+        "vol_ratio_5d_20d": 1.0,
+        "volume_flag": "",
+        "in_std": True,
+    }
+    base.update(overrides)
+    return base
+
+
+def minimal_raw_dispersion(sectors: dict) -> dict:
+    return {
+        "sectors": sectors,
+        "dispersion_label": "中",
+        "dispersion_index": 4.0,
+        "stage_spread": "S2–S4",
+        "sector_ranking": list(sectors.keys()),
+    }
+
+
+def minimal_raw_fast() -> dict:
+    return {
+        "snapshot_reference": {
+            "composite_score": 1.0,
+            "templeton_stage": "阶段 3（乐观）",
+            "cycle_stage_num": 3,
+            "confidence": "Medium",
+            "contrarian_overlay": {},
+            "valuation_a": {"score": 0},
+        },
+        "live_layers_raw": {},
+    }
+
+
+class TestSectorPressureFields(unittest.TestCase):
+    """Phase 1 (2026-07-18 audit) 52-week drawdown/pressure fields: the
+    rendering fix (2026-07-19) that transparently pass-throughs
+    drawdown_from_52w_high_pct/pressure_flag and appends the plain-language
+    caveat clause to the §7 judgment sentence."""
+
+    def test_pressure_flag_absent_on_old_data_yields_none_fields_and_no_caveat(self) -> None:
+        # Pre-Phase-1 dispersion.json rows simply don't have the keys.
+        sectors = {"XLK": raw_dispersion_sector("XLK")}
+        out = ad.build_cycle_section7(minimal_raw_dispersion(sectors), minimal_raw_fast())
+        row = out["sectors"][0]
+        self.assertIsNone(row["drawdown_from_52w_high_pct"])
+        self.assertIsNone(row["pressure_flag"])
+        self.assertNotIn("距52周高点", row["judgment"]["zh"])
+        self.assertNotIn("52-week high", row["judgment"]["en"])
+
+    def test_s2_under_pressure_appends_zh_en_caveat_with_the_real_number(self) -> None:
+        sectors = {
+            "SMH": raw_dispersion_sector(
+                "SMH",
+                drawdown_from_52w_high_pct=-16.8,
+                pressure_flag="s2_under_pressure",
+            )
+        }
+        out = ad.build_cycle_section7(minimal_raw_dispersion(sectors), minimal_raw_fast())
+        row = out["sectors"][0]
+        self.assertEqual(row["drawdown_from_52w_high_pct"], -16.8)
+        self.assertEqual(row["pressure_flag"], "s2_under_pressure")
+        self.assertIn("距52周高点已回落16.8%", row["judgment"]["zh"])
+        self.assertIn('"趋势未破、价格已明显受压"', row["judgment"]["zh"])
+        self.assertIn("16.8% off its 52-week high", row["judgment"]["en"])
+        self.assertIn("trend intact, price under visible pressure", row["judgment"]["en"])
+
+    def test_s2_climax_selloff_uses_the_climax_wording(self) -> None:
+        sectors = {
+            "XLE": raw_dispersion_sector(
+                "XLE",
+                drawdown_from_52w_high_pct=-22.4,
+                pressure_flag="s2_climax_selloff",
+            )
+        }
+        out = ad.build_cycle_section7(minimal_raw_dispersion(sectors), minimal_raw_fast())
+        row = out["sectors"][0]
+        self.assertEqual(row["pressure_flag"], "s2_climax_selloff")
+        self.assertIn("距52周高点已回落22.4%,且下跌放量", row["judgment"]["zh"])
+        self.assertIn("22.4% off its 52-week high on rising volume", row["judgment"]["en"])
+        self.assertIn("sell-off is real", row["judgment"]["en"])
+
+
 if __name__ == "__main__":
     sys.exit(unittest.main(verbosity=2))

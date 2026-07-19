@@ -140,6 +140,21 @@ VOLUME_FLAG_EN = {
     "high_vol_selloff": "the decline comes on high volume — a distribution sign",
 }
 
+# 52-week drawdown/pressure flag (Phase 1) → plain-language caveat appended to
+# the §7 judgment sentence. STATE ONLY (no forecast): the Weinstein stage read
+# above is unchanged, this just says the price has already pulled back hard
+# from its 52-week high even though the trend line hasn't broken. `{dd}` is
+# the engine's own `drawdown_from_52w_high_pct` (already negative), formatted
+# with `pct()` — never re-derived here.
+PRESSURE_ZH = {
+    "s2_under_pressure": '但注意:距52周高点已回落{dd}%,属于"趋势未破、价格已明显受压"的状态。',
+    "s2_climax_selloff": "但注意:距52周高点已回落{dd}%,且下跌放量——趋势线还没破,但抛压是真实的。",
+}
+PRESSURE_EN = {
+    "s2_under_pressure": "But note: still above its long-term trend line, but {dd}% off its 52-week high — trend intact, price under visible pressure.",
+    "s2_climax_selloff": "But note: still above its long-term trend line, but {dd}% off its 52-week high on rising volume — trend intact, sell-off is real.",
+}
+
 # ZH templeton_stage → EN label (PLAN §14-C1: the badge label must be bilingual so
 # the EN UI never leaks the raw Chinese stage string). These 7 strings are the
 # exact set compute_composite_score.py emits; an unknown value falls back to the
@@ -532,6 +547,22 @@ def build_cycle_section7(dispersion: dict[str, Any], fast: dict[str, Any]) -> di
                        + (f"; {vol_en}" if vol_en else "")
                        + (" (tracked separately — e.g. a sub-sector — not counted in the dispersion index)"
                           if excluded else "") + ".")
+        # Phase 1 52-week drawdown/pressure flag: state-only caveat, appended
+        # AFTER the sentence-closing period above so it reads as a distinct
+        # clause. `dd` is the magnitude of the engine's own
+        # drawdown_from_52w_high_pct (already negative) — never re-derived.
+        drawdown_pct = s.get("drawdown_from_52w_high_pct")
+        drawdown_pct = float(drawdown_pct) if isinstance(drawdown_pct, (int, float)) else None
+        pressure_flag = s.get("pressure_flag")
+        pressure_flag = str(pressure_flag) if pressure_flag else None
+        if pressure_flag and drawdown_pct is not None:
+            dd = f"{abs(drawdown_pct):.1f}"
+            zh_tmpl = PRESSURE_ZH.get(pressure_flag)
+            en_tmpl = PRESSURE_EN.get(pressure_flag)
+            if zh_tmpl:
+                judgment_zh += zh_tmpl.format(dd=dd)
+            if en_tmpl:
+                judgment_en += " " + en_tmpl.format(dd=dd)
         sectors.append(
             {
                 "symbol": symbol,
@@ -542,6 +573,10 @@ def build_cycle_section7(dispersion: dict[str, Any], fast: dict[str, Any]) -> di
                 "vol_ratio_5d_20d": float(s.get("vol_ratio_5d_20d", 0) or 0),
                 "volume_flag": str(s.get("volume_flag", "")),
                 "in_std": bool(s.get("in_std", False)),
+                # Phase 1 (2026-07-18 audit) 52-week pressure fields — transparent
+                # pass-through via .get(), None/absent on pre-Phase-1 snapshots.
+                "drawdown_from_52w_high_pct": drawdown_pct,
+                "pressure_flag": pressure_flag,
                 # MARKET-STRUCTURE judgment ONLY (PLAN §15.4): describes the sector's
                 # stage/trend — NEVER a position action.
                 "judgment": {"zh": judgment_zh, "en": judgment_en},
